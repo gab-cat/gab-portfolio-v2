@@ -452,26 +452,77 @@
       /* Smooth parallax transitions */
       .parallax-slow { transition: transform 0.1s linear; }
       .parallax-medium { transition: transform 0.05s linear; }
+
+      /* ========================================= */
+      /* NEW BACKGROUND AESTHETICS */
+      /* ========================================= */
+
+      /* 1. Technical Dot Grid */
+      .bg-dots {
+        background-color: #FAFAFA;
+        background-image: radial-gradient(#d4d4d4 1.5px, transparent 1.5px);
+        background-size: 24px 24px;
+      }
+
+      /* 2. Noise Texture Overlay */
+      .bg-noise {
+        position: relative;
+        z-index: 1;
+      }
+      .bg-noise::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.4'/%3E%3C/svg%3E");
+        opacity: 0.15;
+        pointer-events: none;
+        mix-blend-mode: multiply;
+      }
+
+      /* 3. Vertical Tech Lines */
+      .bg-tech-lines {
+        background-color: #FAFAFA;
+        background-image: 
+          linear-gradient(90deg, transparent 49%, rgba(0, 0, 0, 0.03) 50%, transparent 51%);
+        background-size: 100px 100%; /* Vertical lines every 100px */
+      }
+
+      /* 4. Cross Pattern (Subtle) */
+      .bg-crosses {
+          background-color: #FAFAFA;
+          opacity: 1;
+          background-image:  radial-gradient(#ff4400 0.5px, transparent 0.5px), radial-gradient(#ff4400 0.5px, #FAFAFA 0.5px);
+          background-size: 20px 20px;
+          background-position: 0 0, 10px 10px;
+      }
+      /* Actually let's do a proper cross CSS pattern */
+      .bg-cross-pattern {
+        background:
+          radial-gradient(circle, transparent 20%, #FAFAFA 20%, #FAFAFA 80%, transparent 80%, transparent),
+          radial-gradient(circle, transparent 20%, #FAFAFA 20%, #FAFAFA 80%, transparent 80%, transparent) 25px 25px,
+          linear-gradient(#e5e5e5 1px, transparent 1px) 0 -0.5px,
+          linear-gradient(90deg, #e5e5e5 1px, transparent 1px) -0.5px 0;
+        background-size: 50px 50px, 50px 50px, 25px 25px, 25px 25px;
+        /* That might be too complex, let's stick to a simpler cross */
+        background-color: #FAFAFA;
+        background-image: 
+            linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+        background-size: 40px 40px;
+        /* Wait this is just grid-bg, let's make it dashes */
+      }
+
+      .bg-blueprint {
+        background-color: #f4f4f5;
+        background-image: linear-gradient(rgba(255, 68, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 68, 0, 0.03) 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
     </style>
   </head>
   <body class="antialiased selection:bg-primary selection:text-white">
-    <!-- Loader -->
-    <div
-      id="loader"
-      class="fixed inset-0 z-[100] bg-background flex items-center justify-center transition-opacity duration-700"
-    >
-      <div class="flex flex-col items-center gap-4">
-        <div class="font-mono text-xs text-primary animate-pulse">
-          INITIALIZING_KERNEL...
-        </div>
-        <div class="w-32 h-[1px] bg-border relative overflow-hidden">
-          <div
-            class="absolute inset-0 bg-primary animate-[marquee_1s_linear_infinite]"
-            style="width: 50%"
-          ></div>
-        </div>
-      </div>
-    </div>
+
 
     <!-- Navigation -->
     <nav
@@ -648,11 +699,12 @@
             </h1>
 
             <p
-              class="font-mono text-sm md:text-base text-text-muted max-w-lg leading-relaxed mb-12"
+              class="font-mono text-xs md:text-sm text-text-muted max-w-md leading-relaxed mb-12"
             >
-              Bridging backend logic with frontend fluidity.<br />
-              Executing secure, scalable deployment strategies.<br />
-              Target: <span class="text-primary">Zero downtime.</span>
+              Architecting high-performance systems where industrial-grade DevSecOps 
+              meets fluid full-stack engineering. Building the resilient foundations 
+              modern web applications demand.<br />
+              <span class="text-primary font-bold italic">Stable. Secure. Zero downtime.</span>
             </p>
 
             <div
@@ -660,7 +712,7 @@
             >
               <a
                 href="#philosophy"
-                class="group flex items-center gap-2 px-8 py-4 bg-primary text-white font-medium hover:bg-text hover:text-white transition-all duration-300 rounded-sm"
+                class="group flex font-mono items-center gap-2 px-8 py-4 bg-primary text-white font-medium hover:bg-text hover:text-white transition-all duration-300 rounded-sm"
               >
                 <span>Initialize Sequence</span>
                 <svg
@@ -697,7 +749,7 @@
       <!-- Philosophy Section -->
       <section
         id="philosophy"
-        class="py-24 md:py-32 relative border-t border-border bg-neutral"
+        class="py-24 md:py-32 relative border-t border-border bg-blueprint"
       >
         <div
           class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary to-transparent opacity-20"
@@ -1030,7 +1082,7 @@
                     class="flex items-center gap-8 opacity-50 group-hover:opacity-100 transition-opacity duration-500"
                   >
                     <span class="font-mono text-xs text-text"
-                      >Next.js + Supabase</span
+                      >Next.js + Convex</span
                     >
                     <span
                       class="iconify text-text"
@@ -1363,8 +1415,11 @@
 
       <section
         id="profile-start"
-        class="py-32 bg-background relative overflow-hidden"
+        class="py-32 bg-dots relative overflow-hidden"
       >
+        <!-- Creative Background Element -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] pointer-events-none z-0"></div>
+        
         <div class="max-w-7xl mx-auto px-6 relative z-10 w-full">
           <!-- Top Label -->
           <div class="mb-4">
@@ -1402,7 +1457,7 @@
                 Current Role
               </h4>
               <div
-                class="flex flex-col gap-1 text-base md:text-lg text-text leading-snug"
+                class="flex flex-col gap-1 font-mono text-base md:text-lg text-text leading-snug"
               >
                 <span>Senior Developer @ ThePILLARS</span>
                 <span>DevOps Engineer @ Detken</span>
@@ -1416,7 +1471,7 @@
               >
                 Location
               </h4>
-              <div class="text-base md:text-lg text-text leading-snug">
+              <div class="text-base font-mono md:text-lg text-text leading-snug">
                 <span>Philippines (GMT+8)</span>
               </div>
             </div>
@@ -1428,7 +1483,7 @@
               >
                 Focus
               </h4>
-              <div class="text-base md:text-lg text-text leading-snug">
+              <div class="text-base font-mono md:text-lg text-text leading-snug">
                 <span>DevSecOps / Full Stack / Cloud</span>
               </div>
             </div>
@@ -1441,7 +1496,7 @@
       <!-- ============================================ -->
       <section
         id="about"
-        class="py-32 bg-surface text-text relative overflow-hidden"
+        class="py-32 bg-surface bg-noise text-text relative overflow-hidden"
       >
         <div class="max-w-7xl mx-auto px-6">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
@@ -1496,7 +1551,7 @@
       </section>
 
       <!-- Experience Timeline -->
-      <section id="experience" class="py-24 relative bg-background border-t border-border">
+      <section id="experience" class="py-24 relative bg-tech-lines border-t border-border">
         <div class="max-w-7xl mx-auto px-6">
            <div class="mb-16">
             <span
@@ -2207,11 +2262,6 @@
           <div class="font-mono text-[10px] text-text-muted uppercase">
             © 2025 Gabriel Angelo Catimbang. All rights reserved.
           </div>
-          <div
-            class="font-mono text-[10px] text-text-muted uppercase mt-4 md:mt-0"
-          >
-            Design by <span class="text-primary">Antigravity</span>
-          </div>
         </div>
       </div>
     </footer>
@@ -2219,14 +2269,7 @@
     <script>
       // --- Preloader ---
       window.addEventListener("load", () => {
-        const loader = document.getElementById("loader");
-        setTimeout(() => {
-          loader.style.opacity = "0";
-          setTimeout(() => {
-            loader.style.display = "none";
-            initAnimations();
-          }, 700);
-        }, 1200);
+        initAnimations();
       });
 
       // --- Three.js Background (Subtle Grid Distortion) ---
@@ -2531,18 +2574,9 @@
         const heroTL = gsap.timeline({ 
           defaults: { ease: "power4.out" },
           delay: 0.8 
-        });
-
-        // Hide loader with scale effect
-        heroTL.to("#loader", {
-          opacity: 0,
-          scale: 1.1,
-          duration: 0.6,
-          pointerEvents: "none",
-          onComplete: () => {
-            document.getElementById("loader").style.display = "none";
-          }
         })
+
+
         // Nav drops in with elastic
         .fromTo("nav", {
           y: -100,
