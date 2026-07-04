@@ -168,7 +168,7 @@ function scrollLater(id: string) {
   window.setTimeout(() => scrollToId(id), 700);
 }
 
-export function Terminal() {
+export function Terminal({ glass = false }: { glass?: boolean }) {
   const shellRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -234,7 +234,11 @@ export function Terminal() {
   return (
     <div
       ref={shellRef}
-      className="w-full overflow-hidden rounded-xl border border-line bg-term shadow-[0_24px_80px_-24px_var(--glow),0_8px_30px_rgba(0,0,0,0.35)]"
+      className={
+        glass
+          ? "w-full overflow-hidden rounded-2xl border border-white/10 bg-term/80 text-left shadow-[0_50px_120px_-40px_var(--glow),0_24px_60px_rgba(0,0,0,0.42)] backdrop-blur-xl backdrop-saturate-150"
+          : "w-full overflow-hidden rounded-xl border border-line bg-term text-left shadow-[0_24px_80px_-24px_var(--glow),0_8px_30px_rgba(0,0,0,0.35)]"
+      }
       onClick={() => inputRef.current?.focus()}
     >
       {/* window chrome */}
@@ -250,7 +254,7 @@ export function Terminal() {
       <div
         ref={bodyRef}
         data-lenis-prevent
-        className="h-[340px] cursor-text overflow-y-auto px-4 py-4 font-mono text-[13px] leading-relaxed"
+        className={`${glass ? "h-72" : "h-[340px]"} cursor-text overflow-y-auto px-4 py-4 font-mono text-[13px] leading-relaxed`}
       >
         {history.map((line, i) =>
           line.kind === "cmd" ? (

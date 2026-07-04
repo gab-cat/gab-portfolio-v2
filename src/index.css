@@ -144,25 +144,41 @@ html.theme-fade * {
   background-size: 168px 168px;
 }
 
-/* Fade pattern layers away where the headline sits so text stays crisp */
+/* Fade pattern layers away at center stage so the name and glass stay crisp */
 .geo-fade {
   -webkit-mask-image: radial-gradient(
-    120% 95% at 20% 38%,
-    transparent 18%,
-    rgb(0 0 0 / 0.5) 55%,
-    black 82%
+    85% 70% at 50% 42%,
+    transparent 22%,
+    rgb(0 0 0 / 0.5) 58%,
+    black 84%
   );
   mask-image: radial-gradient(
-    120% 95% at 20% 38%,
-    transparent 18%,
-    rgb(0 0 0 / 0.5) 55%,
-    black 82%
+    85% 70% at 50% 42%,
+    transparent 22%,
+    rgb(0 0 0 / 0.5) 58%,
+    black 84%
   );
+}
+
+/* The plus marks wander diagonally, one tile per minute */
+@keyframes plus-drift {
+  to {
+    background-position: 168px 168px;
+  }
+}
+.plus-drift {
+  animation: plus-drift 60s linear infinite;
 }
 
 @keyframes spin-slow {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-rev {
+  to {
+    transform: rotate(-360deg);
   }
 }
 
@@ -209,17 +225,10 @@ html.theme-fade * {
   color: transparent;
 }
 
-/* Hollow masthead letters that flood with orange on hover */
+/* Hollow masthead letters for the backdrop name */
 .masthead-hollow {
-  -webkit-text-stroke: 2.5px var(--ink);
+  -webkit-text-stroke: 2px var(--ink);
   color: transparent;
-  transition:
-    color 0.4s ease,
-    -webkit-text-stroke-color 0.4s ease;
-}
-h1:hover .masthead-hollow {
-  -webkit-text-stroke-color: var(--flame);
-  color: var(--flame);
 }
 
 @media (prefers-reduced-motion: reduce) {
