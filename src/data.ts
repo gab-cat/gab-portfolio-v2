@@ -15,9 +15,9 @@ export const SOCIALS = [
 ] as const;
 
 export const CURRENTLY = [
-  "keeping servers alive at ThePILLARS",
-  "shipping infrastructure at Detken",
-  "finishing CompSci at Ateneo de Naga",
+  "keeping ThePILLARS alive",
+  "shipping infra at Detken",
+  "finishing CS at Ateneo",
   "leading tech at CS Guild",
   "eyeing the next hackathon",
 ] as const;

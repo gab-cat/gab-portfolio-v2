@@ -6,27 +6,6 @@ import { Magnetic } from "./Magnetic";
 import { EASE } from "./Reveal";
 import { Terminal } from "./Terminal";
 
-function HeadlineLine({
-  children,
-  delay,
-}: {
-  children: React.ReactNode;
-  delay: number;
-}) {
-  return (
-    <span className="block overflow-hidden pb-[0.08em]">
-      <motion.span
-        className="block tracking-tighter"
-        initial={{ y: "112%" }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.9, delay, ease: EASE }}
-      >
-        {children}
-      </motion.span>
-    </span>
-  );
-}
-
 function Currently() {
   const [i, setI] = useState(0);
   useEffect(() => {
@@ -64,24 +43,50 @@ function ManilaClock() {
           timeZone: "Asia/Manila",
           hour: "2-digit",
           minute: "2-digit",
-          second: "2-digit",
         }),
       );
     tick();
-    const id = setInterval(tick, 1000);
+    const id = setInterval(tick, 30_000);
     return () => clearInterval(id);
   }, []);
   return <span className="tabular-nums">{time}</span>;
 }
 
+/** One masthead line, letters rising out of an overflow-hidden slot. */
+function MastheadLine({
+  word,
+  delay,
+  className = "",
+}: {
+  word: string;
+  delay: number;
+  className?: string;
+}) {
+  return (
+    <span className="block overflow-hidden pb-[0.06em]" aria-hidden>
+      {word.split("").map((letter, i) => (
+        <motion.span
+          key={i}
+          className={`inline-block ${className}`}
+          initial={{ y: "108%" }}
+          animate={{ y: 0 }}
+          transition={{ duration: 0.7, delay: delay + i * 0.035, ease: EASE }}
+        >
+          {letter}
+        </motion.span>
+      ))}
+    </span>
+  );
+}
+
 export function Hero() {
   return (
     <section className="relative overflow-hidden">
-      {/* geometric backdrop: diamond lattice + plus marks, faded near the headline */}
+      {/* geometric backdrop: diamond lattice + plus marks */}
       <div aria-hidden className="bg-geo geo-fade pointer-events-none absolute inset-0" />
       <div aria-hidden className="bg-plus geo-fade pointer-events-none absolute inset-0" />
 
-      {/* warm glow behind the headline */}
+      {/* warm glows */}
       <div
         aria-hidden
         className="pointer-events-none absolute -top-40 -left-40 h-168 w-2xl rounded-full blur-3xl"
@@ -93,89 +98,89 @@ export function Hero() {
         style={{ background: "var(--glow)" }}
       />
 
-      {/* slow-spinning dashed ring + static ring behind the terminal */}
+      {/* slow-spinning dashed ring behind the terminal side */}
       <div
         aria-hidden
-        className="pointer-events-none absolute top-[44%] -right-56 hidden h-[46rem] w-[46rem] -translate-y-1/2 rounded-full border border-dashed border-flame/20 [animation:spin-slow_90s_linear_infinite] lg:block"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute top-[44%] -right-40 hidden h-[38rem] w-[38rem] -translate-y-1/2 rounded-full border border-line lg:block"
+        className="pointer-events-none absolute top-[62%] -right-56 hidden h-176 w-176 -translate-y-1/2 rounded-full border border-dashed border-flame/20 animate-[spin-slow_90s_linear_infinite] lg:block"
       />
 
-      {/* floating diamond accents */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute top-[18%] right-[8%] hidden h-3 w-3 bg-flame [animation:float-bob_7s_ease-in-out_infinite] md:block"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute bottom-[24%] left-[4%] hidden h-2.5 w-2.5 rotate-45 border border-flame/60 md:block"
-      />
+      <div className="relative mx-auto flex min-h-svh max-w-6xl flex-col px-5 pt-24 pb-10 sm:px-8">
+        {/* dateline — like the top rule of a broadsheet */}
+        <motion.div
+          className="flex items-center justify-between gap-4 border-y border-line py-3 font-mono text-xs text-fog"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+        >
+          <span className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-flame opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-flame" />
+            </span>
+            open to opportunities
+          </span>
+          <span className="hidden md:inline">
+            Naga City, PH — <ManilaClock /> UTC+8
+          </span>
+          <span className="hidden sm:inline">
+            portfolio — vol. 02
+          </span>
+        </motion.div>
 
-      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-5 pt-28 pb-16 sm:px-8 lg:pt-24">
-        <div className="grid items-center gap-14 lg:grid-cols-[1.12fr_0.88fr] lg:gap-12">
-          {/* Left: the pitch */}
-          <div>
+        {/* masthead */}
+        <h1 className="mt-8 font-display leading-[0.88] font-bold tracking-[-0.03em] uppercase select-none md:mt-10">
+          <span className="sr-only">Gabriel Catimbang</span>
+          <span className="block text-[clamp(3rem,11.6vw,10.8rem)]">
+            <MastheadLine word="Gabriel" delay={0.2} />
+          </span>
+          <span className="block text-[clamp(3rem,11.6vw,10.8rem)]">
+            <MastheadLine
+              word="Catimbang"
+              delay={0.5}
+              className="masthead-hollow"
+            />
+          </span>
+        </h1>
+
+        {/* pitch + terminal, collage row — terminal rides up over the masthead */}
+        <div className="mt-10 grid flex-1 items-start gap-12 lg:mt-4 lg:grid-cols-[1fr_minmax(0,530px)] lg:gap-16">
+          <div className="max-w-xl lg:pt-16">
             <motion.p
-              className="mb-6 flex items-center gap-2.5 font-mono text-sm text-fog"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
+              className="font-serif text-2xl leading-snug text-ink italic md:text-[1.7rem]"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 1.0, ease: EASE }}
             >
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-flame opacity-60" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-flame" />
-              </span>
-              Hi, I'm Gabriel Catimbang — Gab for short.
+              I build <span className="text-flame">things</span> for the
+              internet — and I keep them{" "}
+              <span className="text-flame">alive</span>.
             </motion.p>
 
-            <h1 className="font-display text-[clamp(2.5rem,5.3vw,4.4rem)] leading-[1.04] font-bold tracking-tight">
-              <HeadlineLine delay={0.15}>
-                I build{" "}
-                <em className="font-serif font-normal text-flame">things</em>
-              </HeadlineLine>
-              <HeadlineLine delay={0.27}>for the internet —</HeadlineLine>
-              <HeadlineLine delay={0.39}>
-                & keep them{" "}
-                <span className="relative inline-block">
-                  alive.
-                  <motion.span
-                    aria-hidden
-                    className="absolute right-0 -bottom-1 left-0 h-[0.09em] origin-left bg-flame"
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ duration: 0.7, delay: 1.15, ease: EASE }}
-                  />
-                </span>
-              </HeadlineLine>
-            </h1>
-
             <motion.p
-              className="mt-7 max-w-xl text-base leading-relaxed text-fog md:text-lg"
-              initial={{ opacity: 0, y: 16 }}
+              className="mt-5 leading-relaxed text-fog md:text-lg"
+              initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.65, ease: EASE }}
+              transition={{ duration: 0.7, delay: 1.15, ease: EASE }}
             >
-              Developer & DevOps engineer from Naga City, Philippines. By day I
-              ship products people actually use; by night I collect hackathon
+              Developer & DevOps engineer from the Philippines. By day I ship
+              products people actually use; by night I collect hackathon
               trophies — seven so far.
             </motion.p>
 
             <motion.div
-              className="mt-7 max-w-lg"
+              className="mt-6 max-w-lg"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.7, delay: 0.85 }}
+              transition={{ duration: 0.7, delay: 1.3 }}
             >
               <Currently />
             </motion.div>
 
             <motion.div
-              className="mt-10 flex flex-wrap items-center gap-4"
-              initial={{ opacity: 0, y: 16 }}
+              className="mt-9 flex flex-wrap items-center gap-4"
+              initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.95, ease: EASE }}
+              transition={{ duration: 0.7, delay: 1.4, ease: EASE }}
             >
               <Magnetic>
                 <button
@@ -196,31 +201,29 @@ export function Hero() {
             </motion.div>
           </div>
 
-          {/* Right: the toy */}
+          {/* the terminal, riding up over the masthead's baseline */}
           <motion.div
-            initial={{ opacity: 0, y: 32 }}
+            className="relative lg:-mt-24"
+            initial={{ opacity: 0, y: 36 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.55, ease: EASE }}
+            transition={{ duration: 0.9, delay: 0.85, ease: EASE }}
           >
             <Terminal />
           </motion.div>
         </div>
 
-        {/* status strip */}
+        {/* bottom rule with scroll cue */}
         <motion.div
-          className="mt-16 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-line pt-6 font-mono text-xs text-fog"
+          className="mt-12 flex items-center justify-between border-t border-line pt-5 font-mono text-xs text-fog"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.25 }}
+          transition={{ duration: 0.8, delay: 1.7 }}
         >
-          <span>Naga City, PH</span>
           <span>
-            local time <ManilaClock /> UTC+8
+            gabcat<span className="text-flame">.dev</span> — orange & black,
+            always
           </span>
-          <span className="rounded-full border border-flame/40 px-3 py-1 text-flame">
-            open to opportunities
-          </span>
-          <span className="ml-auto hidden items-center gap-2 sm:flex">
+          <span className="flex items-center gap-2">
             scroll
             <motion.span
               aria-hidden

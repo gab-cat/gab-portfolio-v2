@@ -17,14 +17,21 @@
     <meta name="theme-color" content="#0a0908" media="(prefers-color-scheme: dark)" />
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content="profile" />
     <meta property="og:url" content="https://gabcat.dev/" />
+    <meta property="og:site_name" content="gabcat.dev" />
+    <meta property="og:locale" content="en_PH" />
     <meta property="og:title" content="Gabriel Catimbang — I build things for the internet" />
     <meta
       property="og:description"
       content="Developer & DevOps engineer from Naga City, PH. Websites people actually use, infrastructure that stays up, and a growing trophy shelf."
     />
     <meta property="og:image" content="https://gabcat.dev/image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="gabcat.dev — Gabriel Catimbang's portfolio" />
+    <meta property="profile:first_name" content="Gabriel" />
+    <meta property="profile:last_name" content="Catimbang" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -38,17 +45,73 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "Person",
-        "name": "Gabriel Angelo Catimbang",
-        "alternateName": "Gab Catimbang",
-        "url": "https://gabcat.dev",
-        "email": "mailto:catimbanggabriel@gmail.com",
-        "jobTitle": "Developer & DevOps Engineer",
-        "address": { "@type": "PostalAddress", "addressCountry": "PH" },
-        "alumniOf": "Ateneo de Naga University",
-        "sameAs": [
-          "https://github.com/gab-cat",
-          "https://linkedin.com/in/gabrielcatimbang"
+        "@graph": [
+          {
+            "@type": "Person",
+            "@id": "https://gabcat.dev/#gab",
+            "name": "Gabriel Angelo Catimbang",
+            "alternateName": "Gab Catimbang",
+            "url": "https://gabcat.dev/",
+            "image": "https://gabcat.dev/image.png",
+            "email": "mailto:catimbanggabriel@gmail.com",
+            "jobTitle": ["DevOps Engineer", "Full-Stack Developer"],
+            "worksFor": [
+              { "@type": "Organization", "name": "Detken Development" },
+              { "@type": "Organization", "name": "ThePILLARS Publication" }
+            ],
+            "alumniOf": {
+              "@type": "CollegeOrUniversity",
+              "name": "Ateneo de Naga University"
+            },
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Naga City",
+              "addressCountry": "PH"
+            },
+            "knowsAbout": [
+              "DevOps",
+              "Full-Stack Web Development",
+              "Cloud Infrastructure",
+              "CI/CD",
+              "Cybersecurity",
+              "React",
+              "Next.js",
+              "Docker",
+              "AWS"
+            ],
+            "award": [
+              "Champion — AI.DEAS for Impact 2025",
+              "2nd Place — SparkLabs Hackathon 2025",
+              "3rd Place — Inventi Asia Hackathon 2025",
+              "Top 5 — Concati API Build Labs 2025",
+              "Champion — 3rd Annual Regional Hack4Gov CTF 2024",
+              "2nd Highest Overall Scorer — Hack4Gov National Finals 2024",
+              "4× Bell All-Star — Quantrics 2024"
+            ],
+            "sameAs": [
+              "https://github.com/gab-cat",
+              "https://linkedin.com/in/gabrielcatimbang",
+              "https://www.facebook.com/profile.php?id=61581609587748"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://gabcat.dev/#site",
+            "url": "https://gabcat.dev/",
+            "name": "gabcat.dev",
+            "description": "Portfolio of Gabriel Catimbang — developer & DevOps engineer.",
+            "publisher": { "@id": "https://gabcat.dev/#gab" },
+            "inLanguage": "en"
+          },
+          {
+            "@type": "ProfilePage",
+            "@id": "https://gabcat.dev/#page",
+            "url": "https://gabcat.dev/",
+            "name": "Gabriel Catimbang — I build things for the internet",
+            "isPartOf": { "@id": "https://gabcat.dev/#site" },
+            "about": { "@id": "https://gabcat.dev/#gab" },
+            "mainEntity": { "@id": "https://gabcat.dev/#gab" }
+          }
         ]
       }
     </script>
@@ -72,6 +135,16 @@
     </script>
   </head>
   <body>
+    <!-- Prerendered content ships with initial animation styles (opacity: 0);
+         without JS those animations never run, so force everything visible. -->
+    <noscript>
+      <style>
+        [style] {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+      </style>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

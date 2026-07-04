@@ -1,5 +1,5 @@
 import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, hydrateRoot } from "react-dom/client";
 import "@fontsource-variable/space-grotesk";
 import "@fontsource-variable/instrument-sans";
 import "@fontsource-variable/instrument-sans/wght-italic.css";
@@ -9,8 +9,17 @@ import "@fontsource/instrument-serif/400-italic.css";
 import "./index.css";
 import App from "./App.tsx";
 
-createRoot(document.getElementById("root")!).render(
+const container = document.getElementById("root")!;
+const app = (
   <StrictMode>
     <App />
-  </StrictMode>,
+  </StrictMode>
 );
+
+// Production HTML is prerendered at build time — hydrate it. Dev serves an
+// empty root — render from scratch.
+if (container.firstChild) {
+  hydrateRoot(container, app);
+} else {
+  createRoot(container).render(app);
+}

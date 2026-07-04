@@ -67,9 +67,12 @@ export function toggleTheme(origin?: { x: number; y: number }): Theme {
 }
 
 export function useTheme(): Theme {
-  const [theme, set] = useState<Theme>(currentTheme);
+  // Starts as "light" so server render is deterministic; the effect syncs the
+  // real theme immediately after hydration.
+  const [theme, set] = useState<Theme>("light");
   useEffect(() => {
     const onChange = () => set(currentTheme());
+    onChange();
     window.addEventListener(THEME_EVENT, onChange);
     return () => window.removeEventListener(THEME_EVENT, onChange);
   }, []);

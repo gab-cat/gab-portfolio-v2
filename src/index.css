@@ -166,15 +166,6 @@ html.theme-fade * {
   }
 }
 
-@keyframes float-bob {
-  0%,
-  100% {
-    transform: translateY(0) rotate(45deg);
-  }
-  50% {
-    transform: translateY(-14px) rotate(45deg);
-  }
-}
 
 /* Marquee — duplicated track, translate half, loop forever */
 @keyframes marquee-scroll {
@@ -216,6 +207,19 @@ html.theme-fade * {
 .text-outline-flame {
   -webkit-text-stroke: 1.5px var(--flame);
   color: transparent;
+}
+
+/* Hollow masthead letters that flood with orange on hover */
+.masthead-hollow {
+  -webkit-text-stroke: 2.5px var(--ink);
+  color: transparent;
+  transition:
+    color 0.4s ease,
+    -webkit-text-stroke-color 0.4s ease;
+}
+h1:hover .masthead-hollow {
+  -webkit-text-stroke-color: var(--flame);
+  color: var(--flame);
 }
 
 @media (prefers-reduced-motion: reduce) {
