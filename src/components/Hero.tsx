@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { scrollToId } from "../lib/lenis";
 import { Magnetic } from "./Magnetic";
 import { EASE } from "./Reveal";
+import { SphereField } from "./SphereField";
 import { Terminal } from "./Terminal";
 
 function ManilaClock() {
@@ -37,6 +38,15 @@ export function Hero() {
         style={{ background: "var(--glow)" }}
       />
 
+      {/* the icosphere from the original site — a horizon dome rising below
+          the name, never overlapping it */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-[-42%] h-[85%]"
+      >
+        <SphereField className="h-full w-full" focalScale={0.8} />
+      </div>
+
       {/* counter-rotating dashed rings behind the stage */}
       <div
         aria-hidden
@@ -49,7 +59,7 @@ export function Hero() {
 
       {/* the name, filling the stage behind the glass */}
       <motion.h1
-        className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center font-display leading-[0.84] font-bold tracking-[-0.04em] uppercase select-none"
+        className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pb-[26svh] font-display leading-[0.84] font-bold tracking-[-0.04em] uppercase select-none"
         initial={{ opacity: 0, scale: 1.05 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.6, ease: EASE }}

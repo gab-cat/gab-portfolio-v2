@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 export type Theme = "light" | "dark";
 
-const THEME_EVENT = "gab:themechange";
+export const THEME_EVENT = "gab:themechange";
 
 export function currentTheme(): Theme {
   return document.documentElement.classList.contains("dark") ? "dark" : "light";
