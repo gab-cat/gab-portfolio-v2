@@ -254,7 +254,7 @@ export function Terminal({ glass = false }: { glass?: boolean }) {
       <div
         ref={bodyRef}
         data-lenis-prevent
-        className={`${glass ? "h-72" : "h-[340px]"} cursor-text overflow-y-auto px-4 py-4 font-mono text-[13px] leading-relaxed`}
+        className={`${glass ? "h-60" : "h-[340px]"} cursor-text overflow-y-auto px-4 py-4 font-mono text-[13px] leading-relaxed`}
       >
         {history.map((line, i) =>
           line.kind === "cmd" ? (

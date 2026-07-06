@@ -183,6 +183,50 @@ html.theme-fade * {
 }
 
 
+/* --- Section signatures ----------------------------------------------- */
+
+/* Champion badges: a slow shine sweeping across every few seconds */
+.badge-shine {
+  position: relative;
+  overflow: hidden;
+}
+.badge-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 60%
+  );
+  transform: translateX(-130%);
+  animation: shine-sweep 3.4s ease-in-out infinite;
+}
+@keyframes shine-sweep {
+  0%,
+  55% {
+    transform: translateX(-130%);
+  }
+  100% {
+    transform: translateX(130%);
+  }
+}
+
+/* Toolbox orbit: hovering the system freezes every rotor at once */
+.orbit-stage:hover .orbit-spin {
+  animation-play-state: paused;
+}
+
+/* Say-hello curtain call: a stage light that follows the cursor */
+.spotlight {
+  background: radial-gradient(
+    30rem circle at var(--spot-x, 50%) var(--spot-y, 20rem),
+    rgba(255, 92, 26, 0.13),
+    transparent 70%
+  );
+}
+
 /* Marquee — duplicated track, translate half, loop forever */
 @keyframes marquee-scroll {
   from {
@@ -198,6 +242,9 @@ html.theme-fade * {
 }
 .marquee-track:hover {
   animation-play-state: paused;
+}
+.marquee-rev {
+  animation-direction: reverse;
 }
 
 /* Terminal caret */

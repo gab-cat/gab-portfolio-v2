@@ -26,7 +26,12 @@ function ManilaClock() {
 
 export function Hero() {
   return (
-    <section className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-5 pt-24 pb-20 text-center sm:px-8">
+    <section
+      className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-5 pt-24 pb-20 text-center sm:px-8"
+      /* bottom edge slants at the same 1.2° as the marquee tape, so the hero
+         backdrop ends exactly on the banner instead of leaking past it */
+      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 2.1vw), 0 100%)" }}
+    >
       {/* moving geometry: diamond lattice + drifting plus marks, faded at center */}
       <div aria-hidden className="bg-geo geo-fade pointer-events-none absolute inset-0" />
       <div aria-hidden className="bg-plus geo-fade plus-drift pointer-events-none absolute inset-0" />
@@ -57,9 +62,9 @@ export function Hero() {
         className="pointer-events-none absolute top-[44%] left-1/2 hidden h-[33rem] w-[33rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-flame/10 animate-[spin-rev_70s_linear_infinite] md:block"
       />
 
-      {/* the name, filling the stage behind the glass */}
+      {/* the name — split around the glass so both words stay readable */}
       <motion.h1
-        className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center pb-[26svh] font-display leading-[0.84] font-bold tracking-[-0.04em] uppercase select-none"
+        className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-10 pb-[10svh] font-display leading-[0.84] font-bold tracking-[-0.04em] uppercase select-none md:gap-[17svh]"
         initial={{ opacity: 0, scale: 1.05 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.6, ease: EASE }}
@@ -78,7 +83,7 @@ export function Hero() {
 
       {/* frosted-glass terminal, center stage */}
       <motion.div
-        className="relative z-10 w-[min(37rem,94vw)]"
+        className="relative z-10 mt-[5svh] w-[min(33rem,94vw)]"
         initial={{ opacity: 0, y: 34 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.35, ease: EASE }}
@@ -128,7 +133,7 @@ export function Hero() {
 
       {/* scroll cue */}
       <motion.div
-        className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-2 font-mono text-xs text-fog"
+        className="absolute bottom-16 left-1/2 flex -translate-x-1/2 items-center gap-2 font-mono text-xs text-fog"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 1.3 }}

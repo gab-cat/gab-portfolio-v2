@@ -1,7 +1,12 @@
 import { useEffect } from "react";
-import { MARQUEE_ITEMS } from "./data";
+import { HELLO_MARQUEE, MARQUEE_ITEMS, WINS_TICKER } from "./data";
 import { initLenis } from "./lib/lenis";
 import { Cursor } from "./components/Cursor";
+import {
+  OrbitDivider,
+  RouteDivider,
+  ShippedDivider,
+} from "./components/Dividers";
 import { Hello } from "./components/Hello";
 import { Hero } from "./components/Hero";
 import { Journey } from "./components/Journey";
@@ -25,10 +30,15 @@ export default function App() {
         <Hero />
         <Marquee items={MARQUEE_ITEMS} />
         <Story />
+        <RouteDivider />
         <Journey />
+        <ShippedDivider />
         <Work />
+        <Marquee items={WINS_TICKER} variant="ticker" />
         <Trophies />
+        <OrbitDivider />
         <Toolbox />
+        <Marquee items={HELLO_MARQUEE} variant="giant" />
         <Hello />
       </main>
     </>

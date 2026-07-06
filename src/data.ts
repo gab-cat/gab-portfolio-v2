@@ -32,6 +32,24 @@ export const MARQUEE_ITEMS = [
   "servers that sleep so you can too",
 ] as const;
 
+/** News-wire strip announcing the trophy shelf (04) */
+export const WINS_TICKER = [
+  "2025 champion · ai.deas for impact",
+  "2025 2nd place · sparklabs hackathon",
+  "2025 3rd place · inventi asia",
+  "2025 top 5 · concati api build labs",
+  "2024 champion · regional hack4gov ctf",
+  "2024 2nd highest scorer · hack4gov nationals",
+  "4× bell all-star",
+] as const;
+
+/** Poster-scale band that opens the curtain-call panel (06) */
+export const HELLO_MARQUEE = [
+  "say hello",
+  "let's build something",
+  "one email away",
+] as const;
+
 export const STATS = [
   { value: 7, suffix: "", label: "hackathon podiums", note: "and counting" },
   {
