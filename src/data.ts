@@ -64,25 +64,11 @@ export const STATS = [
 
 export const JOURNEY = [
   {
-    period: "Apr 2025 — now",
-    role: "DevOps Engineer",
-    company: "Detken Development",
+    period: "May 2022 — Apr 2025",
+    role: "eChat Representative",
+    company: "Quantrics (Bell Canada)",
     blurb:
-      "Moved production off Vercel onto servers we control, wired up pipelines that deploy themselves, and locked the doors properly.",
-  },
-  {
-    period: "Jun — Sep 2025",
-    role: "Software Developer Intern",
-    company: "Old.St Labs",
-    blurb:
-      "Built digital products with a team that ships fast — Next.js in front, NestJS in back.",
-  },
-  {
-    period: "Aug 2024 — now",
-    role: "Webmaster",
-    company: "ThePILLARS Publication",
-    blurb:
-      "The person they call so the site never goes down. Deployments, security, and automating the boring parts.",
+      "Three years solving strangers' problems in real time. The best empathy training a developer can get.",
   },
   {
     period: "Jan — Jul 2024",
@@ -99,11 +85,25 @@ export const JOURNEY = [
       "Built core gameplay mechanics in Unreal Engine 4 with C++. Yes, games count as software.",
   },
   {
-    period: "May 2022 — Apr 2025",
-    role: "eChat Representative",
-    company: "Quantrics (Bell Canada)",
+    period: "Aug 2024 — now",
+    role: "Webmaster",
+    company: "ThePILLARS Publication",
     blurb:
-      "Three years solving strangers' problems in real time. The best empathy training a developer can get.",
+      "The person they call so the site never goes down. Deployments, security, and automating the boring parts.",
+  },
+  {
+    period: "Apr 2025 — now",
+    role: "DevOps Engineer",
+    company: "Detken Development",
+    blurb:
+      "Moved production off Vercel onto servers we control, wired up pipelines that deploy themselves, and locked the doors properly.",
+  },
+  {
+    period: "Jun — Sep 2025",
+    role: "Software Developer Intern",
+    company: "Old.St Labs",
+    blurb:
+      "Built digital products with a team that ships fast — Next.js in front, NestJS in back.",
   },
 ] as const;
 

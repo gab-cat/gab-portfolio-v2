@@ -1,6 +1,5 @@
 import { StrictMode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
-import "@fontsource-variable/space-grotesk";
 import "@fontsource-variable/instrument-sans";
 import "@fontsource-variable/instrument-sans/wght-italic.css";
 import "@fontsource-variable/jetbrains-mono";

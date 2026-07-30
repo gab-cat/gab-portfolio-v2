@@ -1,10 +1,12 @@
-import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { motion, AnimatePresence, useDragControls } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { scrollToId } from "../lib/lenis";
 import { Magnetic } from "./Magnetic";
 import { EASE } from "./Reveal";
 import { SphereField } from "./SphereField";
-import { Terminal } from "./Terminal";
+import { Terminal, type WindowAction } from "./Terminal";
+
+type WindowState = "open" | "minimized" | "maximized" | "closed";
 
 function ManilaClock() {
   const [time, setTime] = useState("");
@@ -25,8 +27,26 @@ function ManilaClock() {
 }
 
 export function Hero() {
+  const stageRef = useRef<HTMLElement>(null);
+  const dragControls = useDragControls();
+  const [win, setWin] = useState<WindowState>("open");
+
+  const onWindowAction = (action: WindowAction) => {
+    setWin((prev) => {
+      switch (action) {
+        case "close":
+          return "closed";
+        case "minimize":
+          return prev === "minimized" ? "open" : "minimized";
+        case "maximize":
+          return prev === "maximized" ? "open" : "maximized";
+      }
+    });
+  };
+
   return (
     <section
+      ref={stageRef}
       className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-5 pt-24 pb-20 text-center sm:px-8"
       /* bottom edge slants at the same 1.2° as the marquee tape, so the hero
          backdrop ends exactly on the banner instead of leaking past it */
@@ -81,14 +101,63 @@ export function Hero() {
         </span>
       </motion.h1>
 
-      {/* frosted-glass terminal, center stage */}
+      {/* frosted-glass terminal — drag from chrome; traffic lights work */}
       <motion.div
-        className="relative z-10 mt-[5svh] w-[min(33rem,94vw)]"
+        className={`relative z-10 mt-[5svh] transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          win === "maximized" ? "w-[min(48rem,94vw)]" : "w-[min(33rem,94vw)]"
+        }`}
         initial={{ opacity: 0, y: 34 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.35, ease: EASE }}
       >
-        <Terminal glass />
+        <AnimatePresence mode="wait">
+          {win === "closed" ? (
+            <motion.button
+              key="reopen"
+              type="button"
+              onClick={() => setWin("open")}
+              initial={{ opacity: 0, scale: 0.9, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 6 }}
+              transition={{ duration: 0.35, ease: EASE }}
+              className="mx-auto flex items-center gap-2 rounded-full border border-white/10 bg-term/70 px-4 py-2 font-mono text-xs text-[#8a8375] shadow-[0_16px_40px_-20px_var(--glow)] backdrop-blur-xl transition-colors hover:border-flame/40 hover:text-[#ece5d6]"
+            >
+              <span className="h-2 w-2 rounded-full bg-[#ff5f57]" />
+              <span className="h-2 w-2 rounded-full bg-[#febc2e]" />
+              <span className="h-2 w-2 rounded-full bg-[#28c840]" />
+              reopen terminal
+            </motion.button>
+          ) : (
+            <motion.div
+              key="window"
+              drag
+              dragControls={dragControls}
+              dragListener={false}
+              dragConstraints={stageRef}
+              dragElastic={0.06}
+              dragMomentum={false}
+              whileDrag={{ scale: 1.015, cursor: "grabbing", zIndex: 40 }}
+              className="relative"
+              initial={{ opacity: 0, scale: 0.96, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 12 }}
+              transition={{ duration: 0.35, ease: EASE }}
+            >
+              <Terminal
+                glass
+                windowState={
+                  win === "maximized"
+                    ? "maximized"
+                    : win === "minimized"
+                      ? "minimized"
+                      : "open"
+                }
+                onWindowAction={onWindowAction}
+                onChromePointerDown={(e) => dragControls.start(e)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
 
       {/* pitch + meta + CTAs */}
