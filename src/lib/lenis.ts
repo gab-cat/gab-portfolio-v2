@@ -30,7 +30,8 @@ export function scrollToId(id: string) {
   const el = document.getElementById(id);
   if (!el) return;
   if (lenis) {
-    lenis.scrollTo(el, { offset: -96, duration: 1.15 });
+    // Lenis already reads the section's scroll-margin-top for the fixed nav.
+    lenis.scrollTo(el, { duration: 1.15 });
   } else {
     el.scrollIntoView({
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches

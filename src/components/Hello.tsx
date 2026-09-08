@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { EMAIL, SOCIALS } from "../data";
 import { scrollToTop } from "../lib/lenis";
+import { Sculpture } from "./Sculpture";
 import { Reveal } from "./Reveal";
 
 export function Hello() {
@@ -22,21 +23,24 @@ export function Hello() {
       <div className="studio-container">
         <Reveal>
           <div className="hello-top">
-            <span className="eyebrow">Have something in mind?</span>
+            <span>There’s always another what if.</span>
             <span className="availability">
               <i /> Open to the next good thing
             </span>
           </div>
-          <a className="hello-headline" href={`mailto:${EMAIL}`}>
-            <span>
-              LET’S MAKE
-              <br />
-              IT HAPPEN.
-            </span>
-            <span className="hello-arrow" aria-hidden="true">
-              ↗
-            </span>
-          </a>
+          <div className="hello-closing">
+            <a className="hello-headline" href={`mailto:${EMAIL}`}>
+              <span>
+                What if we
+                <br />
+                <em>made something?</em>
+              </span>
+              <span className="hello-arrow" aria-hidden="true">
+                ↗
+              </span>
+            </a>
+            <Sculpture chapter="together" />
+          </div>
           <div className="hello-details">
             <p>
               A project, a role, or an interesting conversation.

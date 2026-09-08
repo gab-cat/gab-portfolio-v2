@@ -59,12 +59,12 @@ section[id] {
   padding-block: 120px;
 }
 .eyebrow {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 400;
   line-height: 1.6;
   letter-spacing: 0.055em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 .soft-text {
   color: var(--fog);
@@ -323,7 +323,7 @@ h2 {
   border-top: 1px solid var(--line);
   margin-top: 20px;
   padding-top: 12px;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 9px;
   color: var(--fog);
 }
@@ -335,7 +335,7 @@ h2 {
   gap: 20px;
 }
 .work-footnote > span {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 9px;
   color: var(--fog);
 }
@@ -444,7 +444,7 @@ h2 {
 }
 .art-sticker small {
   display: block;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-weight: 400;
   font-size: 6px;
 }
@@ -459,7 +459,7 @@ h2 {
 .guild-top {
   display: flex;
   justify-content: space-between;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 6px;
   border-bottom: 1px solid #42316433;
   padding-bottom: 15px;
@@ -501,7 +501,7 @@ h2 {
   letter-spacing: -0.03em;
 }
 .guild-bottom > span {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-weight: 400;
   font-size: 5px;
   letter-spacing: 0.03em;
@@ -517,7 +517,7 @@ h2 {
 .board-label {
   font-size: 6px;
   letter-spacing: 0.08em;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 .game-board {
   width: 83%;
@@ -565,7 +565,7 @@ h2 {
   display: flex;
   justify-content: space-between;
   font-size: 8px;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 .board-bottom > span {
   font-size: 6px;
@@ -580,7 +580,7 @@ h2 {
 }
 .tarot-label {
   font-size: 6px;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   text-align: center;
   letter-spacing: 0.08em;
 }
@@ -611,7 +611,7 @@ h2 {
   transition: transform 0.6s;
 }
 .tarot-card small {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 6px;
   letter-spacing: 0.1em;
   position: absolute;
@@ -648,7 +648,7 @@ h2 {
 }
 .tarot-wordmark > span {
   display: block;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 5px;
   letter-spacing: 0.1em;
   margin-top: 10px;
@@ -714,7 +714,7 @@ h2 {
 }
 .stats-row small {
   display: block;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 8px;
   color: var(--fog);
   margin-top: 6px;
@@ -767,7 +767,7 @@ h2 {
   align-items: center;
 }
 .terminal-disclosure-hint {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 9px;
   color: var(--fog);
   display: flex;
@@ -796,7 +796,7 @@ h2 {
   padding: 27px 0;
 }
 .experience-period {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 10px;
   color: var(--fog);
 }
@@ -886,7 +886,7 @@ summary::-webkit-details-marker {
   border-top: 1px solid var(--line);
 }
 .award-year {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 9px;
   color: var(--fog);
   padding-top: 4px;
@@ -904,10 +904,10 @@ summary::-webkit-details-marker {
 }
 .award-place {
   display: inline-block;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 8px;
   margin-top: 12px;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.04em;
 }
 .champion {
@@ -1016,7 +1016,7 @@ summary::-webkit-details-marker {
   display: flex;
   justify-content: space-between;
   padding-block: 30px;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 8px;
 }
 .hello-section a:focus-visible,

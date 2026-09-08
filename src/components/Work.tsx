@@ -1,5 +1,14 @@
 import { PROJECTS } from "../data";
+import { Sculpture } from "./Sculpture";
 import { Reveal } from "./Reveal";
+import { DepthArt } from "./DepthArt";
+
+const PROJECT_QUESTIONS = [
+  "What if campus merch was the easy part?",
+  "What if a community had a place of its own?",
+  "What if game night didn’t need the same table?",
+  "What if your morning came with a little magic?",
+];
 
 function ProjectArt({ index }: { index: number }) {
   if (index === 0)
@@ -11,11 +20,10 @@ function ProjectArt({ index }: { index: number }) {
             <b>
               merchtrack<span>®</span>
             </b>
-            <span>THE CAMPUS COLLECTION ↗</span>
+            <span>The campus collection ↗</span>
           </div>
           <div className="merch-content">
             <div>
-              <span className="mock-label">WEAR YOUR COMMUNITY.</span>
               <strong>
                 Campus.
                 <br />
@@ -58,7 +66,7 @@ function ProjectArt({ index }: { index: number }) {
                   BUILT DIFFERENT.
                 </text>
               </svg>
-              <span>THE EVERYDAY TEE</span>
+              <span>The everyday tee</span>
             </div>
           </div>
         </div>
@@ -70,9 +78,7 @@ function ProjectArt({ index }: { index: number }) {
   if (index === 1)
     return (
       <div className="project-art art-guild" aria-hidden="true">
-        <span className="guild-top">
-          ATENEO DE NAGA UNIVERSITY <span>EST. COMMUNITY</span>
-        </span>
+        <span className="guild-top">Ateneo de Naga University</span>
         <div className="guild-type">
           &lt;cs<span>guild</span>/&gt;
         </div>
@@ -80,14 +86,14 @@ function ProjectArt({ index }: { index: number }) {
         <span className="guild-bottom">
           A place for the next
           <br />
-          “I made this.”<span>CODE. CONNECT. CREATE.</span>
+          “I made this.”<span>Code. Connect. Create.</span>
         </span>
       </div>
     );
   if (index === 2)
     return (
       <div className="project-art art-generals" aria-hidden="true">
-        <span className="board-label">YOUR NEXT MOVE CHANGES EVERYTHING.</span>
+        <span className="board-label">Your next move changes everything.</span>
         <div className="game-board">
           {Array.from({ length: 40 }, (_, i) => (
             <span key={i} className="board-cell">
@@ -100,26 +106,26 @@ function ProjectArt({ index }: { index: number }) {
           ))}
         </div>
         <span className="board-bottom">
-          GAMES OF THE GENERALS <span>YOUR MOVE ↗</span>
+          Games of the Generals <span>Your move ↗</span>
         </span>
       </div>
     );
   return (
     <div className="project-art art-tarot" aria-hidden="true">
-      <span className="tarot-label">A LITTLE GUIDANCE FROM THE UNIVERSE.</span>
+      <span className="tarot-label">A little guidance from the universe.</span>
       <div className="tarot-cards">
         <div className="tarot-card tarot-left">
-          ☾<small>THE MOON</small>
+          ☾<small>The moon</small>
         </div>
         <div className="tarot-card tarot-center">
-          <span>XVII</span>✷<small>THE STAR</small>
+          <span>XVII</span>✷<small>The star</small>
         </div>
         <div className="tarot-card tarot-right">
-          ☼<small>THE SUN</small>
+          ☼<small>The sun</small>
         </div>
       </div>
       <span className="tarot-wordmark">
-        Your Daily Tarot<span>GOOD MORNING, COSMOS.</span>
+        Your Daily Tarot<span>Good morning, cosmos.</span>
       </span>
     </div>
   );
@@ -128,52 +134,56 @@ function ProjectArt({ index }: { index: number }) {
 export function Work() {
   return (
     <section id="work" className="work-section studio-container section-space">
-      <Reveal className="section-intro">
-        <div>
-          <p className="eyebrow">Selected work · Built & shipped</p>
-          <h2>
-            Less talk.
-            <br />
-            <span className="soft-text">More “it’s live.”</span>
-          </h2>
-        </div>
-        <p>
-          A few things I’ve put into the world.
-          <br />
-          Real products, real people on the other side.
-        </p>
-      </Reveal>
-      <div className="projects-grid">
-        {PROJECTS.map((project, i) => (
-          <Reveal
-            key={project.name}
-            className={`project project-${i}`}
-            delay={(i % 2) * 0.08}
-          >
-            <a
-              className="project-link"
-              href={project.href}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`${project.name} — ${i === 1 ? "visit website" : "explore on GitHub"} (opens in a new tab)`}
-            >
-              <ProjectArt index={i} />
-              <div className="project-heading">
-                <h3>{project.name}</h3>
-                <span className="project-arrow">↗</span>
-              </div>
-              <p className="project-tagline">{project.tagline}</p>
-            </a>
-            <p className="project-story">{project.story}</p>
-            <div className="project-meta">
-              <span>{project.tech.join(" / ")}</span>
-              <span>{i === 1 ? "Live website" : "GitHub"} ↗</span>
-            </div>
+      <div className="work-narrative">
+        <div className="chapter-sticky">
+          <Reveal>
+            <h2>
+              A what if is better
+              <br />
+              <em>out in the world.</em>
+            </h2>
+            <p className="chapter-copy">
+              So I started shipping. A campus store. A home for a community. A
+              game that brings people together. Little ideas, with real people
+              on the other side.
+            </p>
           </Reveal>
-        ))}
+          <Sculpture chapter="possibility" />
+        </div>
+        <div className="projects-grid">
+          {PROJECTS.map((project, i) => (
+            <Reveal
+              key={project.name}
+              className={`project project-${i}`}
+              delay={(i % 2) * 0.08}
+            >
+              <p className="project-question">{PROJECT_QUESTIONS[i]}</p>
+              <a
+                className="project-link"
+                href={project.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`${project.name} — ${i === 1 ? "visit website" : "explore on GitHub"} (opens in a new tab)`}
+              >
+                <DepthArt>
+                  <ProjectArt index={i} />
+                </DepthArt>
+                <div className="project-heading">
+                  <h3>{project.name}</h3>
+                  <span className="project-arrow">↗</span>
+                </div>
+                <p className="project-tagline">{project.tagline}</p>
+              </a>
+              <p className="project-story">{project.story}</p>
+              <div className="project-meta">
+                <span>{project.tech.join(" / ")}</span>
+                <span>{i === 1 ? "Live website" : "GitHub"} ↗</span>
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </div>
       <div className="work-footnote">
-        <span>Project artwork, made for this portfolio.</span>
         <a
           className="text-link"
           href="https://github.com/gab-cat"

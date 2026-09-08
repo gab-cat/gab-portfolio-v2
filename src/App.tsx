@@ -8,6 +8,7 @@ import { Nav } from "./components/Nav";
 import { ScrollProgress } from "./components/ScrollProgress";
 import { Story } from "./components/Story";
 import { Trophies } from "./components/Trophies";
+import { StoryWorld } from "./components/Sculpture";
 import { Work } from "./components/Work";
 
 export default function App() {
@@ -19,11 +20,12 @@ export default function App() {
       </a>
       <ScrollProgress />
       <Nav />
+      <StoryWorld />
       <main>
         <Hero />
-        <Work />
         <Story />
         <Journey />
+        <Work />
         <Trophies />
         <Hello />
       </main>

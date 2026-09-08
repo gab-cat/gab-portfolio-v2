@@ -1,5 +1,7 @@
-import { STATS, TOOLBOX } from "../data";
+import { TOOLBOX } from "../data";
 import { Reveal } from "./Reveal";
+import { StoryPortrait } from "./StoryPortrait";
+import { Sculpture } from "./Sculpture";
 import { Terminal } from "./Terminal";
 
 export function Story() {
@@ -7,35 +9,33 @@ export function Story() {
     <section id="story" className="story-section section-space">
       <div className="studio-container">
         <Reveal className="story-grid">
-          <div>
-            <p className="eyebrow">The person behind the pull requests</p>
+          <div className="story-visual">
             <h2>
-              People first.
+              First, I learned
               <br />
-              Code follows<span className="text-flame">.</span>
+              <em>to listen.</em>
             </h2>
-            <span className="story-asterisk" aria-hidden="true">
-              ✳
-            </span>
+            <div className="story-composition">
+              <div className="story-portrait">
+                <StoryPortrait />
+              </div>
+              <Sculpture chapter="connection" />
+            </div>
           </div>
           <div className="story-copy">
             <p className="story-lead">
-              Good technology starts with giving a damn about the person using
-              it.
+              Before I wrote code, I spent three years on the other side of a
+              support chat.
             </p>
             <p>
-              Three years answering support chats for Bell Canada taught me
-              that. So I went from solving problems in a chat window to solving
-              them in a code editor.
+              At Bell Canada, every conversation started with someone who needed
+              something to work. Listening closely mattered more than having the
+              fastest answer.
             </p>
             <p>
-              Now I build full-stack products, run infrastructure at Detken, and
-              keep ThePILLARS online. I also lead tech for my university’s CS
-              community at Ateneo de Naga.
-            </p>
-            <p>
-              And when I’m not shipping? Probably at a hackathon, seeing how far
-              an idea can go in a weekend.
+              That stayed with me. Eventually, I wanted to do more than help
+              people work around a problem. I wanted to build the thing that
+              solved it.
             </p>
             <a
               className="text-link"
@@ -47,25 +47,12 @@ export function Story() {
             </a>
           </div>
         </Reveal>
-        <Reveal className="stats-row">
-          {STATS.map((stat) => (
-            <div key={stat.label}>
-              <strong>
-                {stat.value.toLocaleString("en-US")}
-                {stat.suffix}
-              </strong>
-              <span>{stat.label}</span>
-              <small>{stat.note}</small>
-            </div>
-          ))}
-        </Reveal>
         <div className="toolbox-layout">
           <Reveal>
-            <p className="eyebrow">The everyday toolkit</p>
             <h3>
-              From first commit
+              These days, I build it.
               <br />
-              to production.
+              And keep it alive.
             </h3>
           </Reveal>
           <div className="toolbox-grid">

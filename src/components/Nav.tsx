@@ -5,9 +5,9 @@ import { toggleTheme, useTheme } from "../lib/theme";
 import { EASE } from "./Reveal";
 
 const LINKS = [
-  { id: "work", label: "Work" },
   { id: "story", label: "About" },
   { id: "journey", label: "Experience" },
+  { id: "work", label: "Work" },
   { id: "wins", label: "Recognition" },
 ] as const;
 
@@ -276,7 +276,7 @@ export function Nav() {
               ),
             )}
             <motion.p
-              className="mt-8 font-mono text-xs text-fog"
+              className="mt-8 font-sans text-sm text-fog"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}

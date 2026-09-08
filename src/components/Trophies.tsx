@@ -1,32 +1,27 @@
 import { TROPHIES } from "../data";
+import { Sculpture } from "./Sculpture";
 import { Reveal } from "./Reveal";
 
 export function Trophies() {
   return (
     <section id="wins" className="wins-section studio-container section-space">
       <div className="wins-layout">
-        <Reveal>
-          <p className="eyebrow">A competitive streak</p>
-          <h2>
-            Ideas with
-            <br />
-            some hardware
-            <br />
-            to show for it<span className="text-flame">.</span>
-          </h2>
-          <div className="award-rosette" aria-hidden="true">
-            <span>✺</span>
-            <b>
-              Built under
+        <div className="chapter-sticky">
+          <Reveal>
+            <h2>
+              Sometimes, the
               <br />
-              pressure.
-            </b>
-          </div>
-          <p className="wins-caption">
-            A few good weekends.
-            <br />A growing trophy shelf.
-          </p>
-        </Reveal>
+              deadline is
+              <br />
+              <em>Sunday.</em>
+            </h2>
+            <p className="chapter-copy">
+              Hackathons are where I find out how far a what if can go in a
+              weekend. A few of those ideas made it onto a podium.
+            </p>
+          </Reveal>
+          <Sculpture chapter="pressure" />
+        </div>
         <div className="award-list">
           {TROPHIES.map((trophy) => (
             <Reveal key={trophy.event}>
