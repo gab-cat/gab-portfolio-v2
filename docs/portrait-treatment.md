@@ -1,0 +1,15 @@
+# Portfolio portrait treatment
+
+Final asset: `public/portraits/gab-halftone.webp` (900 × 1200). The previous `gab-editorial.webp` supplies the silhouette mask, so the halftone's white dots remain opaque inside the person.
+
+Source: the user's `Copy of DSCF2937.JPG` from Downloads. The source file was left unchanged.
+
+Created with the built-in image-generation tool, then resized and encoded as WebP for the website. The hero removes the white matte using an SVG alpha filter and adds an orange halftone field in CSS. It is an edited photograph, not a new photo shoot. The other two supplied photographs remain available in Downloads.
+
+## Initial cutout generation prompt
+
+Edit the supplied ORIGINAL photograph for Gabriel's personal portfolio. Use case: identity-preserve, background extraction and subtle editorial print treatment. Make a tightly cropped portrait of exactly the man from the original photo, from the top of his hair down to mid-hip. Keep his exact face, hair shape, pose, proportions, facial expression, necklace and shirt. Do NOT reconstruct him as another person. Convert the subject to rich black-and-white with a fine subtle photographic grain / printed-paper texture, mostly in the clothing and shadows. Keep the face natural and clearly recognizable, do not heavily halftone the face. Remove the studio background and replace it with perfectly flat pure white #FFFFFF so the website can blend it seamlessly with its canvas. CRITICAL: no gray checkerboard, no transparency grid, no backdrop shadow or gradient, no frame, no card, no border, no graphics, no words, no orange. Every background pixel outside the person must be pure white. Preserve natural hair edge detail against white. Portrait 3:4 composition, subject filling frame with small white margins. Crop at hips; do not invent legs, shoes or additional body parts.
+
+## Final halftone prompt (built-in image generation)
+
+Edit target: the supplied black-and-white portrait. Add a clearly visible, tasteful newspaper / risograph HALFTONE DOT print treatment DIRECTLY TO THE PERSON, including the shirt, hair and skin. Keep EXACTLY the same person, facial features, expression, pose, clothing, necklace, silhouette, framing, crop and placement. This is only a print-texture pass over this existing photograph, not a new illustration or new composition. Use a regular 45-degree AM-screen of circular black ink dots whose sizes respond to tonal values: clear medium-sized dots and tiny white openings in the shirt and shadows, smaller and lighter dots on the face to keep the eyes, nose, lips and identity clear. The halftone must be visible when this 900-by-1200 source is displayed at about 450 pixels wide. Preserve photographic shading beneath the dot structure. Clean black and white only. Keep the background outside the silhouette uniformly pure white #FFFFFF, without dots, texture, shadows, checkerboard, frame, text, decoration or color. Do not change or smooth facial features. Portrait aspect ratio 3:4, same exact crop.

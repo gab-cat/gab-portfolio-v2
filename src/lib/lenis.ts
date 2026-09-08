@@ -30,9 +30,13 @@ export function scrollToId(id: string) {
   const el = document.getElementById(id);
   if (!el) return;
   if (lenis) {
-    lenis.scrollTo(el, { offset: -64, duration: 1.15 });
+    lenis.scrollTo(el, { offset: -96, duration: 1.15 });
   } else {
-    el.scrollIntoView({ behavior: "smooth" });
+    el.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
   }
 }
 
@@ -46,5 +50,11 @@ export function startLenis() {
 
 export function scrollToTop() {
   if (lenis) lenis.scrollTo(0, { duration: 1.15 });
-  else window.scrollTo({ top: 0, behavior: "smooth" });
+  else
+    window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
 }

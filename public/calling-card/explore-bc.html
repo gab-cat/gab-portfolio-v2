@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>gabcat.dev — explore B & C</title>
+<style>
+  @font-face {
+    font-family: "Power Grotesk";
+    src: url("/public/fonts/PowerGroteskTrial-Bold.woff2") format("woff2");
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: "Instrument Serif";
+    src: url("/node_modules/@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2") format("woff2");
+    font-weight: 400;
+    font-style: italic;
+  }
+  @font-face {
+    font-family: "JetBrains Mono";
+    src: url("/node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2") format("woff2");
+    font-weight: 100 900;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #1a1612; }
+  .card {
+    width: 1050px;
+    height: 600px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 48px;
+  }
+
+  /* ========== B1 — original refined ========== */
+  .b1 {
+    background: #17130d;
+    color: #faf6ef;
+  }
+  .b1 .bleed {
+    position: absolute;
+    left: -48px;
+    right: -100px;
+    top: 46%;
+    transform: translateY(-50%);
+    font-family: "Power Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: 176px;
+    line-height: 0.78;
+    letter-spacing: -0.055em;
+    text-transform: uppercase;
+    color: #e84300;
+    pointer-events: none;
+  }
+  .b1 .bleed .line2 { color: #faf6ef; }
+  .b1 .overlay {
+    position: relative; z-index: 2; height: 100%;
+    padding: 40px 44px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .b1 .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .b1 .brand { font-family: "JetBrains Mono", monospace; font-size: 16px; }
+  .b1 .brand span { color: #e84300; }
+  .b1 .role { font-family: "Instrument Serif", serif; font-style: italic; font-size: 22px; }
+  .b1 .bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+  .b1 .email { font-family: "JetBrains Mono", monospace; font-size: 15px; color: #a49b8a; }
+  .b1 .qr-box { width: 128px; height: 128px; background: #e84300; padding: 10px; }
+  .b1 .qr-box img { width: 100%; height: 100%; display: block; }
+
+  /* ========== B2 — harder crop, more bleed ========== */
+  .b2 {
+    background: #0a0908;
+    color: #faf6ef;
+  }
+  .b2 .bleed {
+    position: absolute;
+    left: -90px;
+    top: -40px;
+    font-family: "Power Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: 240px;
+    line-height: 0.72;
+    letter-spacing: -0.06em;
+    text-transform: uppercase;
+    color: #e84300;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .b2 .bleed .line2 {
+    color: transparent;
+    -webkit-text-stroke: 3px #faf6ef;
+    margin-left: 60px;
+  }
+  .b2 .overlay {
+    position: relative; z-index: 2; height: 100%;
+    padding: 40px 44px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .b2 .top { display: flex; justify-content: space-between; }
+  .b2 .brand { font-family: "JetBrains Mono", monospace; font-size: 16px; }
+  .b2 .brand span { color: #e84300; }
+  .b2 .role { font-family: "Instrument Serif", serif; font-style: italic; font-size: 22px; color: #e84300; }
+  .b2 .bottom {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    background: rgba(10,9,8,0.72);
+    margin: 0 -44px -40px;
+    padding: 28px 44px 40px;
+  }
+  .b2 .email { font-family: "JetBrains Mono", monospace; font-size: 16px; color: #a49b8a; }
+  .b2 .qr-box { width: 140px; height: 140px; background: #e84300; padding: 12px; }
+  .b2 .qr-box img { width: 100%; height: 100%; display: block; }
+
+  /* ========== B3 — cream bleed / orange field type ========== */
+  .b3 {
+    background: #faf6ef;
+    color: #17130d;
+  }
+  .b3 .bleed {
+    position: absolute;
+    left: -60px;
+    bottom: -50px;
+    font-family: "Power Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: 200px;
+    line-height: 0.75;
+    letter-spacing: -0.055em;
+    text-transform: uppercase;
+    color: #e84300;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .b3 .bleed .line2 { color: #17130d; opacity: 0.12; }
+  .b3 .overlay {
+    position: relative; z-index: 2; height: 100%;
+    padding: 44px 48px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .b3 .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .b3 .brand {
+    font-family: "Power Grotesk", sans-serif; font-weight: 700; font-size: 26px;
+  }
+  .b3 .brand span { color: #e84300; }
+  .b3 .qr-box {
+    width: 140px; height: 140px;
+    background: #17130d; padding: 12px;
+  }
+  .b3 .qr-box img { width: 100%; height: 100%; display: block; }
+  .b3 .meta {
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .b3 .role {
+    font-family: "Instrument Serif", serif; font-style: italic;
+    font-size: 28px; color: #e84300;
+  }
+  .b3 .email {
+    font-family: "JetBrains Mono", monospace; font-size: 15px; color: #6e6759;
+    text-align: right;
+  }
+
+  /* ========== B4 — surname only bleed, name as meta ========== */
+  .b4 {
+    background: #17130d;
+    color: #faf6ef;
+  }
+  .b4 .bleed {
+    position: absolute;
+    left: -30px;
+    right: -120px;
+    top: 50%;
+    transform: translateY(-48%);
+    font-family: "Power Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: 210px;
+    line-height: 0.75;
+    letter-spacing: -0.06em;
+    text-transform: uppercase;
+    color: #e84300;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .b4 .overlay {
+    position: relative; z-index: 2; height: 100%;
+    padding: 40px 44px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .b4 .top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .b4 .given {
+    font-family: "Power Grotesk", sans-serif; font-weight: 700;
+    font-size: 36px; letter-spacing: -0.02em; text-transform: uppercase;
+  }
+  .b4 .role { font-family: "Instrument Serif", serif; font-style: italic; font-size: 22px; color: #e84300; }
+  .b4 .bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+  .b4 .email { font-family: "JetBrains Mono", monospace; font-size: 15px; color: #a49b8a; line-height: 1.5; }
+  .b4 .email strong { color: #faf6ef; font-weight: 500; }
+  .b4 .qr-box { width: 132px; height: 132px; background: #faf6ef; padding: 10px; }
+  .b4 .qr-box img { width: 100%; height: 100%; display: block; }
+
+  /* ========== C1 — original refined ========== */
+  .c1 {
+    background: #faf6ef;
+    color: #17130d;
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+  }
+  .c1 .spine {
+    background: #e84300;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .c1 .spine-text {
+    font-family: "Power Grotesk", sans-serif; font-weight: 700;
+    font-size: 42px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #faf6ef;
+    writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap;
+  }
+  .c1 .main {
+    padding: 48px 44px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .c1 .name {
+    font-family: "Power Grotesk", sans-serif; font-weight: 700;
+    font-size: 78px; line-height: 0.9; letter-spacing: -0.04em; text-transform: uppercase;
+  }
+  .c1 .role {
+    margin-top: 16px;
+    font-family: "Instrument Serif", serif; font-style: italic;
+    font-size: 28px; color: #e84300;
+  }
+  .c1 .email { font-family: "JetBrains Mono", monospace; font-size: 16px; color: #6e6759; }
+  .c1 .qr-col {
+    padding: 40px 40px 40px 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  }
+  .c1 .qr-box {
+    width: 180px; height: 180px;
+    border: 2px solid #17130d; padding: 12px; background: #fffdf8;
+  }
+  .c1 .qr-box img { width: 100%; height: 100%; display: block; }
+  .c1 .qr-label { font-family: "JetBrains Mono", monospace; font-size: 13px; color: #e84300; }
+
+  /* ========== C2 — wider spine, name on orange ========== */
+  .c2 {
+    background: #faf6ef;
+    color: #17130d;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+  }
+  .c2 .spine {
+    background: #e84300;
+    color: #faf6ef;
+    padding: 44px 36px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .c2 .spine-brand {
+    font-family: "JetBrains Mono", monospace; font-size: 14px; letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .c2 .spine-name {
+    font-family: "Power Grotesk", sans-serif; font-weight: 700;
+    font-size: 52px; line-height: 0.92; letter-spacing: -0.03em; text-transform: uppercase;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    align-self: flex-start;
+  }
+  .c2 .main {
+    padding: 44px 48px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .c2 .role {
+    font-family: "Instrument Serif", serif; font-style: italic;
+    font-size: 32px; color: #e84300;
+  }
+  .c2 .email {
+    font-family: "JetBrains Mono", monospace; font-size: 16px; color: #6e6759; line-height: 1.6;
+  }
+  .c2 .qr-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+  .c2 .qr-box {
+    width: 160px; height: 160px;
+    border: 2px solid #17130d; padding: 12px;
+  }
+  .c2 .qr-box img { width: 100%; height: 100%; display: block; }
+  .c2 .scan {
+    font-family: "Power Grotesk", sans-serif; font-weight: 700;
+    font-size: 28px; letter-spacing: -0.02em; text-align: right; line-height: 1.1;
+  }
+  .c2 .scan span { color: #e84300; }
+
+  /* ========== C3 — dark + orange spine ========== */
+  .c3 {
+    background: #17130d;
+    color: #faf6ef;
+    display: grid;
+    grid-template-columns: 100px 1fr auto;
+  }
+  .c3 .spine {
+    background: #e84300;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .c3 .spine-text {
+    font-family: "Power Grotesk", sans-serif; font-weight: 700;
+    font-size: 36px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: #17130d;
+    writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap;
+  }
+  .c3 .main {
+    padding: 48px 40px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .c3 .name {
+    font-family: "Power Grotesk", sans-serif; font-weight: 700;
+    font-size: 72px; line-height: 0.9; letter-spacing: -0.04em; text-transform: uppercase;
+  }
+  .c3 .name span { color: #e84300; }
+  .c3 .role {
+    margin-top: 18px;
+    font-family: "Instrument Serif", serif; font-style: italic;
+    font-size: 26px; color: #a49b8a;
+  }
+  .c3 .email { font-family: "JetBrains Mono", monospace; font-size: 15px; color: #a49b8a; }
+  .c3 .qr-col {
+    padding: 40px 36px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    background: #0a0908;
+  }
+  .c3 .qr-box { width: 170px; height: 170px; background: #e84300; padding: 12px; }
+  .c3 .qr-box img { width: 100%; height: 100%; display: block; }
+  .c3 .qr-label { font-family: "JetBrains Mono", monospace; font-size: 13px; color: #e84300; }
+
+  /* ========== C4 — spine on right, QR in spine ========== */
+  .c4 {
+    background: #faf6ef;
+    color: #17130d;
+    display: grid;
+    grid-template-columns: 1fr 220px;
+  }
+  .c4 .main {
+    padding: 48px 48px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .c4 .brand {
+    font-family: "Power Grotesk", sans-serif; font-weight: 700; font-size: 26px;
+  }
+  .c4 .brand span { color: #e84300; }
+  .c4 .name {
+    font-family: "Power Grotesk", sans-serif; font-weight: 700;
+    font-size: 84px; line-height: 0.88; letter-spacing: -0.04em; text-transform: uppercase;
+  }
+  .c4 .role {
+    margin-top: 18px;
+    font-family: "Instrument Serif", serif; font-style: italic;
+    font-size: 28px; color: #e84300;
+  }
+  .c4 .email { font-family: "JetBrains Mono", monospace; font-size: 16px; color: #6e6759; }
+  .c4 .spine {
+    background: #e84300;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: space-between;
+    padding: 36px 28px;
+  }
+  .c4 .spine-text {
+    font-family: "Power Grotesk", sans-serif; font-weight: 700;
+    font-size: 28px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #faf6ef;
+    writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap;
+  }
+  .c4 .qr-box {
+    width: 150px; height: 150px;
+    background: #faf6ef; padding: 12px;
+  }
+  .c4 .qr-box img { width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+
+  <div class="card b1" id="b1">
+    <div class="bleed">
+      <div>Gabriel</div>
+      <div class="line2">Catimbang</div>
+    </div>
+    <div class="overlay">
+      <div class="top">
+        <div class="brand">gabcat<span>.dev</span></div>
+        <div class="role">Developer &amp; DevOps</div>
+      </div>
+      <div class="bottom">
+        <div class="email">catimbanggabriel@gmail.com</div>
+        <div class="qr-box"><img src="./qr-on-flame.png" alt="" /></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card b2" id="b2">
+    <div class="bleed">
+      <div>Gabriel</div>
+      <div class="line2">Catimbang</div>
+    </div>
+    <div class="overlay">
+      <div class="top">
+        <div class="brand">gabcat<span>.dev</span></div>
+        <div class="role">Developer &amp; DevOps</div>
+      </div>
+      <div class="bottom">
+        <div class="email">catimbanggabriel@gmail.com</div>
+        <div class="qr-box"><img src="./qr-on-flame.png" alt="" /></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card b3" id="b3">
+    <div class="bleed">
+      <div>Catimbang</div>
+      <div class="line2">Gabriel</div>
+    </div>
+    <div class="overlay">
+      <div class="top">
+        <div class="brand">gabcat<span>.dev</span></div>
+        <div class="qr-box"><img src="./qr-on-flame.png" alt="" /></div>
+      </div>
+      <div class="meta">
+        <div class="role">Developer &amp; DevOps</div>
+        <div class="email">catimbanggabriel@gmail.com<br />→ scan QR</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card b4" id="b4">
+    <div class="bleed">Catimbang</div>
+    <div class="overlay">
+      <div class="top">
+        <div class="given">Gabriel</div>
+        <div class="role">Developer &amp; DevOps</div>
+      </div>
+      <div class="bottom">
+        <div class="email">
+          <strong>gabcat.dev</strong><br />
+          catimbanggabriel@gmail.com
+        </div>
+        <div class="qr-box"><img src="./qr.png" alt="" /></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card c1" id="c1">
+    <div class="spine"><div class="spine-text">gabcat.dev</div></div>
+    <div class="main">
+      <div></div>
+      <div>
+        <h1 class="name">Gabriel<br />Catimbang</h1>
+        <p class="role">Developer &amp; DevOps</p>
+      </div>
+      <div class="email">catimbanggabriel@gmail.com</div>
+    </div>
+    <div class="qr-col">
+      <div class="qr-box"><img src="./qr.png" alt="" /></div>
+      <div class="qr-label">scan</div>
+    </div>
+  </div>
+
+  <div class="card c2" id="c2">
+    <div class="spine">
+      <div class="spine-brand">gabcat.dev</div>
+      <div class="spine-name">Gabriel Catimbang</div>
+    </div>
+    <div class="main">
+      <div class="role">Developer &amp; DevOps</div>
+      <div class="qr-row">
+        <div class="email">catimbanggabriel@gmail.com<br />open to work · Naga City, PH</div>
+        <div>
+          <div class="scan">Scan to<br /><span>visit</span></div>
+        </div>
+      </div>
+      <div class="qr-box"><img src="./qr.png" alt="" /></div>
+    </div>
+  </div>
+
+  <div class="card c3" id="c3">
+    <div class="spine"><div class="spine-text">gabcat.dev</div></div>
+    <div class="main">
+      <div></div>
+      <div>
+        <h1 class="name">Gabriel<br /><span>Catimbang</span></h1>
+        <p class="role">Developer &amp; DevOps</p>
+      </div>
+      <div class="email">catimbanggabriel@gmail.com</div>
+    </div>
+    <div class="qr-col">
+      <div class="qr-box"><img src="./qr-on-flame.png" alt="" /></div>
+      <div class="qr-label">scan</div>
+    </div>
+  </div>
+
+  <div class="card c4" id="c4">
+    <div class="main">
+      <div class="brand">gabcat<span>.dev</span></div>
+      <div>
+        <h1 class="name">Gabriel<br />Catimbang</h1>
+        <p class="role">Developer &amp; DevOps</p>
+      </div>
+      <div class="email">catimbanggabriel@gmail.com</div>
+    </div>
+    <div class="spine">
+      <div class="spine-text">scan me</div>
+      <div class="qr-box"><img src="./qr.png" alt="" /></div>
+    </div>
+  </div>
+
+</body>
+</html>

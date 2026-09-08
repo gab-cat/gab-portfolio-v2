@@ -5,10 +5,10 @@ import { toggleTheme, useTheme } from "../lib/theme";
 import { EASE } from "./Reveal";
 
 const LINKS = [
-  { id: "story", label: "story" },
-  { id: "journey", label: "journey" },
-  { id: "work", label: "work" },
-  { id: "wins", label: "wins" },
+  { id: "work", label: "Work" },
+  { id: "story", label: "About" },
+  { id: "journey", label: "Experience" },
+  { id: "wins", label: "Recognition" },
 ] as const;
 
 function ThemeToggle({ className = "" }: { className?: string }) {
@@ -18,7 +18,9 @@ function ThemeToggle({ className = "" }: { className?: string }) {
   return (
     <button
       ref={ref}
-      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={
+        theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+      }
       className={`grid h-10 w-10 place-items-center rounded-full border border-line transition-colors duration-300 hover:border-flame hover:text-flame ${className}`}
       onClick={() => {
         const rect = ref.current?.getBoundingClientRect();
@@ -40,12 +42,30 @@ function ThemeToggle({ className = "" }: { className?: string }) {
         >
           {theme === "dark" ? (
             /* moon */
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
             </svg>
           ) : (
             /* sun */
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <circle cx="12" cy="12" r="4" />
               <path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
             </svg>
@@ -60,9 +80,14 @@ export function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("");
   const [open, setOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40);
+      if (window.scrollY < 100) setActive("");
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -73,7 +98,8 @@ export function Nav() {
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) setActive(entry.target.id);
+          if (entry.isIntersecting && window.scrollY >= 100)
+            setActive(entry.target.id);
         }
       },
       { rootMargin: "-40% 0px -55% 0px" },
@@ -96,6 +122,53 @@ export function Nav() {
     }
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    const main = document.querySelector("main");
+    main?.setAttribute("inert", "");
+    const focusTimer = window.setTimeout(
+      () => menu.current?.querySelector<HTMLButtonElement>("button")?.focus(),
+      50,
+    );
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        menuButton.current?.focus();
+      }
+      if (event.key === "Tab") {
+        const items = [
+          menuButton.current,
+          ...Array.from(
+            menu.current?.querySelectorAll<HTMLButtonElement>("button") ?? [],
+          ),
+        ].filter((el): el is HTMLButtonElement => !!el);
+        const current = items.indexOf(
+          document.activeElement as HTMLButtonElement,
+        );
+        const next = event.shiftKey
+          ? (current - 1 + items.length) % items.length
+          : (current + 1) % items.length;
+        event.preventDefault();
+        items[next]?.focus();
+      }
+    };
+    const onResize = () => {
+      if (window.innerWidth >= 768) setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("resize", onResize);
+    return () => {
+      clearTimeout(focusTimer);
+      main?.removeAttribute("inert");
+      document.body.style.overflow =
+        previousOverflow === "hidden" ? "" : previousOverflow;
+      startLenis();
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [open]);
+
   const go = (id: string) => {
     setOpen(false);
     // wait a beat so the overlay clears before we glide
@@ -111,13 +184,13 @@ export function Nav() {
             : "border-b border-transparent"
         }`}
       >
-        <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+        <nav className="studio-nav" aria-label="Main navigation">
           <button
             onClick={scrollToTop}
-            className="font-display text-lg font-bold tracking-tight"
+            className="nav-brand"
             aria-label="Back to top"
           >
-            gabcat<span className="text-flame">.dev</span>
+            gabcat<span>®</span>
           </button>
 
           <div className="hidden items-center gap-1 md:flex">
@@ -125,10 +198,10 @@ export function Nav() {
               <button
                 key={id}
                 onClick={() => go(id)}
-                className={`rounded-full px-4 py-2 font-mono text-[13px] transition-colors duration-300 ${
-                  active === id
-                    ? "text-flame"
-                    : "text-fog hover:text-ink"
+                aria-label={label}
+                aria-current={active === id ? "location" : undefined}
+                className={`rounded-full px-3 py-2 font-sans text-[12px] transition-colors duration-300 ${
+                  active === id ? "text-flame" : "text-fog hover:text-ink"
                 }`}
               >
                 {active === id ? "● " : ""}
@@ -137,9 +210,9 @@ export function Nav() {
             ))}
             <button
               onClick={() => go("hello")}
-              className="ml-2 rounded-full border border-flame/50 px-4 py-2 font-mono text-[13px] text-flame transition-colors duration-300 hover:bg-flame hover:text-white"
+              className="ml-2 rounded-full border border-flame/50 px-3 py-2 font-sans text-[12px] text-flame transition-colors duration-300 hover:bg-flame hover:text-white"
             >
-              say hello
+              Let’s talk ↗
             </button>
             <ThemeToggle className="ml-3" />
           </div>
@@ -147,8 +220,10 @@ export function Nav() {
           <div className="flex items-center gap-3 md:hidden">
             <ThemeToggle />
             <button
+              ref={menuButton}
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
+              aria-controls="mobile-menu"
               onClick={() => setOpen((v) => !v)}
               className="grid h-10 w-10 place-items-center rounded-full border border-line"
             >
@@ -173,6 +248,11 @@ export function Nav() {
       <AnimatePresence>
         {open && (
           <motion.div
+            ref={menu}
+            id="mobile-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site navigation"
             className="fixed inset-0 z-40 flex flex-col justify-center bg-paper px-8 md:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

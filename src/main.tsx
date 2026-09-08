@@ -6,6 +6,7 @@ import "@fontsource-variable/jetbrains-mono";
 import "@fontsource/instrument-serif";
 import "@fontsource/instrument-serif/400-italic.css";
 import "./index.css";
+import "./studio.css";
 import App from "./App.tsx";
 
 const container = document.getElementById("root")!;

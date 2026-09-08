@@ -1,142 +1,188 @@
-import { motion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
 import { PROJECTS } from "../data";
-import { Reveal, SectionHeading } from "./Reveal";
+import { Reveal } from "./Reveal";
 
-/*
-  03 · THE WORK — "the deck"
-  Each project is a full card that pins to the viewport; the next one slides
-  up and stacks on top, edges peeking like a hand of cards. Cards underneath
-  ease back slightly as they're covered.
-*/
-
-function Card({
-  project,
-  i,
-  total,
-  progress,
-}: {
-  project: (typeof PROJECTS)[number];
-  i: number;
-  total: number;
-  progress: ReturnType<typeof useScroll>["scrollYProgress"];
-}) {
-  // As the NEXT card arrives, this one settles back into the deck.
-  const scale = useTransform(
-    progress,
-    [(i + 0.35) / total, (i + 1) / total],
-    [1, i === total - 1 ? 1 : 0.955],
-  );
-
-  return (
-    <div className="sticky" style={{ top: `${92 + i * 26}px` }}>
-      <motion.a
-        href={project.href}
-        target="_blank"
-        rel="noreferrer"
-        style={{ scale }}
-        className="group relative block origin-top overflow-hidden rounded-3xl border border-line bg-card p-7 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.35)] transition-colors duration-500 hover:border-flame/50 sm:p-10 md:p-14"
-      >
-        {/* watermark index */}
-        <span
-          aria-hidden
-          className="text-outline-flame pointer-events-none absolute -top-6 right-2 font-display text-[9rem] leading-none font-bold opacity-25 transition-opacity duration-500 select-none group-hover:opacity-60 md:-top-10 md:right-6 md:text-[15rem]"
-        >
-          {project.index}
+function ProjectArt({ index }: { index: number }) {
+  if (index === 0)
+    return (
+      <div className="project-art art-merch" aria-hidden="true">
+        <div className="merch-orbit" />
+        <div className="merch-window">
+          <div className="mock-nav">
+            <b>
+              merchtrack<span>®</span>
+            </b>
+            <span>THE CAMPUS COLLECTION ↗</span>
+          </div>
+          <div className="merch-content">
+            <div>
+              <span className="mock-label">WEAR YOUR COMMUNITY.</span>
+              <strong>
+                Campus.
+                <br />
+                Culture.
+                <br />
+                <em>Collected.</em>
+              </strong>
+              <span className="mock-shop">Find your everyday ↗</span>
+            </div>
+            <div className="shirt">
+              <svg viewBox="0 0 200 220" fill="none">
+                <path
+                  d="M55 18 78 8c5 17 39 17 44 0l23 10 45 46-32 30-15-16 6 124H51l6-124-15 16-32-30 45-46Z"
+                  fill="#23352c"
+                />
+                <path
+                  d="M78 8c5 17 39 17 44 0"
+                  stroke="#718775"
+                  strokeWidth="5"
+                />
+                <text
+                  x="100"
+                  y="100"
+                  textAnchor="middle"
+                  fill="#ebf19e"
+                  fontSize="21"
+                  fontFamily="sans-serif"
+                  fontWeight="bold"
+                >
+                  GUILD
+                </text>
+                <text
+                  x="100"
+                  y="119"
+                  textAnchor="middle"
+                  fill="#ebf19e"
+                  fontSize="7"
+                  fontFamily="monospace"
+                >
+                  BUILT DIFFERENT.
+                </text>
+              </svg>
+              <span>THE EVERYDAY TEE</span>
+            </div>
+          </div>
+        </div>
+        <span className="art-sticker">
+          2,750+<small>users in week one</small>
         </span>
-
-        {/* card top rule */}
-        <div className="mb-8 flex items-center gap-4 md:mb-10">
-          <span className="font-mono text-xs tracking-[0.2em] text-flame uppercase">
-            {project.index} — {String(total).padStart(2, "0")}
-          </span>
-          <span aria-hidden className="h-px w-16 bg-line transition-colors duration-500 group-hover:bg-flame/40" />
+      </div>
+    );
+  if (index === 1)
+    return (
+      <div className="project-art art-guild" aria-hidden="true">
+        <span className="guild-top">
+          ATENEO DE NAGA UNIVERSITY <span>EST. COMMUNITY</span>
+        </span>
+        <div className="guild-type">
+          &lt;cs<span>guild</span>/&gt;
         </div>
-
-        <div className="relative max-w-2xl">
-          <h3 className="font-display text-4xl font-bold tracking-tight transition-colors duration-300 group-hover:text-flame sm:text-5xl md:text-6xl">
-            {project.name}
-          </h3>
-          <p className="mt-3 font-serif text-xl text-ember italic md:text-2xl">
-            {project.tagline}
-          </p>
-          <p className="mt-5 leading-relaxed text-fog md:text-lg">
-            {project.story}
-          </p>
-        </div>
-
-        <div className="mt-8 flex flex-wrap items-center gap-2 md:mt-10">
-          {project.tech.map((t) => (
-            <span
-              key={t}
-              className="rounded-full border border-line px-3 py-1 font-mono text-xs text-fog transition-colors duration-300 group-hover:border-flame/40 group-hover:text-ink"
-            >
-              {t}
+        <div className="guild-star">✳</div>
+        <span className="guild-bottom">
+          A place for the next
+          <br />
+          “I made this.”<span>CODE. CONNECT. CREATE.</span>
+        </span>
+      </div>
+    );
+  if (index === 2)
+    return (
+      <div className="project-art art-generals" aria-hidden="true">
+        <span className="board-label">YOUR NEXT MOVE CHANGES EVERYTHING.</span>
+        <div className="game-board">
+          {Array.from({ length: 40 }, (_, i) => (
+            <span key={i} className="board-cell">
+              {[3, 5, 11, 16, 22, 26, 28, 33, 36].includes(i) && (
+                <i className={i < 20 ? "piece-light" : "piece-dark"}>
+                  {i % 3 === 0 ? "★" : "❯"}
+                </i>
+              )}
             </span>
           ))}
-          <span className="ml-auto hidden items-center gap-2 font-mono text-sm text-fog transition-colors duration-300 group-hover:text-flame sm:flex">
-            visit
-            <span
-              aria-hidden
-              className="inline-block transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
-            >
-              ↗
-            </span>
-          </span>
         </div>
-      </motion.a>
+        <span className="board-bottom">
+          GAMES OF THE GENERALS <span>YOUR MOVE ↗</span>
+        </span>
+      </div>
+    );
+  return (
+    <div className="project-art art-tarot" aria-hidden="true">
+      <span className="tarot-label">A LITTLE GUIDANCE FROM THE UNIVERSE.</span>
+      <div className="tarot-cards">
+        <div className="tarot-card tarot-left">
+          ☾<small>THE MOON</small>
+        </div>
+        <div className="tarot-card tarot-center">
+          <span>XVII</span>✷<small>THE STAR</small>
+        </div>
+        <div className="tarot-card tarot-right">
+          ☼<small>THE SUN</small>
+        </div>
+      </div>
+      <span className="tarot-wordmark">
+        Your Daily Tarot<span>GOOD MORNING, COSMOS.</span>
+      </span>
     </div>
   );
 }
 
 export function Work() {
-  const deckRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: deckRef,
-    offset: ["start 0.7", "end end"],
-  });
-
   return (
-    <section id="work" className="mx-auto max-w-6xl px-5 pt-12 pb-28 sm:px-8 md:pt-14 md:pb-36">
-      <SectionHeading
-        kicker="03 · the work"
-        title={
-          <>
-            Things I've built{" "}
-            <em className="font-serif text-[1.12em] text-flame">
-              (that people actually used)
-            </em>
-            .
-          </>
-        }
-        sub="No mockups, no “concept pieces” — every one of these shipped and met real users. Scroll to deal the deck."
-      />
-
-      <div ref={deckRef} className="grid gap-10 pb-8">
-        {PROJECTS.map((project, i) => (
-          <Card
-            key={project.name}
-            project={project}
-            i={i}
-            total={PROJECTS.length}
-            progress={scrollYProgress}
-          />
-        ))}
-      </div>
-
-      <Reveal>
-        <p className="mt-10 text-center font-mono text-sm text-fog">
-          more experiments live on{" "}
-          <a
-            href="https://github.com/gab-cat"
-            target="_blank"
-            rel="noreferrer"
-            className="text-flame underline-offset-4 hover:underline"
-          >
-            github.com/gab-cat
-          </a>
+    <section id="work" className="work-section studio-container section-space">
+      <Reveal className="section-intro">
+        <div>
+          <p className="eyebrow">Selected work · Built & shipped</p>
+          <h2>
+            Less talk.
+            <br />
+            <span className="soft-text">More “it’s live.”</span>
+          </h2>
+        </div>
+        <p>
+          A few things I’ve put into the world.
+          <br />
+          Real products, real people on the other side.
         </p>
       </Reveal>
+      <div className="projects-grid">
+        {PROJECTS.map((project, i) => (
+          <Reveal
+            key={project.name}
+            className={`project project-${i}`}
+            delay={(i % 2) * 0.08}
+          >
+            <a
+              className="project-link"
+              href={project.href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`${project.name} — ${i === 1 ? "visit website" : "explore on GitHub"} (opens in a new tab)`}
+            >
+              <ProjectArt index={i} />
+              <div className="project-heading">
+                <h3>{project.name}</h3>
+                <span className="project-arrow">↗</span>
+              </div>
+              <p className="project-tagline">{project.tagline}</p>
+            </a>
+            <p className="project-story">{project.story}</p>
+            <div className="project-meta">
+              <span>{project.tech.join(" / ")}</span>
+              <span>{i === 1 ? "Live website" : "GitHub"} ↗</span>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+      <div className="work-footnote">
+        <span>Project artwork, made for this portfolio.</span>
+        <a
+          className="text-link"
+          href="https://github.com/gab-cat"
+          target="_blank"
+          rel="noreferrer"
+        >
+          More on GitHub ↗
+        </a>
+      </div>
     </section>
   );
 }
