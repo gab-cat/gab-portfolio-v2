@@ -1,4 +1,4 @@
-import { createContactHandler } from "../server/contact";
+import { createContactHandler } from "../server/contact.js";
 
 const handle = createContactHandler({ env: process.env });
 function route(request: Request) {
