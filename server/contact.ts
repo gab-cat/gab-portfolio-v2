@@ -1,8 +1,27 @@
 import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
+import { createClient, type RedisClientType } from "redis";
 
 export type ContactEnv = Record<string, string | undefined>;
 type Command = (args: (string | number)[]) => Promise<unknown>;
 export type Dependencies = { env: ContactEnv; command?: Command; fetch?: typeof fetch; now?: () => number };
+
+let redis: RedisClientType | undefined;
+let redisUrl: string | undefined;
+
+function asNumber(value: unknown) {
+  if (typeof value === "bigint") return Number(value);
+  return value;
+}
+
+async function redisUrlCommand(url: string, args: (string | number)[]) {
+  if (!redis || redisUrl !== url || !redis.isOpen) {
+    if (redis?.isOpen) await redis.close().catch(() => undefined);
+    redisUrl = url;
+    redis = createClient({ url, socket: { connectTimeout: 4000 } });
+    await redis.connect();
+  }
+  return asNumber(await redis.sendCommand(args.map(String)));
+}
 const MAX_BYTES = 16_384;
 const TTL = 1800;
 const RECIPIENT = "catimbanggabriel@gmail.com";
@@ -54,12 +73,15 @@ export function createContactHandler(deps: Dependencies) {
   const sign = (value: string) => createHmac("sha256", env.RESEND_API_KEY!).update(`portfolio-contact:${value}`).digest("base64url");
   const command: Command = deps.command ?? (async (args) => {
     const endpoint = env.UPSTASH_REDIS_REST_URL;
-    if (!endpoint?.startsWith("https://") || !env.UPSTASH_REDIS_REST_TOKEN) throw new Error("Protection not configured");
-    const result = await requestFetch(endpoint, { method: "POST", headers: { Authorization: `Bearer ${env.UPSTASH_REDIS_REST_TOKEN}`, "Content-Type": "application/json" }, body: JSON.stringify(args), signal: AbortSignal.timeout(4000) });
-    if (!result.ok) throw new Error("Protection unavailable");
-    const data = await result.json() as { result: unknown; error?: string };
-    if (data.error || data.result === undefined) throw new Error("Protection unavailable");
-    return data.result;
+    if (endpoint?.startsWith("https://") && env.UPSTASH_REDIS_REST_TOKEN) {
+      const result = await requestFetch(endpoint, { method: "POST", headers: { Authorization: `Bearer ${env.UPSTASH_REDIS_REST_TOKEN}`, "Content-Type": "application/json" }, body: JSON.stringify(args), signal: AbortSignal.timeout(4000) });
+      if (!result.ok) throw new Error("Protection unavailable");
+      const data = await result.json() as { result: unknown; error?: string };
+      if (data.error || data.result === undefined) throw new Error("Protection unavailable");
+      return data.result;
+    }
+    if (env.REDIS_URL?.startsWith("redis")) return redisUrlCommand(env.REDIS_URL, args);
+    throw new Error("Protection not configured");
   });
   async function limit(key: string, max: number, seconds: number) {
     const count = await command(["EVAL", LIMIT_SCRIPT, 1, `contact:${key}`, seconds]);
