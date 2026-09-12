@@ -22,4 +22,5 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun test server
       - run: bun run build
+      - run: bun run seo:check
 # Production deployments are handled by the Vercel Git integration.

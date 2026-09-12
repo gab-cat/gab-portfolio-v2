@@ -24,7 +24,7 @@ const server = Bun.serve({
   },
 });
 
-await page.goto("http://127.0.0.1:8768/public/calling-card/explore-bc.html", {
+await page.goto("http://127.0.0.1:8768/tools/calling-card/explore-bc.html", {
   waitUntil: "networkidle0",
 });
 await page.evaluate(async () => {
@@ -35,7 +35,7 @@ await Bun.sleep(500);
 for (const id of ids) {
   const el = await page.$(`#${id}`);
   if (!el) throw new Error(`Missing #${id}`);
-  const out = `public/calling-card/explore-${id}.png`;
+  const out = `tools/calling-card/explore-${id}.png`;
   await el.screenshot({ path: out, type: "png" });
   console.log("wrote", out);
 }

@@ -32,9 +32,6 @@ export function Contact() {
     }
   }, []);
   useEffect(() => { void refresh(); return () => request.current?.abort(); }, [refresh]);
-  useEffect(() => {
-    document.title = "Contact Gabriel Catimbang — Start a conversation";
-  }, []);
   useEffect(() => { if (status === "sent") success.current?.focus(); }, [status]);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

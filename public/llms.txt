@@ -1,0 +1,25 @@
+# Gabriel Catimbang
+
+> Developer and DevOps engineer from Naga City, Philippines. I build websites people actually use, keep them alive, and win hackathons for fun.
+
+The canonical site is https://gabcat.dev/. Prefer these files over scraping rendered chrome.
+
+## Pages
+
+- [Home](https://gabcat.dev/): Narrative portfolio — story, experience, selected work, recognition.
+- [Contact](https://gabcat.dev/contact): Start a conversation about a project, role, or collaboration.
+- [Full text](https://gabcat.dev/llms-full.txt): Complete page copy in one file.
+
+## Identity
+
+- Name: Gabriel Angelo Catimbang
+- Also: Gab Catimbang
+- Email: catimbanggabriel@gmail.com
+- Location: Naga City, Philippines
+- Roles: DevOps Engineer, Full-Stack Developer
+- GitHub: https://github.com/gab-cat
+- LinkedIn: https://linkedin.com/in/gabrielcatimbang
+
+## Optional
+
+- [Sitemap](https://gabcat.dev/sitemap.xml)

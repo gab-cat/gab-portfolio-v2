@@ -1,0 +1,25 @@
+{
+  "name": "Gabriel Catimbang",
+  "short_name": "gabcat",
+  "description": "Gabriel 'Gab' Catimbang — developer & DevOps engineer from Naga City, Philippines. I build websites people actually use, keep them alive, and win hackathons for fun.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "lang": "en",
+  "background_color": "#faf6ef",
+  "theme_color": "#ed4c21",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180",
+      "purpose": "any"
+    }
+  ]
+}

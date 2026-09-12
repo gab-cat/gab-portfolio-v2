@@ -18,6 +18,12 @@ The terminal in the hero accepts input. Try `help`, `coffee`, or `sudo hire-me`.
 - [Lenis](https://lenis.darkroom.engineering) — smooth scrolling
 - [Bun](https://bun.sh) for package management
 
+Production HTML is prerendered for `/` and `/contact`, with a `noindex` `404.html`.
+Crawler files live at `/robots.txt`, `/sitemap.xml`, `/llms.txt`, and `/llms-full.txt`.
+Run `bun run check` to typecheck, test the contact API, build, and validate SEO artifacts.
+
+## Develop
+
 ## Develop
 
 ```sh

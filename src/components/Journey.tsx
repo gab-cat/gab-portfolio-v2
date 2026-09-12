@@ -43,6 +43,7 @@ export function Journey() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const wordY = useTransform(scrollYProgress, value => `${-Math.min(5, Math.floor(value * 6)) * 100 / 6}%`);
   return (
+    <>
     <section ref={ref} id="journey" className="experience-theater">
       <div className="studio-container experience-stage">
         <div className="experience-director">
@@ -54,7 +55,10 @@ export function Journey() {
         </div>
         <div className="career-deck">{JOURNEY.map((job, index) => <CareerCard key={job.company + job.period} index={index} />)}</div>
       </div>
-      <div className="experience-exit studio-container"><Reveal><p>All of that leads to one thing.</p><h2>Things that <em>actually work.</em> <span aria-hidden="true">↓</span></h2></Reveal></div>
     </section>
+      <section className="experience-exit studio-container" aria-label="What experience leads to">
+        <Reveal><p>All of that leads to one thing.</p><h2>Things that <em>actually work.</em> <span aria-hidden="true">↓</span></h2></Reveal>
+      </section>
+    </>
   );
 }

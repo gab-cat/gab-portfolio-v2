@@ -1,10 +1,18 @@
+import { lazy, Suspense, useState, type SyntheticEvent } from "react";
 import { TOOLBOX } from "../data";
 import { Reveal } from "./Reveal";
 import { StoryPortrait } from "./StoryPortrait";
 import { Sculpture } from "./Sculpture";
-import { Terminal } from "./Terminal";
+
+const Terminal = lazy(() =>
+  import("./Terminal").then((mod) => ({ default: mod.Terminal })),
+);
 
 export function Story() {
+  const [terminal, setTerminal] = useState(false);
+  const onToggle = (event: SyntheticEvent<HTMLDetailsElement>) => {
+    if (event.currentTarget.open) setTerminal(true);
+  };
   return (
     <section id="story" className="story-section section-space">
       <div className="studio-container">
@@ -41,7 +49,7 @@ export function Story() {
               className="text-link"
               href="https://linkedin.com/in/gabrielcatimbang"
               target="_blank"
-              rel="noreferrer"
+              rel="noreferrer noopener"
             >
               A bit more about me ↗
             </a>
@@ -64,7 +72,7 @@ export function Story() {
             ))}
           </div>
         </div>
-        <details className="terminal-disclosure">
+        <details className="terminal-disclosure" onToggle={onToggle}>
           <summary>
             <span>
               <span className="text-flame">&gt;_</span> Prefer the command line?
@@ -74,7 +82,11 @@ export function Story() {
             </span>
           </summary>
           <div className="terminal-wrap">
-            <Terminal />
+            {terminal && (
+              <Suspense fallback={null}>
+                <Terminal />
+              </Suspense>
+            )}
           </div>
         </details>
       </div>

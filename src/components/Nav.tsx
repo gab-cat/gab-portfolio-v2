@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { scrollToId, scrollToTop, startLenis, stopLenis } from "../lib/lenis";
+import { scrollToId, scrollToTop, startLenis, stopLenis } from "../lib/scroll";
 import { toggleTheme, useTheme } from "../lib/theme";
 import { EASE } from "./Reveal";
 

@@ -1,6 +1,6 @@
 import { Reveal } from "./Reveal";
 import { Sculpture } from "./Sculpture";
-import { scrollToId } from "../lib/lenis";
+import { scrollToId } from "../lib/scroll";
 
 export function Hero() {
   return (

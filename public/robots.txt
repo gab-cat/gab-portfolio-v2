@@ -1,8 +1,5 @@
-# robots.txt for gabcat.dev
-# Allow all crawlers to access all content
-
+# gabcat.dev — allow search and AI crawlers
 User-agent: *
 Allow: /
 
-# Sitemap location
 Sitemap: https://gabcat.dev/sitemap.xml

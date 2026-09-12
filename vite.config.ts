@@ -1,10 +1,52 @@
-import { defineConfig, loadEnv } from "vite";
+import { existsSync, readFileSync } from "node:fs";
+import { extname, resolve } from "node:path";
+import { defineConfig, loadEnv, type PreviewServer } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { createContactHandler } from "./server/contact";
 
+function staticStatusPages() {
+  return {
+    name: "static-status-pages",
+    configurePreviewServer(server: PreviewServer) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url?.split("?")[0] ?? "";
+        const dist = resolve(process.cwd(), "dist");
+        if (url === "/contact" || url === "/contact/") {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "text/html; charset=utf-8");
+          res.end(readFileSync(resolve(dist, "contact/index.html")));
+          return;
+        }
+        if (
+          url === "/" ||
+          url.startsWith("/assets/") ||
+          url.startsWith("/fonts/") ||
+          url.startsWith("/portraits/") ||
+          url.startsWith("/api/")
+        ) {
+          next();
+          return;
+        }
+        const direct = resolve(dist, `.${url}`);
+        if (existsSync(direct) && extname(direct)) {
+          next();
+          return;
+        }
+        if (existsSync(resolve(dist, "404.html"))) {
+          res.statusCode = 404;
+          res.setHeader("Content-Type", "text/html; charset=utf-8");
+          res.end(readFileSync(resolve(dist, "404.html")));
+          return;
+        }
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), tailwindcss(), {
+  plugins: [react(), tailwindcss(), staticStatusPages(), {
     name: "local-contact-function",
     configureServer(server) {
       const env = { ...loadEnv(mode, process.cwd(), ""), ...process.env };
@@ -30,4 +72,16 @@ export default defineConfig(({ mode }) => ({
     },
   }],
   base: "/",
+  build: {
+    manifest: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules/three")) return "three";
+          if (id.includes("node_modules/motion")) return "motion";
+          if (id.includes("node_modules/lenis")) return "lenis";
+        },
+      },
+    },
+  },
 }));

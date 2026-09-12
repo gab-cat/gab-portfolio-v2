@@ -1,10 +1,5 @@
 import { StrictMode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
-import "@fontsource-variable/instrument-sans";
-import "@fontsource-variable/instrument-sans/wght-italic.css";
-import "@fontsource-variable/jetbrains-mono";
-import "@fontsource/instrument-serif";
-import "@fontsource/instrument-serif/400-italic.css";
 import "./index.css";
 import "./studio.css";
 import "./sculpture.css";
@@ -12,19 +7,27 @@ import "./chapters.css";
 import "./experience.css";
 import "./contact.css";
 import "./finale.css";
-import App from "./App.tsx";
+import { routeFromPath, type RouteId } from "./seo";
 
 const container = document.getElementById("root")!;
-const app = (
-  <StrictMode>
-    <App path={window.location.pathname} />
-  </StrictMode>
-);
+const route = routeFromPath(window.location.pathname);
 
-// Production HTML is prerendered at build time — hydrate it. Dev serves an
-// empty root — render from scratch.
-if (container.firstChild) {
-  hydrateRoot(container, app);
-} else {
-  createRoot(container).render(app);
+async function loadApp(id: RouteId) {
+  if (id === "contact") return (await import("./pages/ContactApp")).default;
+  if (id === "notFound") return (await import("./pages/NotFoundApp")).default;
+  return (await import("./pages/HomeApp")).default;
 }
+
+void loadApp(route).then((Page) => {
+  const app = (
+    <StrictMode>
+      <Page />
+    </StrictMode>
+  );
+
+  if (container.firstChild) {
+    hydrateRoot(container, app);
+  } else {
+    createRoot(container).render(app);
+  }
+});

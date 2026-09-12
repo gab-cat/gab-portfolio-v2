@@ -48,21 +48,47 @@ export function StoryWorld() {
   }, []);
   useEffect(() => {
     let cancelled = false;
+    let idle = 0;
     const preference = matchMedia("(prefers-reduced-motion: reduce)");
     const syncMotion = () => setPaused(preference.matches);
     syncMotion();
     preference.addEventListener("change", syncMotion);
-    import("../lib/sculpture")
-      .then(({ createSculpture }) => {
-        if (cancelled || !host.current) return;
-        controller.current = createSculpture(host.current, () =>
-          setReady(false),
-        );
-        setReady(!!controller.current);
-      })
-      .catch(() => setReady(false));
+    const load = () => {
+      if (cancelled || controller.current) return;
+      import("../lib/sculpture")
+        .then(({ createSculpture }) => {
+          if (cancelled || !host.current) return;
+          controller.current = createSculpture(host.current, () =>
+            setReady(false),
+          );
+          setReady(!!controller.current);
+        })
+        .catch(() => setReady(false));
+    };
+    const slots = document.querySelectorAll("[data-sculpture]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        load();
+      },
+      { rootMargin: "220px" },
+    );
+    slots.forEach((slot) => observer.observe(slot));
+    const win = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (win.requestIdleCallback) {
+      idle = win.requestIdleCallback(load, { timeout: 2200 });
+    } else {
+      idle = window.setTimeout(load, 400);
+    }
     return () => {
       cancelled = true;
+      observer.disconnect();
+      win.cancelIdleCallback?.(idle);
+      clearTimeout(idle);
       preference.removeEventListener("change", syncMotion);
       controller.current?.dispose();
       controller.current = null;

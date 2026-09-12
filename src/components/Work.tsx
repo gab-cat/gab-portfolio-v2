@@ -163,7 +163,7 @@ export function Work() {
                 className="project-link"
                 href={project.href}
                 target="_blank"
-                rel="noreferrer"
+                rel="noreferrer noopener"
                 aria-label={`${project.name} — ${i === 1 ? "visit website" : "explore on GitHub"} (opens in a new tab)`}
               >
                 <DepthArt>
@@ -189,7 +189,7 @@ export function Work() {
           className="text-link"
           href="https://github.com/gab-cat"
           target="_blank"
-          rel="noreferrer"
+          rel="noreferrer noopener"
         >
           More on GitHub ↗
         </a>

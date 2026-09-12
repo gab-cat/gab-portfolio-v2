@@ -5,6 +5,7 @@
   "installCommand": "bun install --frozen-lockfile",
   "outputDirectory": "dist",
   "cleanUrls": true,
+  "trailingSlash": false,
   "functions": { "api/contact.ts": { "maxDuration": 30 } },
   "redirects": [
     {
@@ -15,12 +16,46 @@
     }
   ],
   "headers": [
-    { "source": "/(.*)", "headers": [
-      { "key": "X-Content-Type-Options", "value": "nosniff" },
-      { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-      { "key": "X-Frame-Options", "value": "DENY" },
-      { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
-    ] },
-    { "source": "/api/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+    {
+      "source": "/api/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/fonts/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/portraits/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(robots.txt|sitemap.xml|llms.txt|llms-full.txt|site.webmanifest)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' data:; font-src 'self'; connect-src 'self'; script-src 'self' 'sha256-yYe61+dZ4twlUg0YVDgTxrh7jd1WiW9Dd5fBDbYUUpE='; style-src 'self' 'unsafe-inline'"
+        }
+      ]
+    }
   ]
 }

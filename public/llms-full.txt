@@ -1,0 +1,84 @@
+# Gabriel Catimbang
+
+Gabriel 'Gab' Catimbang — developer & DevOps engineer from Naga City, Philippines. I build websites people actually use, keep them alive, and win hackathons for fun.
+
+Canonical: https://gabcat.dev/
+Contact: https://gabcat.dev/contact
+Email: catimbanggabriel@gmail.com
+
+## About
+
+Before writing code, Gabriel spent three years on the other side of a support chat at Bell Canada. That listening habit now sits behind full-stack products and the infrastructure that keeps them running.
+
+## Toolbox
+
+- Building: Next.js, React, Vue & Nuxt, NestJS, TypeScript
+- Keeping it alive: Docker, AWS, GitHub Actions, Nginx, Linux
+- Remembering things: PostgreSQL, MongoDB, Redis, Convex
+- Curveballs: Unreal Engine, C++, Gemini AI, CTF forensics
+
+## Experience
+
+### eChat Representative — Quantrics (Bell Canada)
+May 2022 — Apr 2025
+Three years solving strangers' problems in real time. The best empathy training a developer can get.
+
+### Frontend Apprentice → Web Developer — ThePILLARS Publication
+Jan — Jul 2024
+Started as an apprentice, shipped full-stack within six months. Vue, Nuxt, Express — learned fast, built faster.
+
+### Lead Game Programmer (Intern) — ADNU Digital Illustration & Animation
+Jun — Jul 2024
+Built core gameplay mechanics in Unreal Engine 4 with C++. Yes, games count as software.
+
+### Webmaster — ThePILLARS Publication
+Aug 2024 — now
+The person they call so the site never goes down. Deployments, security, and automating the boring parts.
+
+### DevOps Engineer — Detken Development
+Apr 2025 — now
+Moved production off Vercel onto servers we control, wired up pipelines that deploy themselves, and locked the doors properly.
+
+### Software Developer Intern — Old.St Labs
+Jun — Sep 2025
+Built digital products with a team that ships fast — Next.js in front, NestJS in back.
+
+## Selected work
+
+### MerchTrack
+University merch, minus the chaos.
+An e-commerce platform for campus merchandise. 2,750+ students used it in the first week — the servers held, and so did I.
+Tech: Next.js, PostgreSQL, Redis
+Link: https://github.com/gab-cat
+
+### CS Guild
+A digital home for computer studies students.
+The hub where AdNU's computer studies community gathers — events, projects, and people. I lead the tech behind it as CTO.
+Tech: Next.js, NestJS
+Link: https://csguild.tech
+
+### Games of the Generals
+The classic Filipino strategy game, now online.
+Real-time multiplayer for the board game every Filipino household argues over. Play your friends from anywhere.
+Tech: Convex, Vite, Realtime
+Link: https://github.com/gab-cat
+
+### Your Daily Tarot
+Your cards, read before your coffee.
+A Messenger bot that deals you a daily tarot reading, written by AI with suspiciously good intuition.
+Tech: Convex, Gemini, Messenger API
+Link: https://github.com/gab-cat
+
+## Recognition
+
+- 2025 · Champion · AI.DEAS for Impact — Represented Bicol on the national stage
+- 2025 · 2nd Place · SparkLabs Hackathon — VeriPHI — identity verification API
+- 2025 · 3rd Place · Inventi Asia Hackathon — Blockchain-powered property management
+- 2025 · Top 5 · Concati API Build Labs — Lendr API
+- 2024 · Champion · Regional Hack4Gov CTF — Cybersecurity capture-the-flag
+- 2024 · 2nd Highest Scorer · Hack4Gov National Finals — Nationwide cybersecurity finals
+- 2024 · 4× All-Star · Bell Canada · Quantrics — Top 10% performer, four times over
+
+## Contact
+
+Have a project, role, or idea in mind? Send Gabriel Catimbang a note. Developer and DevOps engineer based in Naga City, Philippines.

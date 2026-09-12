@@ -1,61 +1,28 @@
 import Lenis from "lenis";
+import { setScroller } from "./scroll";
 
-let lenis: Lenis | null = null;
-
-/** One Lenis instance for the whole app; skipped for reduced-motion users. */
+/** One Lenis instance for the homepage; skipped for reduced-motion users. */
 export function initLenis(): (() => void) | undefined {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  lenis = new Lenis({
+  const lenis = new Lenis({
     lerp: 0.12,
     wheelMultiplier: 1,
     touchMultiplier: 1.3,
   });
 
+  setScroller(lenis);
+
   let frame = 0;
   const raf = (time: number) => {
-    lenis?.raf(time);
+    lenis.raf(time);
     frame = requestAnimationFrame(raf);
   };
   frame = requestAnimationFrame(raf);
 
   return () => {
     cancelAnimationFrame(frame);
-    lenis?.destroy();
-    lenis = null;
+    setScroller(null);
+    lenis.destroy();
   };
-}
-
-export function scrollToId(id: string) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  if (lenis) {
-    // Lenis already reads the section's scroll-margin-top for the fixed nav.
-    lenis.scrollTo(el, { duration: 1.15 });
-  } else {
-    el.scrollIntoView({
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "instant"
-        : "smooth",
-    });
-  }
-}
-
-export function stopLenis() {
-  lenis?.stop();
-}
-
-export function startLenis() {
-  lenis?.start();
-}
-
-export function scrollToTop() {
-  if (lenis) lenis.scrollTo(0, { duration: 1.15 });
-  else
-    window.scrollTo({
-      top: 0,
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "instant"
-        : "smooth",
-    });
 }

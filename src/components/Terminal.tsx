@@ -8,7 +8,7 @@ import {
 import { AnimatePresence, motion, useInView } from "motion/react";
 import { EMAIL, PROJECTS, TOOLBOX, TROPHIES } from "../data";
 import { setTheme, toggleTheme } from "../lib/theme";
-import { scrollToId } from "../lib/lenis";
+import { scrollToId } from "../lib/scroll";
 
 type Line = { kind: "cmd" | "out" | "accent"; text: string };
 
