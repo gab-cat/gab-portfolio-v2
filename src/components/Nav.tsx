@@ -76,7 +76,7 @@ function ThemeToggle({ className = "" }: { className?: string }) {
   );
 }
 
-export function Nav() {
+export function Nav({ contact = false }: { contact?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("");
   const [open, setOpen] = useState(false);
@@ -84,31 +84,23 @@ export function Nav() {
   const menu = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const sections = [...LINKS, { id: "hello" }].map(({ id }) =>
+      document.getElementById(id),
+    );
     const onScroll = () => {
       setScrolled(window.scrollY > 40);
-      if (window.scrollY < 100) setActive("");
+      const section = sections.slice().reverse().find(
+        (el) => el && el.getBoundingClientRect().top <= window.innerHeight * 0.4,
+      );
+      setActive(window.scrollY < 100 ? "" : section?.id ?? "");
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // Scrollspy
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting && window.scrollY >= 100)
-            setActive(entry.target.id);
-        }
-      },
-      { rootMargin: "-40% 0px -55% 0px" },
-    );
-    for (const { id } of LINKS) {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    }
-    return () => observer.disconnect();
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   // Freeze the page behind the mobile menu
@@ -171,6 +163,8 @@ export function Nav() {
 
   const go = (id: string) => {
     setOpen(false);
+    if (id === "hello") { window.location.assign("/contact"); return; }
+    if (contact) { window.location.assign(`/#${id}`); return; }
     // wait a beat so the overlay clears before we glide
     window.setTimeout(() => scrollToId(id), open ? 80 : 0);
   };
@@ -186,7 +180,7 @@ export function Nav() {
       >
         <nav className="studio-nav" aria-label="Main navigation">
           <button
-            onClick={scrollToTop}
+            onClick={() => contact ? window.location.assign("/") : scrollToTop()}
             className="nav-brand"
             aria-label="Back to top"
           >
@@ -210,6 +204,7 @@ export function Nav() {
             ))}
             <button
               onClick={() => go("hello")}
+              aria-current={active === "hello" ? "location" : undefined}
               className="ml-2 rounded-full border border-flame/50 px-3 py-2 font-sans text-[12px] text-flame transition-colors duration-300 hover:bg-flame hover:text-white"
             >
               Let’s talk ↗

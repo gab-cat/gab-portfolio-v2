@@ -4,3 +4,7 @@ dist-server
 *.local
 .DS_Store
 *.tsbuildinfo
+.env
+.env.*
+!.env.example
+.vercel

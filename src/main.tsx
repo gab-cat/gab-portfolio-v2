@@ -8,12 +8,16 @@ import "@fontsource/instrument-serif/400-italic.css";
 import "./index.css";
 import "./studio.css";
 import "./sculpture.css";
+import "./chapters.css";
+import "./experience.css";
+import "./contact.css";
+import "./finale.css";
 import App from "./App.tsx";
 
 const container = document.getElementById("root")!;
 const app = (
   <StrictMode>
-    <App />
+    <App path={window.location.pathname} />
   </StrictMode>
 );
 

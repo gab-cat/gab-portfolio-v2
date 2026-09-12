@@ -38,6 +38,14 @@ export function StoryWorld() {
   const controller = useRef<SculptureController | null>(null);
   const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [atFooter, setAtFooter] = useState(false);
+  useEffect(() => {
+    const footer = document.getElementById("footer");
+    if (!footer) return;
+    const observer = new IntersectionObserver(([entry]) => setAtFooter(entry.isIntersecting), { threshold: .6 });
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
   useEffect(() => {
     let cancelled = false;
     const preference = matchMedia("(prefers-reduced-motion: reduce)");
@@ -64,7 +72,7 @@ export function StoryWorld() {
   return (
     <>
       <div ref={host} className="story-world" aria-hidden="true" />
-      {ready && (
+      {ready && !atFooter && (
         <button
           className="world-motion"
           onClick={() => setPaused(!paused)}

@@ -133,10 +133,11 @@ function ProjectArt({ index }: { index: number }) {
 
 export function Work() {
   return (
-    <section id="work" className="work-section studio-container section-space">
-      <div className="work-narrative">
-        <div className="chapter-sticky">
+    <section id="work" className="work-section work-gallery studio-container section-space">
+      <div className="gallery-layout">
+        <div className="gallery-intro">
           <Reveal>
+            <p className="chapter-label">Ideas, out in the open</p>
             <h2>
               A what if is better
               <br />
@@ -148,7 +149,7 @@ export function Work() {
               on the other side.
             </p>
           </Reveal>
-          <Sculpture chapter="possibility" />
+          <div className="gallery-sculpture"><Sculpture chapter="possibility" /></div>
         </div>
         <div className="projects-grid">
           {PROJECTS.map((project, i) => (

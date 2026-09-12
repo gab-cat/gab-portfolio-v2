@@ -1,0 +1,67 @@
+/* The opening fills the viewport; the colophon has a room of its own. */
+.narrative-hero { min-height: 100svh; grid-template-rows: 1fr auto; padding-top: clamp(115px, 15vh, 165px); }
+.hero-opening { padding-bottom: 45px; }
+.narrative-hero-bottom { align-self: end; padding-bottom: 26px; margin-top: 0; }
+.hello-finale .finale-container { padding-bottom: 70px; }
+.footer-shell { padding: 16px; background: #ed4c21; }
+.contact-route .footer-shell { background: var(--paper); }
+.signature-footer { position: relative; background: #24251f; color: #f4f1e8; overflow: clip; padding-top: 35px; border-radius: 28px; }
+.signature-footer .studio-container { width: min(1440px, 100% - 80px); }
+.footer-heading-row { display: flex; justify-content: space-between; align-items: center; gap: 30px; }
+.footer-heading-row > p { font-size: 15px; line-height: 1.7; color: #aaa99d; }
+.footer-heading-row > p em { font-style: normal; color: #f4f1e8; }
+.footer-contact-block { text-align: right; }
+.footer-contact { display: flex; align-items: center; justify-content: flex-end; gap: 24px; font: 400 clamp(22px, 2.6vw, 39px)/1.2 var(--font-display); letter-spacing: -.035em; }
+.footer-contact > span { display: inline-block; font-size: .9em; color: #ff865e; transition: transform .3s; }
+.footer-contact:hover > span { transform: translate(4px, -4px); }
+.footer-email { display: inline-block; font-size: 11px; color: #aaa99d; margin-top: 12px; }
+.footer-email:hover { color: #f4f1e8; }
+.footer-navigation { display: flex; justify-content: space-between; gap: 25px; margin-top: 28px; padding-top: 20px; border-top: 1px solid #f4f1e824; }
+.footer-navigation nav { display: flex; flex-wrap: wrap; gap: 25px; }
+.footer-navigation a { font-size: 11px; color: #aaa99d; transition: color .25s; padding-block: 6px; }
+.footer-navigation a:hover { color: #ff865e; }
+.footer-wordmark { margin: 25px 0 16px; }
+.footer-wordmark > a { font: 700 clamp(100px, 21vw, 340px)/.86 var(--font-display); letter-spacing: -.075em; display: flex; align-items: center; width: 100%; position: relative; }
+.footer-wordmark > a > span { font: 400 .1em/1 var(--font-sans); align-self: flex-start; margin-top: .8em; margin-left: .1em; letter-spacing: 0; color: #ff865e; }
+.footer-wordmark i { margin-left: auto; font: normal .6em/1 var(--font-sans); color: #ff865e; transition: transform .8s cubic-bezier(.2,.8,.2,1); }
+.footer-wordmark > a:hover i { transform: rotate(120deg); }
+.signature-colophon { border-top: 1px solid #f4f1e824; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 10px 0 16px; color: #aaa99d; font-size: 9px; }
+.signature-colophon button { padding: 10px 0; color: #f4f1e8; }
+.signature-footer a:focus-visible, .signature-footer button:focus-visible { outline-color: #ff865e; }
+@media (max-width: 700px) {
+  .narrative-hero { min-height: 100svh; padding-top: 115px; gap: 0; }
+  .hero-opening { padding-bottom: 0; }
+  .hero-sculpture { height: clamp(170px, 29svh, 310px); margin: 0; flex: 1; min-height: 170px; }
+  .narrative-hero-bottom { margin-top: auto; }
+  .hello-finale .finale-container { padding-bottom: 65px; }
+  .footer-shell { padding: 10px; }
+  .signature-footer { padding-top: 28px; border-radius: 20px; }
+  .signature-footer .studio-container { width: calc(100% - 36px); }
+  .footer-heading-row { align-items: flex-start; flex-direction: column; gap: 20px; }
+  .footer-heading-row > p { font-size: 12px; }
+  .footer-contact-block { text-align: left; }
+  .footer-contact { justify-content: flex-start; font-size: 25px; gap: 16px; }
+  .footer-email { font-size: 10px; margin-top: 8px; }
+  .footer-navigation { flex-direction: column; gap: 8px; margin-top: 22px; padding-top: 14px; }
+  .footer-navigation nav { gap: 20px; }
+  .footer-navigation a { font-size: 10px; padding-block: 7px; }
+  .footer-wordmark { margin: 23px 0 15px; }
+  .footer-wordmark > a { font-size: 19.7vw; }
+  .signature-colophon { flex-wrap: wrap; font-size: 8px; gap: 0 10px; padding-top: 7px; padding-bottom: 15px; }
+  .signature-colophon > span:nth-child(2) { order: 3; width: 100%; }
+  .signature-colophon button { margin-left: auto; }
+
+}
+@media (max-width: 700px) and (max-height: 750px) {
+  .narrative-hero { padding-top: 100px; }
+  .hero-opening h1 { font-size: 12vw; }
+  .hero-byline { margin-top: 20px; }
+  .hero-sculpture { min-height: 150px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-opening .round-link-icon { animation: invitation-bob 3s ease-in-out infinite; }
+  @keyframes invitation-bob { 50% { transform: translateY(5px); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .footer-wordmark i, .footer-navigation a, .contact-send, .contact-topics span { transition: none; }
+}

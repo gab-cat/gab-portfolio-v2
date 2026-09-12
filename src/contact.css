@@ -1,0 +1,56 @@
+.contact-page { display: grid; grid-template-columns: .9fr 1.1fr; gap: 10%; padding-top: 165px; padding-bottom: 120px; align-items: start; }
+.contact-back { display: inline-block; color: var(--fog); font-size: 12px; margin-bottom: 40px; }
+.contact-intro .chapter-label { margin-bottom: 25px; }
+.contact-intro h1 { font: 700 clamp(75px, 8.5vw, 130px)/.88 var(--font-display); letter-spacing: -.06em; }
+.contact-intro h1 em { font-family: var(--font-serif); font-weight: 400; color: var(--flame); }
+.contact-premise { max-width: 315px; color: var(--fog); font-size: 16px; line-height: 1.8; margin-top: 35px; }
+.contact-direct { display: inline-block; font-size: 13px; margin-top: 25px; border-bottom: 1px solid var(--line); padding-bottom: 5px; }
+.contact-location { position: relative; padding-left: 40px; color: var(--fog); font-size: 12px; line-height: 1.8; margin-top: 65px; }
+.contact-location > span { position: absolute; left: 0; top: -8px; font-size: 35px; color: var(--flame); }
+.contact-paper { background: #e6dff1; color: #342940; border-radius: 8px; padding: 35px 40px; position: relative; box-shadow: 10px 12px 0 #b7a4c32a; }
+.note-top { display: flex; align-items: center; justify-content: space-between; gap: 20px; font: italic 32px/1.1 var(--font-serif); margin-bottom: 35px; }
+.note-stamp { border: 1px dashed #766386; padding: 12px; text-align: center; transform: rotate(9deg); font: 8px/1.3 var(--font-mono); }
+.note-stamp b { font: 36px/1 var(--font-sans); }
+.contact-fields { min-width: 0; }
+.contact-fields > label { display: block; font-weight: 500; font-size: 13px; margin-bottom: 28px; }
+.contact-fields input:not([type="radio"]), .contact-fields textarea { display: block; width: 100%; margin-top: 10px; padding: 10px 0 13px; color: #342940; border: 0; border-bottom: 1px solid #34294044; background: transparent; border-radius: 0; font: 400 16px/1.6 var(--font-sans); outline-offset: 4px; }
+.contact-fields input::placeholder, .contact-fields textarea::placeholder { color: #796b82; opacity: 1; }
+.contact-fields textarea { resize: vertical; min-height: 150px; max-height: 500px; }
+.contact-paper input:focus-visible, .contact-paper textarea:focus-visible, .contact-paper button:focus-visible, .contact-paper a:focus-visible { outline: 2px solid #6b4084; outline-offset: 5px; }
+.contact-topics { margin: 0 0 28px; }
+.contact-topics legend { font-size: 13px; font-weight: 500; margin-bottom: 14px; }
+.contact-topics > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.contact-topics label { position: relative; cursor: pointer; }
+.contact-topics input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.contact-topics span { display: block; font-size: 11px; border: 1px solid #34294044; padding: 11px 14px; border-radius: 30px; transition: background .2s, color .2s, transform .2s; }
+.contact-topics input:checked + span { background: #342940; border-color: #342940; color: #f6f1fa; }
+.contact-topics input:focus-visible + span { outline: 2px solid #6b4084; outline-offset: 3px; }
+.contact-topics label:hover span { transform: translateY(-2px); }
+.contact-fields > label:has(textarea) { margin-bottom: 0; }
+.message-hint { display: flex; justify-content: space-between; gap: 12px; color: #796b82; font-size: 10px; margin: 10px 0 24px; line-height: 1.5; }
+.message-hint > span:last-child { white-space: nowrap; }
+.contact-trap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.contact-send { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 17px 22px; border-radius: 4px; background: #342940; color: #f6f1fa; font-size: 14px; transition: background .25s, transform .25s; }
+.contact-send > span:last-child { font-size: 25px; line-height: 1; }
+.contact-send:hover:not(:disabled) { background: #543669; transform: translateY(-2px); }
+.contact-send:disabled { opacity: .5; cursor: not-allowed; }
+.contact-privacy { font-size: 10px; color: #796b82; line-height: 1.7; margin-top: 16px; }
+.contact-error { padding: 14px; margin-bottom: 18px; background: #fff5ec; border-left: 3px solid #ad391a; font-size: 12px; line-height: 1.7; color: #733222; }
+.contact-error button { display: inline-block; padding-block: 8px; font-weight: 600; text-decoration: underline; }
+.contact-success { padding: 35px 0 65px; outline: none; }
+.contact-success > span { font-size: 65px; display: block; margin-bottom: 30px; }
+.contact-success h2 { font-size: clamp(45px, 5vw, 75px); }
+.contact-success h2 em { color: #6b4084; }
+.contact-success p { font-size: 15px; line-height: 1.8; margin: 25px 0 45px; max-width: 300px; }
+@media (max-width: 1000px) { .contact-page { gap: 6%; } .contact-paper { padding: 28px; } .contact-topics span { font-size: 10px; padding-inline: 12px; } }
+@media (max-width: 700px) {
+  .contact-page { display: block; padding-top: 115px; padding-bottom: 75px; }
+  .contact-back { margin-bottom: 30px; }
+  .contact-intro h1 { font-size: clamp(70px, 20vw, 115px); }
+  .contact-premise { font-size: 14px; max-width: 330px; margin-top: 25px; }
+  .contact-location { margin-top: 30px; margin-bottom: 35px; }
+  .contact-paper { padding: 25px 20px; }
+  .note-top { font-size: 30px; }
+  .message-hint { font-size: 9px; }
+  .contact-fields input:not([type="radio"]), .contact-fields textarea { font-size: 16px; }
+}

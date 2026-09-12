@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir dist-server --emptyOutDir && bun scripts/prerender.ts && rm -rf dist-server",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "bun test server"
   },
   "dependencies": {
     "@fontsource-variable/instrument-sans": "^5.2.8",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.8",
+    "@types/node": "^22",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.6",
     "@types/three": "^0.185.4",

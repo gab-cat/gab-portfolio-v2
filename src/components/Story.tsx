@@ -56,11 +56,11 @@ export function Story() {
             </h3>
           </Reveal>
           <div className="toolbox-grid">
-            {TOOLBOX.map((group) => (
-              <div key={group.group}>
+            {TOOLBOX.map((group, i) => (
+              <Reveal key={group.group} delay={i * .09}>
                 <h4>{group.group}</h4>
                 <p>{group.items.join(" · ")}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
