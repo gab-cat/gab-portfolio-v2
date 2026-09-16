@@ -3,7 +3,7 @@
 .hero-opening { padding-bottom: 45px; }
 .narrative-hero-bottom { align-self: end; padding-bottom: 26px; margin-top: 0; }
 .hello-finale .finale-container { padding-bottom: 70px; }
-.footer-shell { padding: 16px; background: #ed4c21; }
+.footer-shell { padding: 16px; background: var(--flame); }
 .contact-route .footer-shell { background: var(--paper); }
 .signature-footer { position: relative; background: #24251f; color: #f4f1e8; overflow: clip; padding-top: 35px; border-radius: 28px; }
 .signature-footer .studio-container { width: min(1440px, 100% - 80px); }

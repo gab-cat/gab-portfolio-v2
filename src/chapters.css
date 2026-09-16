@@ -44,7 +44,7 @@
 .recognition-tile p { font-size: 12px; line-height: 1.6; color: #645371; margin-top: 6px; }
 .recognition-outro { text-align: center; font-size: 14px; margin-top: 75px; }
 .recognition-outro em { display: block; font-family: var(--font-serif); font-size: 34px; margin-top: 7px; }
-.hello-finale { background: #ed4c21; color: #24251f; padding: 0; position: relative; overflow: clip; }
+.hello-finale { background: var(--flame); color: #24251f; padding: 0; position: relative; overflow: clip; }
 section.hello-finale { scroll-margin-top: 0; }
 .finale-container { min-height: 100svh; display: flex; flex-direction: column; padding-top: 110px; }
 .finale-content { flex: 1; display: flex; flex-direction: column; }

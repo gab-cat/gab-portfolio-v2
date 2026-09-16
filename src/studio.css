@@ -914,7 +914,7 @@ summary::-webkit-details-marker {
   color: var(--flame);
 }
 .hello-section {
-  background: #ed4c21;
+  background: var(--flame);
   color: #24251f;
   padding-top: 64px;
 }
