@@ -1,56 +1,144 @@
-.contact-page { display: grid; grid-template-columns: .9fr 1.1fr; gap: 10%; padding-top: 165px; padding-bottom: 120px; align-items: start; }
-.contact-back { display: inline-block; color: var(--fog); font-size: 12px; margin-bottom: 40px; }
-.contact-intro .chapter-label { margin-bottom: 25px; }
-.contact-intro h1 { font: 700 clamp(75px, 8.5vw, 130px)/.88 var(--font-display); letter-spacing: -.06em; }
-.contact-intro h1 em { font-family: var(--font-serif); font-weight: 400; color: var(--flame); }
-.contact-premise { max-width: 315px; color: var(--fog); font-size: 16px; line-height: 1.8; margin-top: 35px; }
-.contact-direct { display: inline-block; font-size: 13px; margin-top: 25px; border-bottom: 1px solid var(--line); padding-bottom: 5px; }
-.contact-location { position: relative; padding-left: 40px; color: var(--fog); font-size: 12px; line-height: 1.8; margin-top: 65px; }
-.contact-location > span { position: absolute; left: 0; top: -8px; font-size: 35px; color: var(--flame); }
-.contact-paper { background: #e6dff1; color: #342940; border-radius: 8px; padding: 35px 40px; position: relative; box-shadow: 10px 12px 0 #b7a4c32a; }
-.note-top { display: flex; align-items: center; justify-content: space-between; gap: 20px; font: italic 32px/1.1 var(--font-serif); margin-bottom: 35px; }
-.note-stamp { border: 1px dashed #766386; padding: 12px; text-align: center; transform: rotate(9deg); font: 8px/1.3 var(--font-mono); }
-.note-stamp b { font: 36px/1 var(--font-sans); }
+/* The contact page is a sky. The clay world fills the screen and stays put;
+   the headline and a frosted note float over it on the right. */
+
+/* Shared by the 404 page. */
+.contact-page { padding-top: 150px; padding-bottom: 120px; }
+.contact-page h1 { font: 700 clamp(62px, 8.6vw, 130px)/.88 var(--font-display); letter-spacing: -.06em; }
+.contact-page h1 em { font-family: var(--font-serif); font-weight: 400; letter-spacing: -.02em; color: var(--flame); }
+.contact-page .contact-premise { margin-top: 26px; }
+.contact-page p + p { margin-top: 18px; }
+
+.contact-back { display: table; margin-bottom: 22px; position: relative; z-index: 2; padding: 8px 14px; border-radius: 999px; background: color-mix(in srgb, var(--card) 80%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--fog); font-size: 13px; font-weight: 500; box-shadow: var(--shadow-soft); transition: color .2s, transform .35s var(--spring); }
+.contact-back:hover { color: var(--ink); transform: translateX(-3px); }
+.contact-premise { max-width: 440px; color: var(--fog); font-size: 17px; line-height: 1.7; }
+.contact-direct { display: inline-block; padding-bottom: 3px; border-bottom: 2px solid var(--line); font-size: 15px; font-weight: 600; transition: color .2s, border-color .2s; }
+.contact-direct:hover { color: var(--flame-ink); border-color: var(--flame); }
+
+/* ------------------------------------------------------------- the world */
+.contact-world-page { position: relative; min-height: 100svh; }
+/* The page lets clicks through, so the world opts back in to take drags and pokes. */
+.contact-world { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: auto; }
+.contact-sky {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(40% 35% at 88% 12%, #fff3d6c0, transparent 70%),
+    radial-gradient(60% 40% at 25% 60%, #fff6ea70, transparent 70%),
+    linear-gradient(to bottom, #f9e9d8 0%, var(--sky-horizon) 55%, #f2c9ad 100%);
+}
+.dark .contact-sky {
+  background:
+    radial-gradient(35% 30% at 85% 14%, #56659a55, transparent 70%),
+    radial-gradient(60% 40% at 25% 60%, #2a345260, transparent 70%),
+    linear-gradient(to bottom, #090c16 0%, var(--sky-horizon) 60%, #242b40 100%);
+}
+.contact-world-canvas { position: absolute; inset: 0; }
+.contact-world-canvas canvas { display: block; opacity: 0; transition: opacity 1.2s var(--ease); }
+.contact-world-page.is-live .contact-world-canvas canvas { opacity: 1; }
+.contact-world-fallback { position: absolute; left: 0; right: 42%; top: 18%; bottom: 10%; display: grid; place-items: center; transition: opacity 1s var(--ease); }
+.contact-world-page.is-live .contact-world-fallback { opacity: 0; }
+.contact-world-fallback span { width: 52%; aspect-ratio: 2.2; border-radius: 50%; background: #8fb66e; box-shadow: 0 22px 0 -4px #c9a27e, 0 90px 0 -40px #9c7a5e; }
+.contact-world-fallback i { position: absolute; width: 12%; aspect-ratio: .8; border-radius: 40% 40% 12px 12px; background: var(--flame); translate: 40% -40%; box-shadow: inset -8px -10px 16px #0003; }
+
+/* Chips floating over the world. They never take the pointer. */
+.contact-hud { position: fixed; z-index: 2; left: max(24px, calc((100% - 1320px) / 2)); bottom: 24px; width: min(460px, calc(100% - var(--column-w) - 120px)); display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.contact-hud-top { display: flex; flex-wrap: wrap; gap: 8px; }
+.stage-chip, .stage-hint { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: color-mix(in srgb, var(--card) 84%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: var(--shadow-soft); font-size: 13px; font-weight: 600; }
+.stage-hint { font-weight: 500; color: var(--fog); }
+.stage-chip i { width: 8px; height: 8px; border-radius: 50%; background: #e5484d; box-shadow: 0 0 0 4px #e5484d26; animation: rec 1.6s ease-in-out infinite; }
+@keyframes rec { 50% { opacity: .35; } }
+.contact-stage-meter { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 20px; background: color-mix(in srgb, var(--card) 86%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: var(--shadow-soft); font-size: 13px; font-weight: 600; }
+.contact-stage-meter span { flex: none; min-width: 150px; }
+.contact-stage-meter b { flex: 1; height: 10px; border-radius: 999px; background: var(--surface); overflow: hidden; box-shadow: inset 0 1px 2px #0002; }
+.contact-stage-meter i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--ember), var(--flame)); transition: width .5s var(--spring); }
+
+/* ---------------------------------------------------------- the column */
+/* The page itself lets clicks through to the sky; only real content takes them. */
+.contact-world-page { --column-w: min(540px, 40vw); pointer-events: none; }
+.contact-world-page :is(a, button, input, textarea, label, .contact-paper, .contact-premise, h1) { pointer-events: auto; }
+.contact-world-page > .contact-back { position: absolute; top: 100px; left: max(24px, calc((100% - 1320px) / 2)); margin: 0; }
+.contact-column { position: relative; z-index: 1; width: var(--column-w); margin-left: auto; margin-right: max(24px, calc((100% - 1320px) / 2)); padding: 100px 0 90px; }
+.contact-head { padding-bottom: 26px; margin-bottom: 26px; border-bottom: 1px solid var(--note-line); }
+.contact-head .chapter-label { margin-bottom: 18px; background: var(--surface); box-shadow: none; }
+.contact-head h1 { font: 700 clamp(46px, 4.4vw, 72px)/.9 var(--font-display); letter-spacing: -.055em; text-wrap: balance; }
+.contact-head h1 em { font-family: var(--font-serif); font-weight: 400; letter-spacing: -.02em; color: var(--flame); }
+.contact-head .contact-premise { margin-top: 18px; color: var(--note-soft); font-size: 16px; }
+.contact-links { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin-top: 14px; }
+.contact-location { color: var(--note-soft); font-size: 13px; }
+
+/* ------------------------------------------------------------- the note */
+/* Flat and solid: one calm surface against a busy sky. */
+.contact-paper {
+  --note-ink: var(--ink);
+  --note-soft: var(--fog);
+  --note-line: var(--line);
+  --note-accent: var(--flame);
+  position: relative;
+  padding: 32px 34px;
+  border-radius: 32px;
+  background: var(--card);
+  color: var(--note-ink);
+}
 .contact-fields { min-width: 0; }
-.contact-fields > label { display: block; font-weight: 500; font-size: 13px; margin-bottom: 28px; }
-.contact-fields input:not([type="radio"]), .contact-fields textarea { display: block; width: 100%; margin-top: 10px; padding: 10px 0 13px; color: #342940; border: 0; border-bottom: 1px solid #34294044; background: transparent; border-radius: 0; font: 400 16px/1.6 var(--font-sans); outline-offset: 4px; }
-.contact-fields input::placeholder, .contact-fields textarea::placeholder { color: #796b82; opacity: 1; }
-.contact-fields textarea { resize: vertical; min-height: 150px; max-height: 500px; }
-.contact-paper input:focus-visible, .contact-paper textarea:focus-visible, .contact-paper button:focus-visible, .contact-paper a:focus-visible { outline: 2px solid #6b4084; outline-offset: 5px; }
-.contact-topics { margin: 0 0 28px; }
-.contact-topics legend { font-size: 13px; font-weight: 500; margin-bottom: 14px; }
+.contact-fields > label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 24px; }
+.contact-fields input:not([type="radio"]), .contact-fields textarea { display: block; width: 100%; margin-top: 8px; padding: 13px 16px; color: var(--note-ink); border: 1px solid transparent; border-radius: 14px; background: var(--surface); font: 400 16px/1.6 var(--font-sans); transition: border-color .2s; }
+.contact-fields input:not([type="radio"]):focus, .contact-fields textarea:focus { outline: none; border-color: var(--note-accent); }
+.contact-fields input::placeholder, .contact-fields textarea::placeholder { color: var(--note-soft); opacity: 1; }
+.contact-fields textarea { resize: vertical; min-height: 140px; max-height: 500px; }
+.contact-paper button:focus-visible, .contact-paper a:focus-visible { outline: 2px solid var(--note-accent); outline-offset: 4px; }
+.contact-topics { margin: 0 0 24px; }
+.contact-topics legend { font-size: 13px; font-weight: 600; margin-bottom: 12px; }
 .contact-topics > div { display: flex; flex-wrap: wrap; gap: 8px; }
 .contact-topics label { position: relative; cursor: pointer; }
 .contact-topics input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.contact-topics span { display: block; font-size: 11px; border: 1px solid #34294044; padding: 11px 14px; border-radius: 30px; transition: background .2s, color .2s, transform .2s; }
-.contact-topics input:checked + span { background: #342940; border-color: #342940; color: #f6f1fa; }
-.contact-topics input:focus-visible + span { outline: 2px solid #6b4084; outline-offset: 3px; }
+.contact-topics span { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; padding: 9px 14px 9px 10px; border-radius: 999px; background: var(--surface); transition: background .2s, color .2s, transform .3s var(--spring); }
+/* Each topic's dot matches the stamp colour it gives the clay letter. */
+.contact-topics span::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--dot); box-shadow: inset -1px -2px 2px #0003; }
+.contact-topics label:nth-child(1) span { --dot: #ec5a2a; }
+.contact-topics label:nth-child(2) span { --dot: #86b6e0; }
+.contact-topics label:nth-child(3) span { --dot: #b9a4ec; }
+.contact-topics label:nth-child(4) span { --dot: #f6cf5f; }
+.contact-topics input:checked + span { background: var(--note-ink); color: var(--paper); }
+.contact-topics input:focus-visible + span { outline: 2px solid var(--note-accent); outline-offset: 3px; }
 .contact-topics label:hover span { transform: translateY(-2px); }
 .contact-fields > label:has(textarea) { margin-bottom: 0; }
-.message-hint { display: flex; justify-content: space-between; gap: 12px; color: #796b82; font-size: 10px; margin: 10px 0 24px; line-height: 1.5; }
+.message-hint { display: flex; justify-content: space-between; gap: 12px; color: var(--note-soft); font-size: 11px; margin: 10px 2px 22px; line-height: 1.5; }
 .message-hint > span:last-child { white-space: nowrap; }
 .contact-trap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.contact-send { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 17px 22px; border-radius: 4px; background: #342940; color: #f6f1fa; font-size: 14px; transition: background .25s, transform .25s; }
-.contact-send > span:last-child { font-size: 25px; line-height: 1; }
-.contact-send:hover:not(:disabled) { background: #543669; transform: translateY(-2px); }
+.contact-send { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 17px 24px; border-radius: 999px; background: var(--flame); color: #fff8f1; font-size: 16px; font-weight: 600; transition: transform .35s var(--spring), background-color .2s; }
+.contact-send > span:last-child { font-size: 25px; line-height: 1; transition: transform .35s var(--spring); }
+.contact-send:hover:not(:disabled) { transform: translateY(-3px); }
+.contact-send:hover:not(:disabled) > span:last-child { transform: translate(3px, -3px); }
+.contact-send:active:not(:disabled) { transform: translateY(1px) scale(.98); }
 .contact-send:disabled { opacity: .5; cursor: not-allowed; }
-.contact-privacy { font-size: 10px; color: #796b82; line-height: 1.7; margin-top: 16px; }
-.contact-error { padding: 14px; margin-bottom: 18px; background: #fff5ec; border-left: 3px solid #ad391a; font-size: 12px; line-height: 1.7; color: #733222; }
+.contact-privacy { font-size: 11px; color: var(--note-soft); line-height: 1.7; margin-top: 14px; }
+.contact-error { padding: 14px 16px; margin-bottom: 18px; border-radius: 16px; background: #fff0e8; box-shadow: inset 0 0 0 1px #ad391a40; font-size: 13px; line-height: 1.6; color: #733222; }
 .contact-error button { display: inline-block; padding-block: 8px; font-weight: 600; text-decoration: underline; }
-.contact-success { padding: 35px 0 65px; outline: none; }
-.contact-success > span { font-size: 65px; display: block; margin-bottom: 30px; }
-.contact-success h2 { font-size: clamp(45px, 5vw, 75px); }
-.contact-success h2 em { color: #6b4084; }
-.contact-success p { font-size: 15px; line-height: 1.8; margin: 25px 0 45px; max-width: 300px; }
-@media (max-width: 1000px) { .contact-page { gap: 6%; } .contact-paper { padding: 28px; } .contact-topics span { font-size: 10px; padding-inline: 12px; } }
+.contact-success { padding: 30px 0 50px; outline: none; }
+.contact-success > span { display: grid; place-items: center; width: 84px; height: 84px; margin-bottom: 26px; border-radius: 50%; background: var(--flame); color: #fff8f1; font-size: 40px; }
+.contact-success h2 { font: 700 clamp(44px, 4.6vw, 72px)/.95 var(--font-display); letter-spacing: -.05em; }
+.contact-success h2 em { font-family: var(--font-serif); font-weight: 400; color: var(--note-accent); }
+.contact-success p { font-size: 16px; line-height: 1.7; margin: 22px 0 36px; max-width: 340px; color: var(--note-soft); }
+
+/* The footer card slides over the fixed world, which shows around it. */
+.contact-route { position: relative; z-index: 3; }
+.contact-route .footer-shell { background: transparent; }
+
+/* ------------------------------------------------------------ narrower */
+@media (max-width: 999px) {
+  .contact-world-page { --column-w: calc(100% - 36px); }
+  .contact-column { margin: 0 auto; padding-top: 56svh; }
+  .contact-world-page > .contact-back { top: 84px; left: 18px; }
+  .contact-hud { display: none; }
+  .contact-world-fallback { right: 0; top: 8%; bottom: 55%; }
+}
 @media (max-width: 700px) {
-  .contact-page { display: block; padding-top: 115px; padding-bottom: 75px; }
-  .contact-back { margin-bottom: 30px; }
-  .contact-intro h1 { font-size: clamp(70px, 20vw, 115px); }
-  .contact-premise { font-size: 14px; max-width: 330px; margin-top: 25px; }
-  .contact-location { margin-top: 30px; margin-bottom: 35px; }
-  .contact-paper { padding: 25px 20px; }
-  .note-top { font-size: 30px; }
-  .message-hint { font-size: 9px; }
+  .contact-page { padding-top: 110px; padding-bottom: 80px; }
+  .contact-page h1 { font-size: clamp(56px, 17vw, 96px); }
+  .contact-head h1 { font-size: clamp(44px, 13vw, 64px); }
+  .contact-premise { font-size: 15px; }
+  .contact-paper { padding: 24px 18px; border-radius: 28px; }
   .contact-fields input:not([type="radio"]), .contact-fields textarea { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage-chip i { animation: none; }
 }

@@ -5,7 +5,7 @@ export function Footer() {
   return (
     <div className="footer-shell">
       <footer className="signature-footer" id="footer">
-        <div className="studio-container">
+        <div className="clay-container">
           <Reveal className="footer-heading-row">
             <p>From Naga City.<br /><em>Open to your next what if.</em></p>
             <div className="footer-contact-block">
@@ -17,7 +17,7 @@ export function Footer() {
             <nav aria-label="Footer navigation"><a href="/#work">Selected work</a><a href="/#journey">Experience</a><a href="/contact">Contact</a></nav>
             <nav aria-label="Social profiles">{SOCIALS.map(s => <a key={s.label} href={s.href} target="_blank" rel="noreferrer noopener">{s.label} ↗</a>)}</nav>
           </div>
-          <Reveal y={35} className="footer-wordmark"><a href="/" aria-label="Gabcat home">gabcat<span>®</span><i aria-hidden="true">✳</i></a></Reveal>
+          <Reveal y={35} className="footer-wordmark"><a href="/" aria-label="Gabcat home">gabcat<span>®</span><i aria-hidden="true" /></a></Reveal>
           <div className="signature-colophon"><span>© 2026 Gabriel Catimbang</span><span>Built with intent. Always in progress.</span><button type="button" onClick={() => window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" })}>Back to top ↑</button></div>
         </div>
       </footer>

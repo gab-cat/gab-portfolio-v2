@@ -21,7 +21,7 @@ function ThemeToggle({ className = "" }: { className?: string }) {
       aria-label={
         theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
       }
-      className={`grid h-10 w-10 place-items-center rounded-full border border-line transition-colors duration-300 hover:border-flame hover:text-flame ${className}`}
+      className={`icon-btn ${className}`}
       onClick={() => {
         const rect = ref.current?.getBoundingClientRect();
         toggleTheme(
@@ -146,7 +146,7 @@ export function Nav({ contact = false }: { contact?: boolean }) {
       }
     };
     const onResize = () => {
-      if (window.innerWidth >= 768) setOpen(false);
+      if (window.innerWidth >= 900) setOpen(false);
     };
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
@@ -171,48 +171,36 @@ export function Nav({ contact = false }: { contact?: boolean }) {
 
   return (
     <>
-      <header
-        className={`fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300 ${
-          scrolled
-            ? "border-b border-line bg-paper/75 backdrop-blur-md"
-            : "border-b border-transparent"
-        }`}
-      >
-        <nav className="studio-nav" aria-label="Main navigation">
+      <header className="nav-shell">
+        <nav className="clay-nav" aria-label="Main navigation" data-scrolled={scrolled || undefined}>
           <button
             onClick={() => contact ? window.location.assign("/") : scrollToTop()}
             className="nav-brand"
-            aria-label="Back to top"
+            aria-label="Gabcat, back to top"
           >
-            gabcat<span>®</span>
+            <span className="nav-mark" aria-hidden="true" />
+            <span>
+              gabcat<sup>®</sup>
+            </span>
           </button>
 
-          <div className="hidden items-center gap-1 md:flex">
+          <div className="nav-links">
             {LINKS.map(({ id, label }) => (
               <button
                 key={id}
                 onClick={() => go(id)}
-                aria-label={label}
                 aria-current={active === id ? "location" : undefined}
-                className={`rounded-full px-3 py-2 font-sans text-[12px] transition-colors duration-300 ${
-                  active === id ? "text-flame" : "text-fog hover:text-ink"
-                }`}
+                className="nav-link"
               >
-                {active === id ? "● " : ""}
                 {label}
               </button>
             ))}
-            <button
-              onClick={() => go("hello")}
-              aria-current={active === "hello" ? "location" : undefined}
-              className="ml-2 rounded-full border border-flame/50 px-3 py-2 font-sans text-[12px] text-flame transition-colors duration-300 hover:bg-flame hover:text-white"
-            >
-              Let’s talk ↗
-            </button>
-            <ThemeToggle className="ml-3" />
           </div>
 
-          <div className="flex items-center gap-3 md:hidden">
+          <div className="nav-actions">
+            <button onClick={() => go("hello")} className="btn btn-flame btn-sm nav-cta">
+              Let’s talk <span aria-hidden="true">↗</span>
+            </button>
             <ThemeToggle />
             <button
               ref={menuButton}
@@ -220,16 +208,16 @@ export function Nav({ contact = false }: { contact?: boolean }) {
               aria-expanded={open}
               aria-controls="mobile-menu"
               onClick={() => setOpen((v) => !v)}
-              className="grid h-10 w-10 place-items-center rounded-full border border-line"
+              className="icon-btn nav-menu-btn"
             >
               <span className="relative block h-3 w-5">
                 <span
-                  className={`absolute left-0 block h-[2px] w-5 bg-ink transition-transform duration-300 ${
+                  className={`absolute left-0 block h-[2px] w-5 rounded bg-ink transition-transform duration-300 ${
                     open ? "top-1/2 -translate-y-1/2 rotate-45" : "top-0"
                   }`}
                 />
                 <span
-                  className={`absolute left-0 block h-[2px] w-5 bg-ink transition-transform duration-300 ${
+                  className={`absolute left-0 block h-[2px] w-5 rounded bg-ink transition-transform duration-300 ${
                     open ? "top-1/2 -translate-y-1/2 -rotate-45" : "bottom-0"
                   }`}
                 />
@@ -239,7 +227,6 @@ export function Nav({ contact = false }: { contact?: boolean }) {
         </nav>
       </header>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -248,35 +235,35 @@ export function Nav({ contact = false }: { contact?: boolean }) {
             role="dialog"
             aria-modal="true"
             aria-label="Site navigation"
-            className="fixed inset-0 z-40 flex flex-col justify-center bg-paper px-8 md:hidden"
+            className="mobile-menu"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
           >
-            {[...LINKS, { id: "hello", label: "say hello" }].map(
+            {[...LINKS, { id: "hello", label: "Say hello" }].map(
               ({ id, label }, i) => (
                 <motion.button
                   key={id}
                   onClick={() => go(id)}
-                  className="border-b border-line py-5 text-left font-display text-4xl font-bold tracking-tight transition-colors hover:text-flame"
+                  className="mobile-menu-link"
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.4, delay: 0.06 * i, ease: EASE }}
+                  transition={{ duration: 0.45, delay: 0.05 * i, ease: EASE }}
                 >
                   {label}
-                  <span className="text-flame">.</span>
+                  <span aria-hidden="true">↗</span>
                 </motion.button>
               ),
             )}
             <motion.p
-              className="mt-8 font-sans text-sm text-fog"
+              className="mobile-menu-note"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              Naga City, PH — open to opportunities
+              Naga City, PH · open to the next good thing
             </motion.p>
           </motion.div>
         )}

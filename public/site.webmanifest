@@ -6,8 +6,8 @@
   "scope": "/",
   "display": "standalone",
   "lang": "en",
-  "background_color": "#faf6ef",
-  "theme_color": "#ed4c21",
+  "background_color": "#f6f1e8",
+  "theme_color": "#e8501f",
   "icons": [
     {
       "src": "/favicon.svg",
@@ -19,6 +19,18 @@
       "src": "/apple-touch-icon.png",
       "type": "image/png",
       "sizes": "180x180",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
       "purpose": "any"
     }
   ]

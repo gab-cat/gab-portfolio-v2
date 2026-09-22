@@ -1,12 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import "./index.css";
-import "./studio.css";
-import "./sculpture.css";
-import "./chapters.css";
-import "./experience.css";
+import "./styles/site.css";
+import "./styles/home.css";
+import "./styles/projects.css";
 import "./contact.css";
-import "./finale.css";
 import { routeFromPath, type RouteId } from "./seo";
 
 const container = document.getElementById("root")!;

@@ -1,5 +1,4 @@
-import { lazy, Suspense, useState, type SyntheticEvent } from "react";
-import { TOOLBOX } from "../data";
+import { lazy, Suspense, useState, type CSSProperties, type SyntheticEvent } from "react";
 import { Reveal } from "./Reveal";
 import { StoryPortrait } from "./StoryPortrait";
 import { Sculpture } from "./Sculpture";
@@ -14,23 +13,27 @@ export function Story() {
     if (event.currentTarget.open) setTerminal(true);
   };
   return (
-    <section id="story" className="story-section section-space">
-      <div className="studio-container">
-        <Reveal className="story-grid">
-          <div className="story-visual">
-            <h2>
-              First, I learned
-              <br />
-              <em>to listen.</em>
-            </h2>
-            <div className="story-composition">
-              <div className="story-portrait">
-                <StoryPortrait />
-              </div>
-              <Sculpture chapter="connection" />
-            </div>
+    <section id="story" className="story-section">
+      <div className="clay-container story-grid">
+        <Reveal className="story-visual">
+          <div className="portrait-card">
+            <StoryPortrait />
+            <span className="portrait-tag">
+              <b>3 years</b> on the other side of a support chat
+            </span>
           </div>
-          <div className="story-copy">
+          <Sculpture chapter="connection" className="story-bubbles" />
+        </Reveal>
+        <div className="story-copy">
+          <Reveal>
+            <p className="chapter-label" style={{ "--chip": "var(--sage)" } as CSSProperties}>
+              Chapter one · Listen
+            </p>
+            <h2 className="chapter-title">
+              First, I learned <em>to listen.</em>
+            </h2>
+          </Reveal>
+          <Reveal delay={0.1}>
             <p className="story-lead">
               Before I wrote code, I spent three years on the other side of a
               support chat.
@@ -51,35 +54,21 @@ export function Story() {
               target="_blank"
               rel="noreferrer noopener"
             >
-              A bit more about me ↗
+              A bit more about me <span aria-hidden="true">↗</span>
             </a>
-          </div>
-        </Reveal>
-        <div className="toolbox-layout">
-          <Reveal>
-            <h3>
-              These days, I build it.
-              <br />
-              And keep it alive.
-            </h3>
           </Reveal>
-          <div className="toolbox-grid">
-            {TOOLBOX.map((group, i) => (
-              <Reveal key={group.group} delay={i * .09}>
-                <h4>{group.group}</h4>
-                <p>{group.items.join(" · ")}</p>
-              </Reveal>
-            ))}
-          </div>
         </div>
+      </div>
+
+      <div className="clay-container story-terminal">
         <details className="terminal-disclosure" onToggle={onToggle}>
           <summary>
-            <span>
-              <span className="text-flame">&gt;_</span> Prefer the command line?
+            <span className="terminal-disclosure-icon" aria-hidden="true">&gt;_</span>
+            <span className="terminal-disclosure-text">
+              <b>Prefer the command line?</b>
+              <span>There’s a working terminal in here. Try <code>help</code> or <code>sudo hire-me</code>.</span>
             </span>
-            <span className="terminal-disclosure-hint">
-              There’s a working terminal in here. <b>+</b>
-            </span>
+            <span className="terminal-disclosure-toggle" aria-hidden="true">+</span>
           </summary>
           <div className="terminal-wrap">
             {terminal && (

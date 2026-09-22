@@ -6,7 +6,7 @@ The canonical site is https://gabcat.dev/. Prefer these files over scraping rend
 
 ## Pages
 
-- [Home](https://gabcat.dev/): Narrative portfolio — story, experience, selected work, recognition.
+- [Home](https://gabcat.dev/): Narrative portfolio — story, what I do, experience, selected work, recognition.
 - [Contact](https://gabcat.dev/contact): Start a conversation about a project, role, or collaboration.
 - [Full text](https://gabcat.dev/llms-full.txt): Complete page copy in one file.
 

@@ -1,4 +1,5 @@
 import {
+  CRAFT,
   EMAIL,
   JOURNEY,
   PROJECTS,
@@ -16,9 +17,9 @@ export const OG_IMAGE_PATH = "/og.png";
 export const PERSON_IMAGE_PATH = "/portraits/gab-editorial.webp";
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
-export const THEME_LIGHT = "#faf6ef";
-export const THEME_DARK = "#0a0908";
-export const THEME_ACCENT = "#ed4c21";
+export const THEME_LIGHT = "#f6f1e8";
+export const THEME_DARK = "#15120f";
+export const THEME_ACCENT = "#e8501f";
 
 export type RouteId = "home" | "contact" | "notFound";
 
@@ -287,7 +288,7 @@ The canonical site is ${SITE_ORIGIN}/. Prefer these files over scraping rendered
 
 ## Pages
 
-- [Home](${SITE_ORIGIN}/): Narrative portfolio — story, experience, selected work, recognition.
+- [Home](${SITE_ORIGIN}/): Narrative portfolio — story, what I do, experience, selected work, recognition.
 - [Contact](${ROUTES.contact.canonical}): Start a conversation about a project, role, or collaboration.
 - [Full text](${SITE_ORIGIN}/llms-full.txt): Complete page copy in one file.
 
@@ -322,6 +323,10 @@ export function llmsFullTxt(): string {
   const tools = TOOLBOX.map(
     (group) => `- ${group.group}: ${group.items.join(", ")}`,
   ).join("\n");
+  const craft = CRAFT.map(
+    (card, i) =>
+      `### ${card.tag} — ${card.title.join(" ")}\n${card.copy}\nTools: ${TOOLBOX[i]?.items.join(", ")}\n${card.proof.join(" ")}`,
+  ).join("\n\n");
   return `# ${PERSON_SHORT}
 
 ${ROUTES.home.description}
@@ -330,9 +335,19 @@ Canonical: ${SITE_ORIGIN}/
 Contact: ${ROUTES.contact.canonical}
 Email: ${EMAIL}
 
+## Intro
+
+It starts with a what if. I'm ${PERSON_SHORT}. I turn curiosity into things people use, and I build the pipelines that keep them running.
+
 ## About
 
 Before writing code, Gabriel spent three years on the other side of a support chat at Bell Canada. That listening habit now sits behind full-stack products and the infrastructure that keeps them running.
+
+## What I do
+
+These days, I build it. And keep it alive. Four parts of the job, one habit behind all of them: listen first, then make it work.
+
+${craft}
 
 ## Toolbox
 
@@ -379,6 +394,18 @@ export function webManifest(): string {
           src: "/apple-touch-icon.png",
           type: "image/png",
           sizes: "180x180",
+          purpose: "any",
+        },
+        {
+          src: "/icon-192.png",
+          type: "image/png",
+          sizes: "192x192",
+          purpose: "any",
+        },
+        {
+          src: "/icon-512.png",
+          type: "image/png",
+          sizes: "512x512",
           purpose: "any",
         },
       ],

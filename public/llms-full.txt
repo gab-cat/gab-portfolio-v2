@@ -6,9 +6,37 @@ Canonical: https://gabcat.dev/
 Contact: https://gabcat.dev/contact
 Email: catimbanggabriel@gmail.com
 
+## Intro
+
+It starts with a what if. I'm Gabriel Catimbang. I turn curiosity into things people use, and I build the pipelines that keep them running.
+
 ## About
 
 Before writing code, Gabriel spent three years on the other side of a support chat at Bell Canada. That listening habit now sits behind full-stack products and the infrastructure that keeps them running.
+
+## What I do
+
+These days, I build it. And keep it alive. Four parts of the job, one habit behind all of them: listen first, then make it work.
+
+### Build — It starts on a screen. It has to feel right.
+I build the part people actually touch, front to back. Fast pages, calm interfaces, and code the next person can read without calling me.
+Tools: Next.js, React, Vue & Nuxt, NestJS, TypeScript
+MerchTrack had 2,750+ students in week one. The servers held, and so did I.
+
+### Ship — Launch day should feel like any other day.
+I like my deploys boring. So I wire up pipelines that test, build and ship on their own, on servers I can still reason about at 3 a.m.
+Tools: Docker, AWS, GitHub Actions, Nginx, Linux
+Detken moved production off Vercel onto servers we control.
+
+### Store — Every app is a memory, really.
+Somewhere, it has to remember who you are and what you did. I pick the right place to keep it, and shape it so it still makes sense a year from now.
+Tools: PostgreSQL, MongoDB, Redis, Convex
+Games of the Generals keeps every move in sync, for every player.
+
+### Play — And sometimes, I just play.
+Game engines, AI, capture-the-flag forensics. The weekend detours are where most of my favourite what ifs come from.
+Tools: Unreal Engine, C++, Gemini AI, CTF forensics
+Hack4Gov regional CTF champion, 2024. Yes, it counts.
 
 ## Toolbox
 

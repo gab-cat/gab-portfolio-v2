@@ -1,4 +1,5 @@
 import { AppShell } from "../components/AppShell";
+import { Craft } from "../components/Craft";
 import { Hello } from "../components/Hello";
 import { Hero } from "../components/Hero";
 import { Journey } from "../components/Journey";
@@ -13,11 +14,14 @@ export default function HomeApp() {
       <StoryWorld />
       <main>
         <Hero />
-        <Story />
-        <Journey />
-        <Work />
-        <Trophies />
-        <Hello />
+        <div className="sheet">
+          <Story />
+          <Craft />
+          <Journey />
+          <Work />
+          <Trophies />
+          <Hello />
+        </div>
       </main>
     </AppShell>
   );

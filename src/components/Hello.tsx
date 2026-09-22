@@ -18,33 +18,31 @@ export function Hello() {
     timer.current = setTimeout(() => setCopyStatus(""), 3500);
   };
   return (
-    <section id="hello" className="hello-section hello-finale">
-      <div className="studio-container finale-container">
-        <Reveal className="finale-content">
+    <section id="hello" className="hello-tray">
+      <div className="clay-container hello-inner">
+        <Reveal className="hello-copy">
           <div className="hello-top">
             <span>There’s always another what if.</span>
             <span className="availability">
               <i /> Open to the next good thing
             </span>
           </div>
-          <div className="finale-stage">
-            <p className="finale-prelude">You’ve seen what curiosity can do.</p>
-            <h2 className="finale-headline">Now, what’s<br /><em>your what if?</em></h2>
-            <div className="finale-orbit"><Sculpture chapter="together" /></div>
-            <a className="finale-action" href="/contact">
-              <span>Let’s make it happen</span><span aria-hidden="true">↗</span>
+          <p className="hello-prelude">You’ve seen what curiosity can do.</p>
+          <h2 className="hello-headline">
+            Now, what’s <em>your what if?</em>
+          </h2>
+          <p className="hello-note">
+            An idea worth building. A team worth joining. Tell me what you have
+            in mind. I actually reply.
+          </p>
+          <div className="hello-actions">
+            <a className="btn btn-ink" href="/contact">
+              Let’s make it happen <span aria-hidden="true">↗</span>
             </a>
-          </div>
-          <div className="hello-details">
-            <p>
-              An idea worth building. A team worth joining.
-              <br />
-              Tell me what you have in mind. I actually reply.
-            </p>
             <div className="email-group">
               <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
               <button onClick={copyEmail} aria-label="Copy email address">
-                ↗ Copy
+                Copy
               </button>
               <span role="status" className="copy-status">
                 {copyStatus}
@@ -52,7 +50,7 @@ export function Hello() {
             </div>
           </div>
         </Reveal>
-
+        <Sculpture chapter="together" className="hello-mailbox" />
       </div>
     </section>
   );

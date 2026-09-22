@@ -56,7 +56,7 @@ export function StoryPortrait() {
             patternUnits="userSpaceOnUse"
             patternTransform="rotate(-16)"
           >
-            <circle cx="6" cy="6" r="3.8" fill="#ed4c21" />
+            <circle cx="6" cy="6" r="3.8" fill="#e8501f" />
           </pattern>
           <linearGradient id="portrait-dot-fade" x1="0" y1="0" x2="0.8" y2="1">
             <stop offset="0.25" stopColor="white" />

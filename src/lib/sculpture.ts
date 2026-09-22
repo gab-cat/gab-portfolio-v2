@@ -1,16 +1,19 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { CLAY, contactShadowTexture, createClayKit, lumpy } from "./clay/kit";
+import { controller, database, diorama, robot, servers, type Character, type Tools } from "./clay/characters";
+import { isMotionPaused, onMotionChange } from "./motion";
+import { onScrollFrame } from "./scroll";
 import { THEME_EVENT } from "./theme";
 
 export interface SculptureController {
-  setPaused: (paused: boolean) => void;
   dispose: () => void;
 }
 
 /** One transparent viewport, shared lighting and geometry across every chapter.
- * Scissor regions keep each sculpture inside its own layout slot, including
- * sticky slots. No extra WebGL contexts, remote models, or texture downloads. */
+ * Scissor regions keep each clay piece inside its own layout slot, including
+ * sticky slots. One WebGL context, no model files, no texture downloads. */
 export function createSculpture(
   host: HTMLElement,
   onUnavailable: () => void,
@@ -25,109 +28,277 @@ export function createSculpture(
   } catch {
     return null;
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
   renderer.setClearColor(0x000000, 0);
   renderer.autoClear = false;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMapping = THREE.NeutralToneMapping;
   host.appendChild(renderer.domElement);
+
+  const kit = createClayKit();
+  const clay = kit.clay;
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 50);
-  const room = new RoomEnvironment();
+  const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 60);
   const pmrem = new THREE.PMREMGenerator(renderer);
-  const environmentMap = pmrem.fromScene(room, 0.04);
-  scene.environment = environmentMap.texture;
+  const room = new RoomEnvironment();
+  const envMap = pmrem.fromScene(room, 0.04).texture;
+  scene.environment = envMap;
+  scene.environmentIntensity = 0.55;
   room.dispose();
   pmrem.dispose();
-  const chrome = new THREE.MeshPhysicalMaterial({
-    color: 0xdce3e3,
-    metalness: 1,
-    roughness: 0.19,
-    clearcoat: 1,
-    envMapIntensity: 1.4,
-  });
-  const orange = new THREE.MeshPhysicalMaterial({
-    color: 0xe43c0c,
-    metalness: 0.5,
-    roughness: 0.29,
-    clearcoat: 0.7,
-    envMapIntensity: 0.75,
-  });
-  const key = new THREE.DirectionalLight(0xffffff, 2);
-  key.position.set(-3, 5, 5);
-  const rim = new THREE.DirectionalLight(0xffc6ae, 2);
-  rim.position.set(4, -2, 1);
-  scene.add(key, rim);
-  const geometries = {
-    knot: new THREE.TorusKnotGeometry(1.05, 0.34, 144, 24, 2, 3),
-    orbit: new THREE.TorusGeometry(2.05, 0.09, 16, 112),
-    link: new THREE.TorusGeometry(1.05, 0.23, 24, 96),
-    sphere: new THREE.SphereGeometry(0.27, 24, 16),
-    slab: new RoundedBoxGeometry(2.6, 0.32, 2.1, 3, 0.14),
-    petal: new THREE.SphereGeometry(0.28, 20, 16),
-  };
-  const mesh = (geometry: THREE.BufferGeometry, material = chrome) =>
-    new THREE.Mesh(geometry, material);
-  const models: Record<string, THREE.Group> = {};
-  const create = (name: string) => {
-    const group = new THREE.Group();
-    models[name] = group;
-    scene.add(group);
-    return group;
-  };
-  const curiosity = create("curiosity");
-  const knot = mesh(geometries.knot);
-  knot.rotation.set(0.3, -0.5, 0);
-  const orbit = mesh(geometries.orbit, orange);
-  orbit.rotation.set(1, -0.4, -0.3);
-  curiosity.add(knot, orbit);
+  const hemi = new THREE.HemisphereLight(0xfff5ea, 0xb99c86, 1.1);
+  const key = new THREE.DirectionalLight(0xfff0e0, 2.6);
+  key.position.set(-4, 6, 6);
+  const rim = new THREE.DirectionalLight(0xffc8a6, 1.1);
+  rim.position.set(5, 1, -2);
+  scene.add(hemi, key, rim);
 
-  const connection = create("connection");
-  for (let i = 0; i < 2; i++) {
-    const link = mesh(geometries.link, i ? orange : chrome);
-    link.position.x = (i - 0.5) * 1.45;
-    link.rotation.set(i ? 1.15 : -0.25, i ? 0.25 : -0.35, 0);
-    connection.add(link);
-  }
-  const building = create("building");
-  for (let i = 0; i < 3; i++) {
-    const slab = mesh(geometries.slab, i === 1 ? orange : chrome);
-    slab.position.y = (i - 1) * 0.85;
-    slab.rotation.y = i * 0.18;
-    building.add(slab);
-  }
-  const possibility = create("possibility");
-  for (let i = 0; i < 3; i++) {
-    const ring = mesh(geometries.link, i === 1 ? orange : chrome);
-    ring.rotation.set((i * Math.PI) / 3, (i * Math.PI) / 3, 0);
-    ring.scale.setScalar(1.25);
-    possibility.add(ring);
-  }
-  const pressure = create("pressure");
-  for (let i = 0; i < 8; i++) {
-    const petal = mesh(geometries.petal, i % 3 === 0 ? orange : chrome);
-    const angle = (i / 8) * Math.PI * 2;
-    petal.position.set(Math.sin(angle) * 1.05, Math.cos(angle) * 1.05, 0);
-    petal.scale.set(1.05, 2.8, 1.05);
-    petal.rotation.z = -angle;
-    pressure.add(petal);
-  }
-  const together = create("together");
-  const openRing = mesh(geometries.link);
-  openRing.scale.setScalar(1.5);
-  const smallRing = mesh(geometries.link, orange);
-  smallRing.scale.setScalar(0.75);
-  smallRing.rotation.x = 0.8;
-  together.add(openRing, smallRing);
-  const satellite = mesh(geometries.sphere, orange);
-  scene.add(satellite);
+  const geometries: THREE.BufferGeometry[] = [];
+  const keep = <T extends THREE.BufferGeometry>(g: T) => {
+    geometries.push(g);
+    return g;
+  };
+  const put = (geometry: THREE.BufferGeometry, material: THREE.Material, parent: THREE.Object3D) => {
+    const mesh = new THREE.Mesh(geometry, material);
+    parent.add(mesh);
+    return mesh;
+  };
+  const sphere = (r: number, lump = 0.05, seed = 0) =>
+    keep(lumpy(new THREE.SphereGeometry(r, 36, 24), r * lump, 1.4 / r, seed));
+  const box = (w: number, h: number, d: number, radius: number, seed = 0) =>
+    keep(lumpy(new RoundedBoxGeometry(w, h, d, 5, radius), 0.025, 1.3, seed));
+  const capsule = (r: number, length: number, seed = 0) =>
+    keep(lumpy(new THREE.CapsuleGeometry(r, length, 8, 20), r * 0.05, 2 / r, seed));
+  const torus = (r: number, t: number, arc = Math.PI * 2, seed = 0) =>
+    keep(lumpy(new THREE.TorusGeometry(r, t, 20, 80, arc), t * 0.08, 2, seed));
 
-  const slots = Array.from(
-    document.querySelectorAll<HTMLElement>("[data-sculpture]"),
-  );
+  const shadowTexture = contactShadowTexture();
+  const shadowMat = new THREE.MeshBasicMaterial({
+    map: shadowTexture,
+    transparent: true,
+    depthWrite: false,
+    opacity: 0.22,
+    toneMapped: false,
+  });
+  const shadowGeo = keep(new THREE.PlaneGeometry(1, 1));
+
+  type Model = { root: THREE.Group; spin: THREE.Group; shadow: THREE.Mesh; radius: number; centerY: number; elev: number; span?: number; cast?: Character };
+  const models: Record<string, Model> = {};
+  /** `radius` and `centerY` bound the piece and its shadow; the camera always fits them. */
+  const create = (name: string, radius: number, centerY: number, shadowY: number, shadowSize: number) => {
+    const root = new THREE.Group();
+    const spin = new THREE.Group();
+    const shadow = new THREE.Mesh(shadowGeo, shadowMat);
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.y = shadowY;
+    shadow.scale.set(shadowSize, shadowSize * 0.55, 1);
+    root.add(spin, shadow);
+    scene.add(root);
+    models[name] = { root, spin, shadow, radius, centerY, elev: 0 };
+    return spin;
+  };
+
+  /* Listen: two chat bubbles, one of them typing. */
+  const connection = create("connection", 2.45, -0.1, -1.75, 4.6);
+  const bubbleA = new THREE.Group();
+  put(box(2.3, 1.35, 0.62, 0.42, 1), clay(CLAY.cream), bubbleA);
+  const tailA = put(keep(lumpy(new THREE.ConeGeometry(0.26, 0.55, 20), 0.01, 3)), clay(CLAY.cream), bubbleA);
+  tailA.position.set(-0.72, -0.8, 0);
+  tailA.rotation.z = Math.PI + 0.5;
+  const lineGeo = capsule(0.07, 1.2, 2);
+  lineGeo.rotateZ(Math.PI / 2);
+  [0.26, -0.02, -0.3].forEach((y, i) => {
+    const line = put(lineGeo, clay(CLAY.oat), bubbleA);
+    line.position.set(-0.12 - (i === 2 ? 0.25 : 0), y, 0.33);
+    line.scale.x = i === 2 ? 0.6 : 1;
+  });
+  bubbleA.position.set(-0.75, 0.62, 0);
+  bubbleA.rotation.z = 0.06;
+  const bubbleB = new THREE.Group();
+  put(box(1.9, 1.1, 0.62, 0.42, 3), clay(CLAY.flame), bubbleB);
+  const tailB = put(keep(lumpy(new THREE.ConeGeometry(0.24, 0.5, 20), 0.01, 4)), clay(CLAY.flame), bubbleB);
+  tailB.position.set(0.62, -0.66, 0);
+  tailB.rotation.z = Math.PI - 0.5;
+  const dots = [-0.45, 0, 0.45].map((x, i) => {
+    const dot = put(sphere(0.13, 0.04, i), clay(0xfff4ea), bubbleB);
+    dot.position.set(x, 0, 0.34);
+    return dot;
+  });
+  bubbleB.position.set(0.85, -0.78, 0.4);
+  bubbleB.rotation.z = -0.07;
+  connection.add(bubbleA, bubbleB);
+
+  /* Experience: one clay block per role, stacked as the story scrolls. */
+  const building = create("building", 3.35, -0.9, -2.62, 4.4);
+  const blockColors = [CLAY.sage, CLAY.lilac, CLAY.blush, CLAY.butter, CLAY.sky, 0xd9e97a];
+  const blocks = blockColors.map((color, i) => {
+    const w = 2.3 - (i % 2) * 0.35 - i * 0.08;
+    const block = put(box(w, 0.62, 1.5 - (i % 3) * 0.12, 0.2, 10 + i), clay(color), building);
+    block.userData = { y: -1.95 + i * 0.66, turn: (i % 2 ? 1 : -1) * (0.12 + i * 0.03) };
+    return block;
+  });
+  const topper = put(sphere(0.34, 0.05, 7), clay(CLAY.flame), building);
+  const towerBase = put(keep(lumpy(new THREE.CylinderGeometry(1.75, 1.85, 0.3, 48, 1), 0.02, 1.5, 17)), clay(CLAY.cream), building);
+  towerBase.position.y = -2.42;
+
+  /* Work: a small clay world with somewhere to be. */
+  const possibility = create("possibility", 2.45, -0.1, -1.95, 3.6);
+  const globe = new THREE.Group();
+  put(sphere(1.35, 0.03, 11), clay(CLAY.sky, { repeat: 3 }), globe);
+  const land = clay(CLAY.sage);
+  [
+    [0.4, 0.5, 0.55, 0.62],
+    [-0.8, 0.1, 0.45, 0.5],
+    [0.2, -0.7, 0.5, 0.45],
+    [1.0, -0.2, -0.3, 0.4],
+    [-0.3, 0.9, -0.6, 0.38],
+    [-0.9, -0.5, -0.5, 0.42],
+  ].forEach(([x, y, z, r], i) => {
+    const blob = put(sphere(r, 0.1, 20 + i), land, globe);
+    const dir = new THREE.Vector3(x, y, z).normalize();
+    blob.position.copy(dir).multiplyScalar(1.3);
+    blob.scale.set(1, 1, 0.28);
+    blob.lookAt(dir.multiplyScalar(3));
+  });
+  const pin = new THREE.Group();
+  put(sphere(0.2, 0.04, 30), clay(CLAY.flame), pin).position.y = 0.34;
+  const pinStem = put(capsule(0.05, 0.25, 31), clay(CLAY.charcoal), pin);
+  pinStem.position.y = 0.12;
+  pin.position.set(0, 1.33, 0);
+  globe.add(pin);
+  const orbit = put(torus(2.05, 0.07, Math.PI * 2, 32), clay(CLAY.butter), possibility);
+  orbit.rotation.set(1.25, 0.2, -0.3);
+  const moon = put(sphere(0.28, 0.06, 33), clay(CLAY.flame), possibility);
+  possibility.add(globe);
+
+  /* Recognition: a trophy, still warm. */
+  const pressure = create("pressure", 2.45, 0, -2.05, 3.2);
+  const cupProfile = [
+    [0, 0.2],
+    [0.62, 0.3],
+    [0.95, 0.9],
+    [1.08, 1.75],
+    [1.14, 1.82],
+    [1.02, 1.82],
+    [0.9, 1.1],
+    [0.55, 0.45],
+    [0, 0.4],
+  ].map(([r, y]) => new THREE.Vector2(r, y));
+  const gold = clay(CLAY.butter, { roughness: 0.45, sheen: 0.8 });
+  const cup = put(keep(lumpy(new THREE.LatheGeometry(cupProfile, 64), 0.02, 1.8, 40)), gold, pressure);
+  (cup.material as THREE.Material).side = THREE.DoubleSide;
+  cup.position.y = -0.2;
+  for (const side of [-1, 1]) {
+    const handle = put(torus(0.38, 0.09, Math.PI * 1.15, 41 + side), gold, pressure);
+    handle.position.set(side * 1.02, 1.05, 0);
+    handle.rotation.z = side > 0 ? -Math.PI * 0.58 : Math.PI * 0.42;
+  }
+  const stem = put(capsule(0.2, 0.5, 43), gold, pressure);
+  stem.position.y = -0.3;
+  const plinth = put(box(1.6, 0.5, 1.2, 0.16, 44), clay(CLAY.charcoal), pressure);
+  plinth.position.y = -1.0;
+  const plaque = put(box(0.8, 0.22, 0.06, 0.05, 45), clay(CLAY.flame), pressure);
+  plaque.position.set(0, -1.0, 0.61);
+  const star = new THREE.Shape();
+  for (let i = 0; i < 10; i++) {
+    const r = i % 2 ? 0.14 : 0.32;
+    const a = (i / 10) * Math.PI * 2 + Math.PI / 2;
+    if (i) star.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    else star.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+  }
+  const starGeo = keep(new THREE.ExtrudeGeometry(star, { depth: 0.08, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.05, bevelSegments: 4 }));
+  starGeo.center();
+  const starMesh = put(starGeo, clay(CLAY.flame), pressure);
+  starMesh.position.set(0, 0.85, 0.98);
+  const confettiColors = [CLAY.flame, CLAY.sky, CLAY.lilac, CLAY.sage, CLAY.blush];
+  const confettiGeo = box(0.16, 0.16, 0.05, 0.03, 46);
+  const confetti = Array.from({ length: 10 }, (_, i) => {
+    const bit = put(confettiGeo, clay(confettiColors[i % confettiColors.length]), pressure);
+    bit.userData = { a: (i / 10) * Math.PI * 2, r: 1.7 + (i % 3) * 0.25, y: 0.2 + (i % 4) * 0.45 };
+    return bit;
+  });
+
+  /* Hello: a mailbox with its flag up. */
+  const together = create("together", 2.5, 0.2, -1.8, 3.2);
+  const mailbox = new THREE.Group();
+  const orange = clay(CLAY.flame);
+  put(box(1.35, 1.1, 2.1, 0.22, 50), orange, mailbox).position.y = 0.55;
+  const roofGeo = keep(lumpy(new THREE.CylinderGeometry(0.675, 0.675, 2.1, 36, 1, false, 0, Math.PI), 0.015, 2, 51));
+  roofGeo.rotateX(Math.PI / 2);
+  roofGeo.rotateZ(Math.PI / 2);
+  const roof = put(roofGeo, orange, mailbox);
+  roof.position.y = 1.1;
+  const door = put(box(1.18, 1.35, 0.14, 0.12, 52), clay(CLAY.cream), mailbox);
+  door.position.set(0, 0.95, 1.06);
+  const knob = put(sphere(0.09, 0.05, 53), clay(CLAY.charcoal), mailbox);
+  knob.position.set(0, 0.62, 1.16);
+  const slot = put(box(0.9, 0.12, 0.06, 0.04, 59), clay(CLAY.charcoal), mailbox);
+  slot.position.set(0, 1.3, 1.14);
+  const post = put(box(0.42, 1.8, 0.42, 0.12, 54), clay(CLAY.cocoa), mailbox);
+  post.position.y = -0.85;
+  const flagArm = new THREE.Group();
+  flagArm.position.set(0.72, 0.8, 0.35);
+  const flagPole = put(box(0.08, 1.05, 0.1, 0.03, 55), clay(CLAY.butter), flagArm);
+  flagPole.position.y = 0.45;
+  const flagTip = put(box(0.08, 0.36, 0.5, 0.05, 56), clay(CLAY.butter), flagArm);
+  flagTip.position.set(0, 0.8, -0.24);
+  mailbox.add(flagArm);
+  const letter = new THREE.Group();
+  put(box(1.0, 0.64, 0.07, 0.05, 57), clay(0xfffaf2), letter);
+  const seal = put(sphere(0.1, 0.04, 58), clay(CLAY.flame), letter);
+  seal.position.z = 0.05;
+  seal.scale.z = 0.4;
+  letter.scale.setScalar(0.8);
+  mailbox.add(letter);
+  const mound = put(sphere(0.85, 0.08, 60), clay(0x8fb66e, { roughness: 0.8 }), mailbox);
+  mound.position.y = -1.78;
+  mound.scale.set(1, 0.28, 1);
+  mailbox.position.y = 0.2;
+  together.add(mailbox);
+
+  /* What I do: the cast, each standing on its own clay floor. */
+  const owned: THREE.Material[] = [];
+  const tools: Tools = {
+    clay,
+    keep,
+    own: (m) => {
+      owned.push(m);
+      return m;
+    },
+    put,
+    sphere,
+    box,
+    capsule,
+    torus,
+    shadow: (parent, size, y) => {
+      const plane = new THREE.Mesh(shadowGeo, shadowMat);
+      plane.rotation.x = -Math.PI / 2;
+      plane.position.y = y;
+      plane.scale.set(size, size * 0.55, 1);
+      parent.add(plane);
+      return plane;
+    },
+  };
+  /** `span` is a half-width that must always fit, for wide pieces in narrow slots. */
+  const stage = (name: string, cast: Character, radius: number, centerY: number, elev: number, span?: number) => {
+    const spin = create(name, radius, centerY, 0, 0);
+    const model = models[name];
+    model.shadow.visible = false;
+    model.elev = elev;
+    model.cast = cast;
+    model.span = span;
+    spin.add(cast.group);
+  };
+  stage("robot", robot(tools, { rail: true }), 2.15, 0.0, 0.2);
+  stage("servers", servers(tools), 2.35, 0.3, 0.24);
+  stage("database", database(tools), 2.3, 0.1, 0.24);
+  stage("controller", controller(tools), 2.05, -0.2, 0.2);
+  stage("diorama", diorama(tools), 2.5, -0.3, 0.34, 6.7);
+
+  /* ------------------------------------------------------------ frames */
+  const slots = Array.from(document.querySelectorAll<HTMLElement>("[data-sculpture]"));
   const visibleSlots = new Set<HTMLElement>();
-  const chapterProgress = new Map<HTMLElement, number>();
-  const preference = matchMedia("(prefers-reduced-motion: reduce)");
-  let paused = preference.matches;
+  const progressFor = new Map<HTMLElement, number>();
+  let paused = isMotionPaused();
   let disposed = false;
   let lost = false;
   let frame = 0;
@@ -140,6 +311,92 @@ export function createSculpture(
   let smoothY = 0;
   let width = window.innerWidth;
   let height = window.innerHeight;
+  let drawnThisFrame = false;
+
+  const ease = (t: number) => 1 - (1 - t) ** 3;
+  // Height above the landing spot for a dropped block: it falls, lands, and
+  // hops a little, but never dips below where it rests, so it can't sink
+  // into the block underneath.
+  const dropHeight = (t: number) => {
+    const k = Math.min(1, Math.max(0, t));
+    return Math.abs(Math.cos(k * Math.PI * 2.5)) * (1 - k) ** 2;
+  };
+
+  const pose = (chapter: string, progress: number, model: Model) => {
+    const t = elapsed;
+    if (model.cast) {
+      model.spin.rotation.set(0, Math.sin(t * 0.25) * 0.08 + (progress - 0.5) * 0.3, 0);
+      model.cast.tick(t, { x: smoothX * 2, y: smoothY * 2 });
+      return;
+    }
+    model.spin.rotation.set(0.12 + smoothY * 0.18, -0.35 + smoothX * 0.35 + progress * 0.5, 0);
+    model.spin.position.y = Math.sin(t * 0.9) * 0.06;
+    if (chapter === "connection") {
+      model.spin.rotation.y = -0.25 + smoothX * 0.3 + Math.sin(t * 0.4) * 0.1;
+      bubbleA.position.y = 0.62 + Math.sin(t * 1.1) * 0.06;
+      bubbleB.position.y = -0.78 + Math.sin(t * 1.1 + 1.4) * 0.07;
+      dots.forEach((dot, i) => {
+        const hop = Math.max(0, Math.sin(t * 5 - i * 0.9));
+        dot.position.y = hop * 0.16;
+        dot.scale.setScalar(1 + hop * 0.12);
+      });
+    } else if (chapter === "building") {
+      model.spin.rotation.y = -0.5 + smoothX * 0.3 + progress * 0.9;
+      // The camera rises with the tower so a dropping block and its ball
+      // never leave the frame.
+      model.centerY = -0.9 + progress * 1.2;
+      // The first role is already standing when the chapter opens.
+      const stacked = 1 + progress * (blocks.length - 1);
+      blocks.forEach((block, i) => {
+        const local = Math.min(1, Math.max(0, stacked - i));
+        block.visible = local > 0;
+        const fall = dropHeight(local);
+        block.position.y = block.userData.y + fall * 1.05;
+        block.rotation.y = block.userData.turn + fall * 0.6;
+        // Squash only while touching down; flatten from the bottom so the
+        // block stays sitting on the one below.
+        const impact = local < 1 && fall < 0.04 ? (1 - fall / 0.04) * (1 - local) * 0.12 : 0;
+        block.scale.set(1 + impact, 1 - impact, 1 + impact);
+        block.position.y -= 0.31 * impact;
+      });
+      // The orange ball rides whichever block is currently on top.
+      const top = blocks[Math.min(blocks.length, Math.ceil(stacked)) - 1];
+      topper.position.y = top.position.y + 0.31 * top.scale.y + 0.32 + Math.abs(Math.sin(t * 2.2)) * 0.22;
+      topper.rotation.y = top.rotation.y;
+      model.shadow.scale.set(4.2, 2.3, 1);
+    } else if (chapter === "possibility") {
+      globe.rotation.y = t * 0.25 + progress * 1.5;
+      globe.rotation.z = 0.35;
+      const a = t * 0.6;
+      const local = new THREE.Vector3(Math.cos(a) * 2.05, Math.sin(a) * 2.05, 0);
+      local.applyEuler(orbit.rotation);
+      moon.position.copy(local);
+    } else if (chapter === "pressure") {
+      model.spin.rotation.y = -0.2 + smoothX * 0.3 + Math.sin(t * 0.5) * 0.25 + progress * 0.4;
+      starMesh.rotation.z = Math.sin(t * 1.4) * 0.12;
+      confetti.forEach((bit, i) => {
+        const { a, r, y } = bit.userData;
+        const angle = a + t * 0.35;
+        bit.position.set(Math.cos(angle) * r, y + Math.sin(t * 1.2 + i) * 0.18, Math.sin(angle) * r * 0.6);
+        bit.rotation.set(t * 1.3 + i, t * 0.9 + i * 2, i);
+      });
+    } else if (chapter === "together") {
+      model.spin.rotation.y = -0.55 + smoothX * 0.35 + Math.sin(t * 0.45) * 0.12;
+      // A letter floats up to the door, turns flat, and slides through the
+      // slot; the door hides it once it's in. Then the flag goes up.
+      const cycle = (t % 4.6) / 4.6;
+      const appear = ease(Math.min(1, cycle / 0.18));
+      const line = ease(Math.min(1, Math.max(0, (cycle - 0.18) / 0.14)));
+      const push = ease(Math.min(1, Math.max(0, (cycle - 0.34) / 0.2)));
+      letter.visible = cycle < 0.56;
+      letter.scale.setScalar(0.8 * appear);
+      letter.position.set(0, 1.3 + (1 - line) * 0.55 + Math.sin(t * 3) * 0.03 * (1 - push), 2.35 - push * 1.75);
+      letter.rotation.set(-Math.PI / 2 * line, 0, (1 - line) * 0.25);
+      const raise = cycle < 0.54 ? 0 : cycle < 0.66 ? ease((cycle - 0.54) / 0.12) : cycle < 0.9 ? 1 : 1 - ease((cycle - 0.9) / 0.1);
+      flagArm.rotation.x = 1.35 * (1 - raise);
+    }
+  };
+
   const render = () => {
     if (disposed || lost) return;
     renderer.setScissorTest(false);
@@ -148,68 +405,41 @@ export function createSculpture(
     renderer.setScissorTest(true);
     for (const slot of visibleSlots) {
       const rect = slot.getBoundingClientRect();
-      if (rect.bottom <= 0 || rect.top >= height || !rect.width || !rect.height)
-        continue;
-      const chapter = slot.dataset.sculpture || "curiosity";
+      if (rect.bottom <= 0 || rect.top >= height || !rect.width || !rect.height) continue;
+      const chapter = slot.dataset.sculpture || "connection";
       const model = models[chapter];
       if (!model) continue;
-      for (const group of Object.values(models))
-        group.visible = group === model;
-      // Movement follows the chapter through the viewport; reduced motion and
-      // explicit pause freeze the sculpture, while its normal page position scrolls.
-      const progress = paused
-        ? (chapterProgress.get(slot) ?? 0.5)
-        : THREE.MathUtils.clamp(
-            (height - rect.top) / (height + rect.height),
-            0,
-            1,
-          );
-      chapterProgress.set(slot, progress);
-      model.rotation.set(
-        0.15 + smoothY * 0.25 + (chapter === "building" ? 0.35 : 0),
-        -0.3 + elapsed * 0.09 + smoothX * 0.4 + progress * 0.65,
-        -0.18,
-      );
-      model.position.y = Math.sin(elapsed * 0.6) * 0.08;
-      orbit.rotation.z = -0.3 - elapsed * 0.08;
-      building.children.forEach((child, i) => {
-        child.position.y = (i - 1) * (0.65 + progress * 0.7);
-        child.rotation.y = i * 0.18 + Math.sin(elapsed * 0.3 + i) * 0.1;
-      });
-      possibility.children.forEach((child, i) => {
-        child.rotation.z = elapsed * 0.08 * (i % 2 ? -1 : 1) + progress * 0.4;
-      });
-      pressure.rotation.z = -0.18 + elapsed * 0.1 + progress * 0.35;
-      smallRing.rotation.y = elapsed * 0.15 + progress;
-      satellite.visible =
-        chapter === "curiosity" ||
-        chapter === "possibility" ||
-        chapter === "together";
-      satellite.position.set(
-        Math.cos(elapsed * 0.25 + 0.5) * 2.1,
-        Math.sin(elapsed * 0.25 + 0.5) * 1.6,
-        0.4,
-      );
+      for (const m of Object.values(models)) m.root.visible = m === model;
+      // Progress follows a tracked section when given one (sticky slots),
+      // otherwise the slot's own trip through the viewport.
+      const track = slot.dataset.track ? document.getElementById(slot.dataset.track) : null;
+      const box = track ? track.getBoundingClientRect() : rect;
+      const live = track
+        ? THREE.MathUtils.clamp(-box.top / Math.max(1, box.height - height), 0, 1)
+        : THREE.MathUtils.clamp((height - rect.top) / (height + rect.height), 0, 1);
+      const progress = paused && !track ? (progressFor.get(slot) ?? 0.5) : live;
+      progressFor.set(slot, progress);
+      pose(chapter, progress, model);
       camera.aspect = rect.width / rect.height;
-      const distance = chapter === "curiosity" ? 9.6 : 7.6;
-      camera.position.set(
-        0,
-        0,
-        camera.aspect < 1 ? distance / camera.aspect : distance,
+      const vfov = THREE.MathUtils.degToRad(camera.fov);
+      const hfov = 2 * Math.atan(Math.tan(vfov / 2) * camera.aspect);
+      const distance = Math.max(
+        (model.radius * 1.08) / Math.sin(Math.min(vfov, hfov) / 2),
+        model.span ? model.span / Math.tan(hfov / 2) : 0,
       );
+      camera.position.set(0, model.centerY + 0.35 + distance * model.elev, distance);
+      camera.lookAt(0, model.centerY, 0);
       camera.updateProjectionMatrix();
-      renderer.setViewport(
-        rect.left,
-        height - rect.bottom,
-        rect.width,
-        rect.height,
-      );
-      renderer.setScissor(
-        rect.left,
-        height - rect.bottom,
-        rect.width,
-        rect.height,
-      );
+      // This canvas sits above the page, so a stacked card that another card
+      // has slid over must stop drawing where the covering card begins.
+      let visibleBottom = rect.bottom;
+      const card = slot.closest(".stack-card");
+      const next = card?.nextElementSibling;
+      if (next?.classList.contains("stack-card")) visibleBottom = Math.min(visibleBottom, next.getBoundingClientRect().top + 24);
+      if (visibleBottom <= rect.top) continue;
+      const y = height - rect.bottom;
+      renderer.setViewport(rect.left, y, rect.width, rect.height);
+      renderer.setScissor(rect.left, height - visibleBottom, rect.width, visibleBottom - rect.top);
       renderer.render(scene, camera);
       slot.dataset.rendered = "true";
     }
@@ -220,13 +450,12 @@ export function createSculpture(
     last = 0;
   };
   const loop = (now: number) => {
-    if (!last || now - last >= 32) {
-      elapsed += last ? Math.min((now - last) / 1000, 0.06) : 0;
-      last = now;
-      smoothX += (pointerX - smoothX) * 0.07;
-      smoothY += (pointerY - smoothY) * 0.07;
-      render();
-    }
+    elapsed += last ? Math.min((now - last) / 1000, 0.05) : 0;
+    last = now;
+    smoothX += (pointerX - smoothX) * 0.07;
+    smoothY += (pointerY - smoothY) * 0.07;
+    if (!drawnThisFrame) render();
+    drawnThisFrame = false;
     frame = requestAnimationFrame(loop);
   };
   const requestRender = () => {
@@ -235,6 +464,10 @@ export function createSculpture(
       redraw = 0;
       render();
     });
+  };
+  const onFrameScroll = () => {
+    render();
+    drawnThisFrame = !!frame;
   };
   const sync = () => {
     stop();
@@ -250,18 +483,18 @@ export function createSculpture(
   };
   const theme = () => {
     const dark = document.documentElement.classList.contains("dark");
-    chrome.color.setHex(dark ? 0xb5c5c3 : 0xdce3e3);
-    renderer.toneMappingExposure = dark ? 1.5 : 1.2;
+    hemi.intensity = dark ? 0.75 : 1.1;
+    hemi.groundColor.set(dark ? 0x3a2a22 : 0xb99c86);
+    key.intensity = dark ? 2.1 : 2.6;
+    rim.color.set(dark ? 0xff9a6a : 0xffc8a6);
+    rim.intensity = dark ? 1.6 : 1.1;
+    shadowMat.opacity = dark ? 0.45 : 0.22;
     requestRender();
   };
   const onPointer = (event: PointerEvent) => {
     if (paused || event.pointerType === "touch") return;
     pointerX = event.clientX / width - 0.5;
     pointerY = event.clientY / height - 0.5;
-  };
-  const onPreference = () => {
-    paused = preference.matches;
-    sync();
   };
   const onLost = (event: Event) => {
     event.preventDefault();
@@ -286,38 +519,42 @@ export function createSculpture(
     observer.observe(slot);
     resizer.observe(slot);
   });
+  const stopMotion = onMotionChange((value) => {
+    paused = value;
+    sync();
+  });
+  const stopScrollFrame = onScrollFrame(onFrameScroll);
   window.addEventListener("pointermove", onPointer, { passive: true });
   window.addEventListener("scroll", requestRender, { passive: true });
   window.addEventListener("resize", resize);
   window.addEventListener(THEME_EVENT, theme);
   document.addEventListener("visibilitychange", sync);
-  preference.addEventListener("change", onPreference);
   renderer.domElement.addEventListener("webglcontextlost", onLost);
   resize();
   theme();
   document.fonts.ready.then(requestRender);
   return {
-    setPaused(value) {
-      paused = value;
-      sync();
-    },
     dispose() {
       disposed = true;
       stop();
       cancelAnimationFrame(redraw);
       observer.disconnect();
       resizer.disconnect();
+      stopMotion();
+      stopScrollFrame();
       window.removeEventListener("pointermove", onPointer);
       window.removeEventListener("scroll", requestRender);
       window.removeEventListener("resize", resize);
       window.removeEventListener(THEME_EVENT, theme);
       document.removeEventListener("visibilitychange", sync);
-      preference.removeEventListener("change", onPreference);
       renderer.domElement.removeEventListener("webglcontextlost", onLost);
       slots.forEach((slot) => delete slot.dataset.rendered);
-      [...Object.values(geometries), chrome, orange, environmentMap].forEach(
-        (resource) => resource.dispose(),
-      );
+      geometries.forEach((g) => g.dispose());
+      shadowMat.dispose();
+      shadowTexture.dispose();
+      owned.forEach((m) => m.dispose());
+      kit.dispose();
+      envMap.dispose();
       renderer.dispose();
       renderer.forceContextLoss();
       renderer.domElement.remove();

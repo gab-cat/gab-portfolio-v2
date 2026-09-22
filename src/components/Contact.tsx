@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import type { PostboxController } from "../lib/clay/postbox";
 import { EMAIL } from "../data";
 import { Reveal } from "./Reveal";
 
@@ -12,6 +13,12 @@ export function Contact() {
   const busy = useRef(false);
   const request = useRef<AbortController | null>(null);
   const success = useRef<HTMLDivElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const column = useRef<HTMLDivElement>(null);
+  const postbox = useRef<PostboxController | null>(null);
+  const noteState = useRef({ progress: 0, topic: 0 });
+  const [stageReady, setStageReady] = useState(false);
+  const [noteProgress, setNoteProgress] = useState(0);
   const refresh = useCallback(async () => {
     request.current?.abort();
     const controller = new AbortController();
@@ -33,6 +40,43 @@ export function Contact() {
   }, []);
   useEffect(() => { void refresh(); return () => request.current?.abort(); }, [refresh]);
   useEffect(() => { if (status === "sent") success.current?.focus(); }, [status]);
+  useEffect(() => {
+    let cancelled = false;
+    import("../lib/clay/postbox")
+      .then(({ createPostbox }) => {
+        if (cancelled || !stage.current) return;
+        postbox.current = createPostbox(stage.current, { onReady: () => setStageReady(true), column: column.current });
+        postbox.current?.setTopic(noteState.current.topic);
+        postbox.current?.setProgress(noteState.current.progress);
+      })
+      .catch(() => setStageReady(false));
+    return () => {
+      cancelled = true;
+      postbox.current?.dispose();
+      postbox.current = null;
+    };
+  }, []);
+  useEffect(() => {
+    if (status === "sent") postbox.current?.send();
+    if (status === "error") postbox.current?.shake();
+  }, [status]);
+  // The 3D note mirrors the form: each valid field writes another line.
+  const trackNote = (form: HTMLFormElement) => {
+    const data = new FormData(form);
+    const name = String(data.get("name") ?? "").trim();
+    const email = String(data.get("email") ?? "").trim();
+    const message = String(data.get("message") ?? "").trim();
+    const topic = Math.max(0, TOPICS.indexOf(String(data.get("topic") ?? "")));
+    const progress =
+      (name.length >= 2 ? 0.2 : name.length * 0.08) +
+      (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 0.2 : Math.min(email.length, 6) * 0.02) +
+      Math.min(message.length, 20) / 20 * 0.6;
+    const value = Math.min(1, progress);
+    noteState.current = { progress: value, topic };
+    setNoteProgress(value);
+    postbox.current?.setProgress(value);
+    postbox.current?.setTopic(topic);
+  };
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy.current || !token) return;
@@ -57,17 +101,35 @@ export function Contact() {
     } finally { busy.current = false; }
   }
   return (
-    <section className="contact-page studio-container" aria-labelledby="contact-title">
-      <div className="contact-intro">
-        <Reveal><a className="contact-back" href="/">← Back to the story</a><p className="chapter-label">A good thing starts with a hello.</p><h1 id="contact-title">What’s<br />on your<br /><em>mind?</em></h1></Reveal>
-        <Reveal delay={.15}><p className="contact-premise">A rough idea is a perfectly good place to start. Tell me what you’re thinking. We’ll take it from there.</p><a className="contact-direct" href={`mailto:${EMAIL}`}>{EMAIL} ↗</a><p className="contact-location"><span aria-hidden="true">↗</span> From Naga City.<br />Wherever your idea takes us.</p></Reveal>
+    <section className={`contact-world-page ${stageReady ? "is-live" : ""}`} aria-labelledby="contact-title">
+      <div className="contact-world" aria-hidden="true">
+        <div className="contact-sky" />
+        <div className="contact-world-fallback"><span /><i /></div>
+        <div ref={stage} className="contact-world-canvas" />
       </div>
-      <Reveal className="contact-paper" delay={.18}>
-        <div className="note-top"><span>A note to Gab</span><span className="note-stamp" aria-hidden="true">HELLO<br /><b>↗</b></span></div>
+      <div className="contact-hud" aria-hidden="true">
+        <div className="contact-hud-top">
+          <span className="stage-chip"><i /> Your note, live</span>
+          <span className="stage-hint">Drag the sky to spin the island · poke the mailbox</span>
+        </div>
+        <div className="contact-stage-meter">
+          <span>{status === "sent" ? "Delivered. Planes away!" : noteProgress >= 1 ? "Sealed and ready" : noteProgress > 0 ? "Writing…" : "Blank page"}</span>
+          <b><i style={{ width: `${Math.round((status === "sent" ? 1 : noteProgress) * 100)}%` }} /></b>
+        </div>
+      </div>
+      <a className="contact-back" href="/">← Back to the story</a>
+      <div ref={column} className="contact-column">
+      <Reveal className="contact-paper">
+        <header className="contact-head">
+          <p className="chapter-label">A good thing starts with a hello.</p>
+          <h1 id="contact-title">What’s on <em>your mind?</em></h1>
+          <p className="contact-premise">A rough idea is a perfectly good place to start. Tell me what you’re thinking. We’ll take it from there.</p>
+          <p className="contact-links"><a className="contact-direct" href={`mailto:${EMAIL}`}>{EMAIL} ↗</a><span className="contact-location">From Naga City, wherever your idea takes us.</span></p>
+        </header>
         {status === "sent" ? (
           <div className="contact-success" ref={success} tabIndex={-1} role="status"><span aria-hidden="true">↗</span><h2>It’s in<br /><em>my inbox.</em></h2><p>Thanks for reaching out. I’ll reply to the email address you shared.</p><a className="contact-send" href="/">Back to the story <span aria-hidden="true">↗</span></a></div>
         ) : (
-          <form onSubmit={submit} aria-busy={status === "sending"}>
+          <form onSubmit={submit} aria-busy={status === "sending"} onInput={event => trackNote(event.currentTarget)} onChange={event => trackNote(event.currentTarget)}>
             <fieldset disabled={status === "sending"} className="contact-fields">
               <legend className="sr-only">Your message</legend>
               <label htmlFor="contact-name">Your name<input id="contact-name" name="name" placeholder="What should I call you?" autoComplete="name" required minLength={2} maxLength={80} /></label>
@@ -83,6 +145,7 @@ export function Contact() {
           </form>
         )}
       </Reveal>
+      </div>
     </section>
   );
 }

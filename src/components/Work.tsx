@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { PROJECTS } from "../data";
 import { Sculpture } from "./Sculpture";
 import { Reveal } from "./Reveal";
@@ -131,17 +132,19 @@ function ProjectArt({ index }: { index: number }) {
   );
 }
 
+const PROJECT_TINTS = ["var(--sage)", "var(--lilac)", "var(--sky)", "var(--blush)"];
+
 export function Work() {
   return (
-    <section id="work" className="work-section work-gallery studio-container section-space">
-      <div className="gallery-layout">
-        <div className="gallery-intro">
+    <section id="work" className="work-section">
+      <div className="clay-container">
+        <div className="work-intro">
           <Reveal>
-            <p className="chapter-label">Ideas, out in the open</p>
-            <h2>
-              A what if is better
-              <br />
-              <em>out in the world.</em>
+            <p className="chapter-label" style={{ "--chip": "var(--sky)" } as CSSProperties}>
+              Chapter three · Ideas, out in the open
+            </p>
+            <h2 className="chapter-title">
+              A what if is better <em>out in the world.</em>
             </h2>
             <p className="chapter-copy">
               So I started shipping. A campus store. A home for a community. A
@@ -149,7 +152,7 @@ export function Work() {
               on the other side.
             </p>
           </Reveal>
-          <div className="gallery-sculpture"><Sculpture chapter="possibility" /></div>
+          <Sculpture chapter="possibility" className="work-globe" />
         </div>
         <div className="projects-grid">
           {PROJECTS.map((project, i) => (
@@ -164,35 +167,42 @@ export function Work() {
                 href={project.href}
                 target="_blank"
                 rel="noreferrer noopener"
+                style={{ "--tint": PROJECT_TINTS[i] } as CSSProperties}
                 aria-label={`${project.name} — ${i === 1 ? "visit website" : "explore on GitHub"} (opens in a new tab)`}
               >
                 <DepthArt>
                   <ProjectArt index={i} />
                 </DepthArt>
                 <div className="project-heading">
+                  <span className="project-index">{project.index}</span>
                   <h3>{project.name}</h3>
-                  <span className="project-arrow">↗</span>
+                  <span className="project-arrow" aria-hidden="true">↗</span>
                 </div>
                 <p className="project-tagline">{project.tagline}</p>
               </a>
               <p className="project-story">{project.story}</p>
               <div className="project-meta">
-                <span>{project.tech.join(" / ")}</span>
+                <ul aria-label="Built with">
+                  {project.tech.map((tech) => (
+                    <li key={tech}>{tech}</li>
+                  ))}
+                </ul>
                 <span>{i === 1 ? "Live website" : "GitHub"} ↗</span>
               </div>
             </Reveal>
           ))}
         </div>
-      </div>
-      <div className="work-footnote">
-        <a
-          className="text-link"
-          href="https://github.com/gab-cat"
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          More on GitHub ↗
-        </a>
+        <div className="work-footnote">
+          <p>Plus a drawer full of experiments, bots and weekend builds.</p>
+          <a
+            className="btn btn-ink"
+            href="https://github.com/gab-cat"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            More on GitHub <span aria-hidden="true">↗</span>
+          </a>
+        </div>
       </div>
     </section>
   );

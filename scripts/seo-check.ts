@@ -69,7 +69,14 @@ if (sitemap.includes("/404")) fail("sitemap should not list 404");
 const llms = read("llms.txt");
 if (!llms.startsWith("# ")) fail("llms.txt must start with an H1");
 if (!llms.includes("/llms-full.txt")) fail("llms.txt should point at llms-full.txt");
-if (!read("llms-full.txt").includes("Selected work")) fail("llms-full.txt missing work section");
+const llmsFull = read("llms-full.txt");
+for (const section of ["## Intro", "## What I do", "## Experience", "## Selected work", "## Recognition"]) {
+  if (!llmsFull.includes(section)) fail(`llms-full.txt missing ${section}`);
+}
+const manifest = read("site.webmanifest");
+for (const icon of ["/favicon.svg", "/icon-192.png", "/icon-512.png"]) {
+  if (!manifest.includes(icon)) fail(`web manifest missing ${icon}`);
+}
 if (!read("site.webmanifest").includes('"short_name": "gabcat"')) fail("web manifest incomplete");
 
 for (const asset of [
@@ -77,6 +84,8 @@ for (const asset of [
   "favicon.ico",
   "favicon.svg",
   "apple-touch-icon.png",
+  "icon-192.png",
+  "icon-512.png",
   "fonts/PowerGroteskTrial-Bold.woff2",
   "fonts/instrument-sans-latin-wght-normal.woff2",
   "portraits/gab-halftone.webp",

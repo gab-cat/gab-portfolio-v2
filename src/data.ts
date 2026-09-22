@@ -209,3 +209,31 @@ export const TOOLBOX = [
     items: ["Unreal Engine", "C++", "Gemini AI", "CTF forensics"],
   },
 ] as const;
+
+/** What I do: the four cards under the Story, one per part of the job. */
+export const CRAFT = [
+  {
+    tag: "Build",
+    title: ["It starts on a screen.", "It has to feel right."],
+    copy: "I build the part people actually touch, front to back. Fast pages, calm interfaces, and code the next person can read without calling me.",
+    proof: ["MerchTrack", "had 2,750+ students in week one. The servers held, and so did I."],
+  },
+  {
+    tag: "Ship",
+    title: ["Launch day should feel", "like any other day."],
+    copy: "I like my deploys boring. So I wire up pipelines that test, build and ship on their own, on servers I can still reason about at 3 a.m.",
+    proof: ["Detken", "moved production off Vercel onto servers we control."],
+  },
+  {
+    tag: "Store",
+    title: ["Every app is", "a memory, really."],
+    copy: "Somewhere, it has to remember who you are and what you did. I pick the right place to keep it, and shape it so it still makes sense a year from now.",
+    proof: ["Games of the Generals", "keeps every move in sync, for every player."],
+  },
+  {
+    tag: "Play",
+    title: ["And sometimes,", "I just play."],
+    copy: "Game engines, AI, capture-the-flag forensics. The weekend detours are where most of my favourite what ifs come from.",
+    proof: ["Hack4Gov", "regional CTF champion, 2024. Yes, it counts."],
+  },
+] as const;

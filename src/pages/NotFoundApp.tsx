@@ -5,7 +5,7 @@ export default function NotFoundApp() {
   return (
     <AppShell route="notFound">
       <main>
-        <section className="contact-page studio-container" aria-labelledby="missing-title">
+        <section className="contact-page clay-container" aria-labelledby="missing-title">
           <Reveal>
             <p className="chapter-label">Wrong turn.</p>
             <h1 id="missing-title">
