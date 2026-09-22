@@ -12,7 +12,12 @@ export type SculptureChapter =
   | "servers"
   | "database"
   | "controller"
-  | "diorama";
+  | "diorama"
+  | "lost"
+  | "merch"
+  | "guild"
+  | "generals"
+  | "tarot";
 
 /** Layout slots share one renderer; each chapter has its own clay piece.
  * `track` names a section whose scroll progress drives the piece, for slots

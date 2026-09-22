@@ -1,8 +1,7 @@
 import type { CSSProperties } from "react";
 import { PROJECTS } from "../data";
-import { Sculpture } from "./Sculpture";
+import { Sculpture, type SculptureChapter } from "./Sculpture";
 import { Reveal } from "./Reveal";
-import { DepthArt } from "./DepthArt";
 
 const PROJECT_QUESTIONS = [
   "What if campus merch was the easy part?",
@@ -11,126 +10,13 @@ const PROJECT_QUESTIONS = [
   "What if your morning came with a little magic?",
 ];
 
-function ProjectArt({ index }: { index: number }) {
-  if (index === 0)
-    return (
-      <div className="project-art art-merch" aria-hidden="true">
-        <div className="merch-orbit" />
-        <div className="merch-window">
-          <div className="mock-nav">
-            <b>
-              merchtrack<span>®</span>
-            </b>
-            <span>The campus collection ↗</span>
-          </div>
-          <div className="merch-content">
-            <div>
-              <strong>
-                Campus.
-                <br />
-                Culture.
-                <br />
-                <em>Collected.</em>
-              </strong>
-              <span className="mock-shop">Find your everyday ↗</span>
-            </div>
-            <div className="shirt">
-              <svg viewBox="0 0 200 220" fill="none">
-                <path
-                  d="M55 18 78 8c5 17 39 17 44 0l23 10 45 46-32 30-15-16 6 124H51l6-124-15 16-32-30 45-46Z"
-                  fill="#23352c"
-                />
-                <path
-                  d="M78 8c5 17 39 17 44 0"
-                  stroke="#718775"
-                  strokeWidth="5"
-                />
-                <text
-                  x="100"
-                  y="100"
-                  textAnchor="middle"
-                  fill="#ebf19e"
-                  fontSize="21"
-                  fontFamily="sans-serif"
-                  fontWeight="bold"
-                >
-                  GUILD
-                </text>
-                <text
-                  x="100"
-                  y="119"
-                  textAnchor="middle"
-                  fill="#ebf19e"
-                  fontSize="7"
-                  fontFamily="monospace"
-                >
-                  BUILT DIFFERENT.
-                </text>
-              </svg>
-              <span>The everyday tee</span>
-            </div>
-          </div>
-        </div>
-        <span className="art-sticker">
-          2,750+<small>users in week one</small>
-        </span>
-      </div>
-    );
-  if (index === 1)
-    return (
-      <div className="project-art art-guild" aria-hidden="true">
-        <span className="guild-top">Ateneo de Naga University</span>
-        <div className="guild-type">
-          &lt;cs<span>guild</span>/&gt;
-        </div>
-        <div className="guild-star">✳</div>
-        <span className="guild-bottom">
-          A place for the next
-          <br />
-          “I made this.”<span>Code. Connect. Create.</span>
-        </span>
-      </div>
-    );
-  if (index === 2)
-    return (
-      <div className="project-art art-generals" aria-hidden="true">
-        <span className="board-label">Your next move changes everything.</span>
-        <div className="game-board">
-          {Array.from({ length: 40 }, (_, i) => (
-            <span key={i} className="board-cell">
-              {[3, 5, 11, 16, 22, 26, 28, 33, 36].includes(i) && (
-                <i className={i < 20 ? "piece-light" : "piece-dark"}>
-                  {i % 3 === 0 ? "★" : "❯"}
-                </i>
-              )}
-            </span>
-          ))}
-        </div>
-        <span className="board-bottom">
-          Games of the Generals <span>Your move ↗</span>
-        </span>
-      </div>
-    );
-  return (
-    <div className="project-art art-tarot" aria-hidden="true">
-      <span className="tarot-label">A little guidance from the universe.</span>
-      <div className="tarot-cards">
-        <div className="tarot-card tarot-left">
-          ☾<small>The moon</small>
-        </div>
-        <div className="tarot-card tarot-center">
-          <span>XVII</span>✷<small>The star</small>
-        </div>
-        <div className="tarot-card tarot-right">
-          ☼<small>The sun</small>
-        </div>
-      </div>
-      <span className="tarot-wordmark">
-        Your Daily Tarot<span>Good morning, cosmos.</span>
-      </span>
-    </div>
-  );
-}
+/* Each cover is a small clay set, lit like the rest of the site. */
+const COVERS: { chapter: SculptureChapter; kind: string; tone: string }[] = [
+  { chapter: "merch", kind: "Campus e-commerce", tone: "merch" },
+  { chapter: "guild", kind: "Community hub", tone: "guild" },
+  { chapter: "generals", kind: "Realtime multiplayer", tone: "generals" },
+  { chapter: "tarot", kind: "Messenger bot", tone: "tarot" },
+];
 
 const PROJECT_TINTS = ["var(--sage)", "var(--lilac)", "var(--sky)", "var(--blush)"];
 
@@ -170,9 +56,15 @@ export function Work() {
                 style={{ "--tint": PROJECT_TINTS[i] } as CSSProperties}
                 aria-label={`${project.name} — ${i === 1 ? "visit website" : "explore on GitHub"} (opens in a new tab)`}
               >
-                <DepthArt>
-                  <ProjectArt index={i} />
-                </DepthArt>
+                <div className={`project-art project-art-${COVERS[i].tone}`}>
+                  <Sculpture chapter={COVERS[i].chapter} />
+                  <span className="project-kind" aria-hidden="true">{COVERS[i].kind}</span>
+                  {i === 0 && (
+                    <span className="art-sticker" aria-hidden="true">
+                      2,750+<small>users in week one</small>
+                    </span>
+                  )}
+                </div>
                 <div className="project-heading">
                   <span className="project-index">{project.index}</span>
                   <h3>{project.name}</h3>

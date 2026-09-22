@@ -466,6 +466,11 @@
     radial-gradient(70% 45% at 50% 46%, #ffffff0d, transparent 70%),
     linear-gradient(to bottom, var(--floor-sky) 0%, var(--floor-horizon) 42%, var(--floor-ground) 50%, var(--floor-ground) 100%);
 }
+/* The diorama brings its own clay table, so its backdrop is only the wall. */
+.craft-diorama.craft-diorama,
+.dark .craft-diorama.craft-diorama {
+  background: radial-gradient(70% 70% at 50% 30%, var(--floor-sky), var(--floor-horizon) 80%);
+}
 .craft-diorama {
   aspect-ratio: 2.35;
   border-radius: var(--radius-xl);
@@ -828,6 +833,7 @@
 }
 .project-question {
   min-height: 2.3em;
+  margin-top: 4px;
   max-width: 460px;
   margin-bottom: 20px;
   font: italic 400 clamp(26px, 2.5vw, 38px) / 1.15 var(--font-serif);
@@ -836,20 +842,100 @@
 .project-link {
   display: block;
 }
+/* Each project is one card: the question, a clay set, then the details. */
+.project {
+  padding: 26px 16px 22px;
+  border-radius: 40px;
+  background: var(--card);
+  box-shadow: var(--shadow-soft);
+}
+.project > :not(.project-link),
+.project-link > :not(.project-art) {
+  margin-inline: 12px;
+}
 .project-art {
+  --wall: #eef2ea;
+  --floor: #d4e1cf;
   position: relative;
   isolation: isolate;
   aspect-ratio: 1.1;
   overflow: hidden;
-  border-radius: 34px;
-  box-shadow: var(--shadow-lift);
+  border-radius: 30px;
+  background:
+    radial-gradient(60% 45% at 50% 42%, #ffffff70, transparent 70%),
+    linear-gradient(to bottom, var(--wall) 0%, var(--wall) 52%, var(--floor) 60%, var(--floor) 100%);
   transition: border-radius 0.5s var(--spring);
 }
 .project:nth-child(even) .project-art {
   aspect-ratio: 0.95;
 }
 .project-link:hover .project-art {
-  border-radius: 48px;
+  border-radius: 44px;
+}
+.project-art .chapter-sculpture {
+  position: absolute;
+  inset: 0;
+  height: auto;
+}
+.project-art-guild {
+  --wall: #ebe4fa;
+  --floor: #d3c6f0;
+}
+.project-art-generals {
+  --wall: #3a4a55;
+  --floor: #2c3942;
+}
+.project-art-tarot {
+  --wall: #f3ede3;
+  --floor: #e2d6c4;
+}
+.dark .project-art {
+  --wall: #26302a;
+  --floor: #1d2520;
+}
+.dark .project-art-guild {
+  --wall: #2a2540;
+  --floor: #211c33;
+}
+.dark .project-art-generals {
+  --wall: #26313a;
+  --floor: #1c252c;
+}
+.dark .project-art-tarot {
+  --wall: #302924;
+  --floor: #25201c;
+}
+.project-kind {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 1;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: #fffaf2d9;
+  color: #1f1b17;
+  font-size: 12px;
+  font-weight: 600;
+}
+.art-sticker {
+  position: absolute;
+  right: 18px;
+  top: 16px;
+  z-index: 1;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: #edf496;
+  color: #23352c;
+  font: 700 22px/1 var(--font-display);
+  letter-spacing: -0.03em;
+  transform: rotate(6deg);
+  box-shadow: 0 10px 20px -12px #23352c80;
+}
+.art-sticker small {
+  display: block;
+  margin-top: 4px;
+  font: 500 11px/1.2 var(--font-sans);
+  letter-spacing: 0;
 }
 .project-heading {
   display: flex;
@@ -909,6 +995,9 @@
   margin-top: 20px;
   color: var(--fog);
   font-size: 13px;
+}
+.project-meta > span {
+  white-space: nowrap;
 }
 .project-meta ul {
   display: flex;
@@ -1352,10 +1441,18 @@
   .project:nth-child(even) {
     margin-top: 0;
   }
+  .project {
+    padding: 20px 10px 18px;
+    border-radius: 30px;
+  }
+  .project > :not(.project-link),
+  .project-link > :not(.project-art) {
+    margin-inline: 8px;
+  }
   .project-art,
   .project:nth-child(even) .project-art {
     aspect-ratio: 1.05;
-    border-radius: 26px;
+    border-radius: 22px;
   }
   .project-question {
     min-height: 0;

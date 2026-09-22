@@ -1,6 +1,21 @@
 /* The contact page is a sky. The clay world fills the screen and stays put;
    the headline and a frosted note float over it on the right. */
 
+/* The 404: copy on the left, the clay 4 0 4 on the right. */
+.missing-page { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 40px; min-height: 100svh; padding-top: 120px; padding-bottom: 80px; }
+.missing-copy h1 { font: 700 clamp(62px, 8vw, 128px)/.88 var(--font-display); letter-spacing: -.06em; }
+.missing-copy h1 em { font-family: var(--font-serif); font-weight: 400; letter-spacing: -.02em; color: var(--flame); }
+.missing-premise { max-width: 440px; margin-top: 26px; color: var(--fog); font-size: 17px; line-height: 1.7; }
+.missing-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.missing-stage { position: relative; aspect-ratio: 1.15; border-radius: var(--radius-xl); background: radial-gradient(60% 50% at 50% 42%, #ffffff70, transparent 70%), linear-gradient(to bottom, var(--surface) 0%, var(--surface) 55%, #e6dccd 55%, #ded3c3 100%); }
+.dark .missing-stage { background: radial-gradient(60% 50% at 50% 42%, #ffffff0a, transparent 70%), linear-gradient(to bottom, var(--surface) 0%, var(--surface) 55%, #221d18 55%, #1c1814 100%); }
+.missing-stage .chapter-sculpture { position: absolute; inset: 0; height: auto; }
+@media (max-width: 900px) {
+  .missing-page { grid-template-columns: 1fr; min-height: 0; padding-top: 110px; gap: 28px; }
+  .missing-stage { order: -1; aspect-ratio: 1.3; border-radius: 28px; }
+  .missing-copy h1 { font-size: clamp(56px, 16vw, 96px); }
+}
+
 /* Shared by the 404 page. */
 .contact-page { padding-top: 150px; padding-bottom: 120px; }
 .contact-page h1 { font: 700 clamp(62px, 8.6vw, 130px)/.88 var(--font-display); letter-spacing: -.06em; }

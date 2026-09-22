@@ -3,7 +3,6 @@ import { createRoot, hydrateRoot } from "react-dom/client";
 import "./index.css";
 import "./styles/site.css";
 import "./styles/home.css";
-import "./styles/projects.css";
 import "./contact.css";
 import { routeFromPath, type RouteId } from "./seo";
 

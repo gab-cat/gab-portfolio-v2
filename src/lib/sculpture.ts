@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { CLAY, contactShadowTexture, createClayKit, lumpy } from "./clay/kit";
-import { controller, database, diorama, robot, servers, type Character, type Tools } from "./clay/characters";
+import { board, controller, database, diorama, guild, merch, robot, servers, tarot, type Character, type Tools } from "./clay/characters";
 import { isMotionPaused, onMotionChange } from "./motion";
 import { onScrollFrame } from "./scroll";
 import { THEME_EVENT } from "./theme";
@@ -81,7 +81,7 @@ export function createSculpture(
   });
   const shadowGeo = keep(new THREE.PlaneGeometry(1, 1));
 
-  type Model = { root: THREE.Group; spin: THREE.Group; shadow: THREE.Mesh; radius: number; centerY: number; elev: number; span?: number; cast?: Character };
+  type Model = { root: THREE.Group; spin: THREE.Group; shadow: THREE.Mesh; radius: number; centerY: number; elev: number; span?: number; hover?: number; cast?: Character };
   const models: Record<string, Model> = {};
   /** `radius` and `centerY` bound the piece and its shadow; the camera always fits them. */
   const create = (name: string, radius: number, centerY: number, shadowY: number, shadowSize: number) => {
@@ -292,7 +292,43 @@ export function createSculpture(
   stage("servers", servers(tools), 2.35, 0.3, 0.24);
   stage("database", database(tools), 2.3, 0.1, 0.24);
   stage("controller", controller(tools), 2.05, -0.2, 0.2);
-  stage("diorama", diorama(tools), 2.5, -0.3, 0.34, 6.7);
+  stage("diorama", diorama(tools), 2.3, -0.42, 0.17, 6.35);
+  stage("merch", merch(tools), 2.55, -0.05, 0.16);
+  stage("guild", guild(tools), 2.45, -0.55, 0.3);
+  stage("generals", board(tools), 1.85, -1.5, 0.7);
+  stage("tarot", tarot(tools), 2.2, -0.55, 0.14);
+
+  /* 404: two clay fours, and the ball playing the zero. */
+  const missing = create("lost", 3.0, 0.05, -1.02, 6.4);
+  const four = new THREE.Shape();
+  (
+    [
+      [0, 2], [0.42, 2], [0.42, 0.97], [0.78, 0.97], [0.78, 2], [1.2, 2], [1.2, 0.97],
+      [1.4, 0.97], [1.4, 0.55], [1.2, 0.55], [1.2, 0], [0.78, 0], [0.78, 0.55], [0, 0.55],
+    ] as const
+  ).forEach(([x, y], i) => (i ? four.lineTo(x, y) : four.moveTo(x, y)));
+  four.closePath();
+  const fourGeo = keep(lumpy(new THREE.ExtrudeGeometry(four, { depth: 0.5, bevelEnabled: true, bevelThickness: 0.14, bevelSize: 0.12, bevelSegments: 6, curveSegments: 4 }), 0.012, 2.2, 61));
+  fourGeo.center();
+  const digitMat = clay(CLAY.charcoal).clone();
+  const fours = [-2.05, 2.05].map((x, i) => {
+    const digit = put(fourGeo, digitMat, missing);
+    digit.position.set(x, 0, 0);
+    digit.rotation.y = i ? -0.18 : 0.18;
+    return digit;
+  });
+  const zero = put(sphere(0.72, 0.03, 62), clay(CLAY.flame), missing);
+  const zeroShadow = new THREE.Mesh(shadowGeo, shadowMat);
+  zeroShadow.rotation.x = -Math.PI / 2;
+  zeroShadow.position.set(0, -1.0, 0);
+  missing.add(zeroShadow);
+  // The hole it was meant for, with nobody in it.
+  const emptyHole = put(keep(new THREE.CircleGeometry(0.3, 32)), clay(0x2d2520, { roughness: 1 }), missing);
+  emptyHole.rotation.x = -Math.PI / 2;
+  emptyHole.position.set(0, -0.99, 2.2);
+  const lipRing = put(torus(0.31, 0.05, Math.PI * 2, 63), clay(CLAY.sage), missing);
+  lipRing.rotation.x = Math.PI / 2;
+  lipRing.position.set(0, -0.98, 2.2);
 
   /* ------------------------------------------------------------ frames */
   const slots = Array.from(document.querySelectorAll<HTMLElement>("[data-sculpture]"));
@@ -322,11 +358,12 @@ export function createSculpture(
     return Math.abs(Math.cos(k * Math.PI * 2.5)) * (1 - k) ** 2;
   };
 
-  const pose = (chapter: string, progress: number, model: Model) => {
+  const pose = (chapter: string, progress: number, model: Model, hovered = false) => {
     const t = elapsed;
     if (model.cast) {
+      model.hover = (model.hover ?? 0) + ((hovered ? 1 : 0) - (model.hover ?? 0)) * 0.08;
       model.spin.rotation.set(0, Math.sin(t * 0.25) * 0.08 + (progress - 0.5) * 0.3, 0);
-      model.cast.tick(t, { x: smoothX * 2, y: smoothY * 2 });
+      model.cast.tick(t, { x: smoothX * 2, y: smoothY * 2, hover: model.hover });
       return;
     }
     model.spin.rotation.set(0.12 + smoothY * 0.18, -0.35 + smoothX * 0.35 + progress * 0.5, 0);
@@ -380,6 +417,17 @@ export function createSculpture(
         bit.position.set(Math.cos(angle) * r, y + Math.sin(t * 1.2 + i) * 0.18, Math.sin(angle) * r * 0.6);
         bit.rotation.set(t * 1.3 + i, t * 0.9 + i * 2, i);
       });
+    } else if (chapter === "lost") {
+      model.spin.rotation.set(0.08 + smoothY * 0.12, smoothX * 0.35 + Math.sin(t * 0.4) * 0.06, 0);
+      model.spin.position.y = 0;
+      const k = (t % 1.15) / 1.15;
+      const hop = Math.sin(k * Math.PI);
+      // Squash on the floor, stretch in the air.
+      const squash = k < 0.12 || k > 0.88 ? 1 - Math.min(k, 1 - k) / 0.12 : 0;
+      zero.position.y = -1 + 0.72 + hop * 0.95;
+      zero.scale.set(1 + squash * 0.14 - hop * 0.03, 1 - squash * 0.16 + hop * 0.05, 1 + squash * 0.14 - hop * 0.03);
+      zeroShadow.scale.setScalar(1.9 - hop * 0.7);
+      fours.forEach((d, i) => (d.rotation.z = Math.sin(t * 1.3 + i * 2) * 0.03));
     } else if (chapter === "together") {
       model.spin.rotation.y = -0.55 + smoothX * 0.35 + Math.sin(t * 0.45) * 0.12;
       // A letter floats up to the door, turns flat, and slides through the
@@ -419,7 +467,7 @@ export function createSculpture(
         : THREE.MathUtils.clamp((height - rect.top) / (height + rect.height), 0, 1);
       const progress = paused && !track ? (progressFor.get(slot) ?? 0.5) : live;
       progressFor.set(slot, progress);
-      pose(chapter, progress, model);
+      pose(chapter, progress, model, !!slot.closest("a")?.matches(":hover"));
       camera.aspect = rect.width / rect.height;
       const vfov = THREE.MathUtils.degToRad(camera.fov);
       const hfov = 2 * Math.atan(Math.tan(vfov / 2) * camera.aspect);
@@ -489,6 +537,8 @@ export function createSculpture(
     rim.color.set(dark ? 0xff9a6a : 0xffc8a6);
     rim.intensity = dark ? 1.6 : 1.1;
     shadowMat.opacity = dark ? 0.45 : 0.22;
+    digitMat.color.set(dark ? CLAY.cream : 0x3a332d);
+    Object.values(models).forEach((m) => m.cast?.theme?.(dark));
     requestRender();
   };
   const onPointer = (event: PointerEvent) => {
@@ -553,6 +603,7 @@ export function createSculpture(
       shadowMat.dispose();
       shadowTexture.dispose();
       owned.forEach((m) => m.dispose());
+      digitMat.dispose();
       kit.dispose();
       envMap.dispose();
       renderer.dispose();
