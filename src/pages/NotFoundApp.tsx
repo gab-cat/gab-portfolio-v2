@@ -1,4 +1,5 @@
 import { AppShell } from "../components/AppShell";
+import { Link } from "../lib/router";
 import { Reveal } from "../components/Reveal";
 import { Sculpture, StoryWorld } from "../components/Sculpture";
 
@@ -21,12 +22,12 @@ export default function NotFoundApp() {
               note still works if you meant to write.
             </p>
             <div className="missing-actions">
-              <a className="btn btn-ink" href="/">
+              <Link className="btn btn-ink" href="/">
                 Back to the story <span aria-hidden="true">↗</span>
-              </a>
-              <a className="btn btn-card" href="/contact">
+              </Link>
+              <Link className="btn btn-card" href="/contact">
                 Or say hello <span aria-hidden="true">↗</span>
-              </a>
+              </Link>
             </div>
           </Reveal>
           <div className="missing-stage">

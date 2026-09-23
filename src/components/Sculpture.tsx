@@ -48,7 +48,6 @@ export function Sculpture({
 }
 
 export function StoryWorld() {
-  const host = useRef<HTMLDivElement>(null);
   const controller = useRef<SculptureController | null>(null);
   const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -68,8 +67,8 @@ export function StoryWorld() {
       if (cancelled || controller.current) return;
       import("../lib/sculpture")
         .then(({ createSculpture }) => {
-          if (cancelled || !host.current) return;
-          controller.current = createSculpture(host.current, () => setReady(false));
+          if (cancelled) return;
+          controller.current = createSculpture(() => setReady(false));
           setReady(!!controller.current);
         })
         .catch(() => setReady(false));
@@ -104,7 +103,6 @@ export function StoryWorld() {
   }, []);
   return (
     <>
-      <div ref={host} className="story-world" aria-hidden="true" />
       {ready && !atFooter && (
         <button
           className="world-motion"

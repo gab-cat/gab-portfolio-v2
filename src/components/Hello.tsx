@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { EMAIL } from "../data";
 import { Sculpture } from "./Sculpture";
+import { Link } from "../lib/router";
 import { Reveal } from "./Reveal";
 
 export function Hello() {
@@ -36,9 +37,9 @@ export function Hello() {
             in mind. I actually reply.
           </p>
           <div className="hello-actions">
-            <a className="btn btn-ink" href="/contact">
+            <Link className="btn btn-ink" href="/contact">
               Let’s make it happen <span aria-hidden="true">↗</span>
-            </a>
+            </Link>
             <div className="email-group">
               <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
               <button onClick={copyEmail} aria-label="Copy email address">

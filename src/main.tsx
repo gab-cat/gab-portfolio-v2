@@ -1,24 +1,36 @@
-import { StrictMode } from "react";
+import { StrictMode, type ComponentType } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import "./index.css";
 import "./styles/site.css";
 import "./styles/home.css";
 import "./contact.css";
+import { RouterProvider, useRouter } from "./lib/router";
 import { routeFromPath, type RouteId } from "./seo";
 
 const container = document.getElementById("root")!;
-const route = routeFromPath(window.location.pathname);
+const pages: Partial<Record<RouteId, ComponentType>> = {};
 
-async function loadApp(id: RouteId) {
-  if (id === "contact") return (await import("./pages/ContactApp")).default;
-  if (id === "notFound") return (await import("./pages/NotFoundApp")).default;
-  return (await import("./pages/HomeApp")).default;
+async function loadPage(id: RouteId) {
+  if (pages[id]) return;
+  if (id === "contact") pages[id] = (await import("./pages/ContactApp")).default;
+  else if (id === "notFound") pages[id] = (await import("./pages/NotFoundApp")).default;
+  else pages[id] = (await import("./pages/HomeApp")).default;
 }
 
-void loadApp(route).then((Page) => {
+/** The router only commits a route after loadPage resolves, so the module is always here. */
+function Page() {
+  const Current = pages[useRouter().route]!;
+  return <Current />;
+}
+
+const path = window.location.pathname;
+
+void loadPage(routeFromPath(path)).then(() => {
   const app = (
     <StrictMode>
-      <Page />
+      <RouterProvider initialPath={path} prepare={loadPage}>
+        <Page />
+      </RouterProvider>
     </StrictMode>
   );
 

@@ -4,20 +4,18 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 import { CLAY, contactShadowTexture, createClayKit, lumpy } from "./clay/kit";
 import { board, controller, database, diorama, guild, merch, robot, servers, tarot, type Character, type Tools } from "./clay/characters";
 import { isMotionPaused, onMotionChange } from "./motion";
-import { onScrollFrame } from "./scroll";
 import { THEME_EVENT } from "./theme";
 
 export interface SculptureController {
   dispose: () => void;
 }
 
-/** One transparent viewport, shared lighting and geometry across every chapter.
- * Scissor regions keep each clay piece inside its own layout slot, including
- * sticky slots. One WebGL context, no model files, no texture downloads. */
-export function createSculpture(
-  host: HTMLElement,
-  onUnavailable: () => void,
-): SculptureController | null {
+/** One offscreen WebGL context, shared lighting and geometry across every
+ * chapter. Each piece is rendered offscreen and copied into a 2D canvas inside
+ * its own layout slot, so the art scrolls with the page on the compositor
+ * (iOS scrolls off the main thread; a fixed canvas redrawn from JS trails it).
+ * No model files, no texture downloads. */
+export function createSculpture(onUnavailable: () => void): SculptureController | null {
   let renderer: THREE.WebGLRenderer;
   try {
     renderer = new THREE.WebGLRenderer({
@@ -32,7 +30,7 @@ export function createSculpture(
   renderer.setClearColor(0x000000, 0);
   renderer.autoClear = false;
   renderer.toneMapping = THREE.NeutralToneMapping;
-  host.appendChild(renderer.domElement);
+  const pixelRatio = renderer.getPixelRatio();
 
   const kit = createClayKit();
   const clay = kit.clay;
@@ -345,9 +343,23 @@ export function createSculpture(
   let pointerY = 0;
   let smoothX = 0;
   let smoothY = 0;
-  let width = window.innerWidth;
   let height = window.innerHeight;
-  let drawnThisFrame = false;
+  let bufferWidth = 0;
+  let bufferHeight = 0;
+  const surfaces = new Map<HTMLElement, { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D }>();
+  const surfaceFor = (slot: HTMLElement) => {
+    let surface = surfaces.get(slot);
+    if (!surface) {
+      const canvas = document.createElement("canvas");
+      canvas.className = "sculpture-canvas";
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      slot.appendChild(canvas);
+      surface = { canvas, ctx };
+      surfaces.set(slot, surface);
+    }
+    return surface;
+  };
 
   const ease = (t: number) => 1 - (1 - t) ** 3;
   // Height above the landing spot for a dropped block: it falls, lands, and
@@ -447,16 +459,25 @@ export function createSculpture(
 
   const render = () => {
     if (disposed || lost) return;
-    renderer.setScissorTest(false);
-    renderer.setViewport(0, 0, width, height);
-    renderer.clear();
-    renderer.setScissorTest(true);
+    const gl = renderer.domElement;
     for (const slot of visibleSlots) {
       const rect = slot.getBoundingClientRect();
-      if (rect.bottom <= 0 || rect.top >= height || !rect.width || !rect.height) continue;
+      // A little past the viewport, so a slot scrolled in natively between
+      // frames already holds a current picture.
+      if (rect.bottom <= -150 || rect.top >= height + 150) continue;
+      const w = slot.clientWidth;
+      const h = slot.clientHeight;
+      if (!w || !h) continue;
       const chapter = slot.dataset.sculpture || "connection";
       const model = models[chapter];
       if (!model) continue;
+      const surface = surfaceFor(slot);
+      if (!surface) continue;
+      if (w > bufferWidth || h > bufferHeight) {
+        bufferWidth = Math.max(bufferWidth, w);
+        bufferHeight = Math.max(bufferHeight, h);
+        renderer.setSize(bufferWidth, bufferHeight, false);
+      }
       for (const m of Object.values(models)) m.root.visible = m === model;
       // Progress follows a tracked section when given one (sticky slots),
       // otherwise the slot's own trip through the viewport.
@@ -468,7 +489,7 @@ export function createSculpture(
       const progress = paused && !track ? (progressFor.get(slot) ?? 0.5) : live;
       progressFor.set(slot, progress);
       pose(chapter, progress, model, !!slot.closest("a")?.matches(":hover"));
-      camera.aspect = rect.width / rect.height;
+      camera.aspect = w / h;
       const vfov = THREE.MathUtils.degToRad(camera.fov);
       const hfov = 2 * Math.atan(Math.tan(vfov / 2) * camera.aspect);
       const distance = Math.max(
@@ -478,17 +499,23 @@ export function createSculpture(
       camera.position.set(0, model.centerY + 0.35 + distance * model.elev, distance);
       camera.lookAt(0, model.centerY, 0);
       camera.updateProjectionMatrix();
-      // This canvas sits above the page, so a stacked card that another card
-      // has slid over must stop drawing where the covering card begins.
-      let visibleBottom = rect.bottom;
-      const card = slot.closest(".stack-card");
-      const next = card?.nextElementSibling;
-      if (next?.classList.contains("stack-card")) visibleBottom = Math.min(visibleBottom, next.getBoundingClientRect().top + 24);
-      if (visibleBottom <= rect.top) continue;
-      const y = height - rect.bottom;
-      renderer.setViewport(rect.left, y, rect.width, rect.height);
-      renderer.setScissor(rect.left, height - visibleBottom, rect.width, visibleBottom - rect.top);
+      // Draw into the buffer's bottom-left corner (GL's origin), then copy it
+      // out while the drawing buffer is still valid in this task.
+      renderer.setViewport(0, 0, w, h);
+      renderer.setScissor(0, 0, w, h);
+      renderer.setScissorTest(true);
+      renderer.clear();
       renderer.render(scene, camera);
+      const pw = Math.floor(w * pixelRatio);
+      const ph = Math.floor(h * pixelRatio);
+      const { canvas, ctx } = surface;
+      if (canvas.width !== pw || canvas.height !== ph) {
+        canvas.width = pw;
+        canvas.height = ph;
+      } else {
+        ctx.clearRect(0, 0, pw, ph);
+      }
+      ctx.drawImage(gl, 0, gl.height - ph, pw, ph, 0, 0, pw, ph);
       slot.dataset.rendered = "true";
     }
   };
@@ -502,20 +529,16 @@ export function createSculpture(
     last = now;
     smoothX += (pointerX - smoothX) * 0.07;
     smoothY += (pointerY - smoothY) * 0.07;
-    if (!drawnThisFrame) render();
-    drawnThisFrame = false;
+    render();
     frame = requestAnimationFrame(loop);
   };
   const requestRender = () => {
-    if (redraw || disposed || lost || document.hidden) return;
+    // The running loop already draws every frame.
+    if (frame || redraw || disposed || lost || document.hidden) return;
     redraw = requestAnimationFrame(() => {
       redraw = 0;
       render();
     });
-  };
-  const onFrameScroll = () => {
-    render();
-    drawnThisFrame = !!frame;
   };
   const sync = () => {
     stop();
@@ -524,9 +547,7 @@ export function createSculpture(
       frame = requestAnimationFrame(loop);
   };
   const resize = () => {
-    width = window.innerWidth;
     height = window.innerHeight;
-    renderer.setSize(width, height);
     requestRender();
   };
   const theme = () => {
@@ -543,14 +564,19 @@ export function createSculpture(
   };
   const onPointer = (event: PointerEvent) => {
     if (paused || event.pointerType === "touch") return;
-    pointerX = event.clientX / width - 0.5;
+    pointerX = event.clientX / window.innerWidth - 0.5;
     pointerY = event.clientY / height - 0.5;
+  };
+  const removeSurfaces = () => {
+    surfaces.forEach(({ canvas }) => canvas.remove());
+    surfaces.clear();
+    slots.forEach((slot) => delete slot.dataset.rendered);
   };
   const onLost = (event: Event) => {
     event.preventDefault();
     lost = true;
     stop();
-    slots.forEach((slot) => delete slot.dataset.rendered);
+    removeSurfaces();
     onUnavailable();
   };
   const observer = new IntersectionObserver(
@@ -562,7 +588,7 @@ export function createSculpture(
       );
       sync();
     },
-    { rootMargin: "100px" },
+    { rootMargin: "200px" },
   );
   const resizer = new ResizeObserver(requestRender);
   slots.forEach((slot) => {
@@ -573,7 +599,6 @@ export function createSculpture(
     paused = value;
     sync();
   });
-  const stopScrollFrame = onScrollFrame(onFrameScroll);
   window.addEventListener("pointermove", onPointer, { passive: true });
   window.addEventListener("scroll", requestRender, { passive: true });
   window.addEventListener("resize", resize);
@@ -591,14 +616,13 @@ export function createSculpture(
       observer.disconnect();
       resizer.disconnect();
       stopMotion();
-      stopScrollFrame();
       window.removeEventListener("pointermove", onPointer);
       window.removeEventListener("scroll", requestRender);
       window.removeEventListener("resize", resize);
       window.removeEventListener(THEME_EVENT, theme);
       document.removeEventListener("visibilitychange", sync);
       renderer.domElement.removeEventListener("webglcontextlost", onLost);
-      slots.forEach((slot) => delete slot.dataset.rendered);
+      removeSurfaces();
       geometries.forEach((g) => g.dispose());
       shadowMat.dispose();
       shadowTexture.dispose();
@@ -608,7 +632,6 @@ export function createSculpture(
       envMap.dispose();
       renderer.dispose();
       renderer.forceContextLoss();
-      renderer.domElement.remove();
     },
   };
 }

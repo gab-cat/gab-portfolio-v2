@@ -1,4 +1,5 @@
 import { EMAIL, SOCIALS } from "../data";
+import { Link } from "../lib/router";
 import { Reveal } from "./Reveal";
 
 export function Footer() {
@@ -9,15 +10,15 @@ export function Footer() {
           <Reveal className="footer-heading-row">
             <p>From Naga City.<br /><em>Open to your next what if.</em></p>
             <div className="footer-contact-block">
-              <a className="footer-contact" href="/contact">Good things start here <span aria-hidden="true">↗</span></a>
+              <Link className="footer-contact" href="/contact">Good things start here <span aria-hidden="true">↗</span></Link>
               <a className="footer-email" href={`mailto:${EMAIL}`}>{EMAIL}</a>
             </div>
           </Reveal>
           <div className="footer-navigation">
-            <nav aria-label="Footer navigation"><a href="/#work">Selected work</a><a href="/#journey">Experience</a><a href="/contact">Contact</a></nav>
+            <nav aria-label="Footer navigation"><Link href="/#work">Selected work</Link><Link href="/#journey">Experience</Link><Link href="/contact">Contact</Link></nav>
             <nav aria-label="Social profiles">{SOCIALS.map(s => <a key={s.label} href={s.href} target="_blank" rel="noreferrer noopener">{s.label} ↗</a>)}</nav>
           </div>
-          <Reveal y={35} className="footer-wordmark"><a href="/" aria-label="Gabcat home">gabcat<span>®</span><i aria-hidden="true" /></a></Reveal>
+          <Reveal y={35} className="footer-wordmark"><Link href="/" aria-label="Gabcat home">gabcat<span>®</span><i aria-hidden="true" /></Link></Reveal>
           <div className="signature-colophon"><span>© 2026 Gabriel Catimbang</span><span>Built with intent. Always in progress.</span><button type="button" onClick={() => window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" })}>Back to top ↑</button></div>
         </div>
       </footer>

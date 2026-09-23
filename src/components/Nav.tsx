@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "../lib/router";
 import { scrollToId, scrollToTop, startLenis, stopLenis } from "../lib/scroll";
 import { toggleTheme, useTheme } from "../lib/theme";
 import { EASE } from "./Reveal";
@@ -76,7 +77,9 @@ function ThemeToggle({ className = "" }: { className?: string }) {
   );
 }
 
-export function Nav({ contact = false }: { contact?: boolean }) {
+export function Nav() {
+  const { route, navigate } = useRouter();
+  const home = route === "home";
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState("");
   const [open, setOpen] = useState(false);
@@ -163,8 +166,8 @@ export function Nav({ contact = false }: { contact?: boolean }) {
 
   const go = (id: string) => {
     setOpen(false);
-    if (id === "hello") { window.location.assign("/contact"); return; }
-    if (contact) { window.location.assign(`/#${id}`); return; }
+    if (id === "hello") { navigate("/contact"); return; }
+    if (!home) { navigate(`/#${id}`); return; }
     // wait a beat so the overlay clears before we glide
     window.setTimeout(() => scrollToId(id), open ? 80 : 0);
   };
@@ -174,7 +177,7 @@ export function Nav({ contact = false }: { contact?: boolean }) {
       <header className="nav-shell">
         <nav className="clay-nav" aria-label="Main navigation" data-scrolled={scrolled || undefined}>
           <button
-            onClick={() => contact ? window.location.assign("/") : scrollToTop()}
+            onClick={() => home ? scrollToTop() : navigate("/")}
             className="nav-brand"
             aria-label="Gabcat, back to top"
           >

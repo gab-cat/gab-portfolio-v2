@@ -41,7 +41,7 @@ export function AppShell({
         Skip to content
       </a>
       <ScrollProgress />
-      <Nav contact={route === "contact"} />
+      <Nav />
       {children}
       <div className={route === "contact" ? "contact-route" : undefined}>
         <Footer />

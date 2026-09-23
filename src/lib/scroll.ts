@@ -5,23 +5,9 @@ type SmoothScroller = {
 };
 
 let scroller: SmoothScroller | null = null;
-const frameListeners = new Set<() => void>();
 
 export function setScroller(next: SmoothScroller | null) {
   scroller = next;
-}
-
-/** Called by the smooth scroller right after it moves the page, in the same frame. */
-export function emitScrollFrame() {
-  frameListeners.forEach((listener) => listener());
-}
-
-/** Draw in lockstep with the smooth scroller so fixed-canvas art never trails the page. */
-export function onScrollFrame(listener: () => void) {
-  frameListeners.add(listener);
-  return () => {
-    frameListeners.delete(listener);
-  };
 }
 
 function prefersReduced() {

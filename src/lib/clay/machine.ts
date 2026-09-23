@@ -686,7 +686,7 @@ export function createMachine(
   // Segment timeline for one ball. Each writes the ball's centre into `out`.
   type Segment = { d: number; at: (t: number, out: THREE.Vector3) => void; hidden?: boolean };
   const funnelInner = (r: number) => FY + 0.45 + ((r - 0.27) / 0.95) * 1.15;
-  const spin0 = 0.9;
+  const spin0 = Math.PI;
   const spiralTurns = 2.25;
   const spiralR = (t: number) => THREE.MathUtils.lerp(1.02, 0.02, t ** 0.85);
   const spiralAt = (t: number, out: THREE.Vector3) => {
@@ -709,15 +709,28 @@ export function createMachine(
     };
   };
   const liftBottom = v3(BX, EL_YB + 0.1, EL_Z);
-  const liftTop = v3(BX, EL_YT + 0.1, EL_Z);
+  // A ball rides inside its cup, over the top pulley, and is tipped out once
+  // the cup has turned past the top, dropping into the near rim of the funnel.
+  const TIP = Math.PI / 2 - 0.25;
+  const LIFT_DIST = EL_SIDE + EL_R * (Math.PI - TIP);
+  const inCup = (dist: number, out: THREE.Vector3) => {
+    const b = beltPoint(dist);
+    const tilt = b.phi - Math.PI;
+    return out.set(
+      b.x + Math.cos(b.phi) * CUP_OUT - Math.sin(tilt) * 0.07,
+      b.y + Math.sin(b.phi) * CUP_OUT - 0.02 + Math.cos(tilt) * 0.07,
+      EL_Z,
+    );
+  };
+  const tipOut = inCup(LIFT_DIST, v3(0, 0, 0));
   const spiralStart = spiralAt(0, v3(0, 0, 0));
   const beltStart = v3(BELT_X0 + 0.3, beltY, 0);
   const beltEnd = v3(BELT_X1 - 0.05, beltY, 0);
   const holeIn = v3(HOLE.x, BALL * 0.6, HOLE.z);
   const segments: Segment[] = [
     { d: EMERGE, at: (t, out) => out.set(BX, THREE.MathUtils.lerp(-0.4, liftBottom.y, 1 - (1 - t) ** 2), EL_Z) },
-    { d: EL_SIDE / BELT_SPEED, at: (t, out) => out.lerpVectors(liftBottom, liftTop, t) },
-    { d: 0.62, at: hop(liftTop, spiralStart, 0.62) },
+    { d: LIFT_DIST / BELT_SPEED, at: (t, out) => inCup(t * LIFT_DIST, out) },
+    { d: 0.42, at: hop(tipOut, spiralStart, 0.42) },
     { d: 2.3, at: spiralAt },
     { d: 1.75, at: (t, out) => out.copy(tubePath.getPointAt(Math.min(0.999, t))), hidden: true },
     { d: 1.2, at: railAt },

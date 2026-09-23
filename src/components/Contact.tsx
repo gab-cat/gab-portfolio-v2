@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import type { PostboxController } from "../lib/clay/postbox";
 import { EMAIL } from "../data";
+import { Link } from "../lib/router";
 import { Reveal } from "./Reveal";
 
 const TOPICS = ["A project", "A role", "A collaboration", "Something else"];
@@ -117,7 +118,7 @@ export function Contact() {
           <b><i style={{ width: `${Math.round((status === "sent" ? 1 : noteProgress) * 100)}%` }} /></b>
         </div>
       </div>
-      <a className="contact-back" href="/">← Back to the story</a>
+      <Link className="contact-back" href="/">← Back to the story</Link>
       <div ref={column} className="contact-column">
       <Reveal className="contact-paper">
         <header className="contact-head">
@@ -127,7 +128,7 @@ export function Contact() {
           <p className="contact-links"><a className="contact-direct" href={`mailto:${EMAIL}`}>{EMAIL} ↗</a><span className="contact-location">From Naga City, wherever your idea takes us.</span></p>
         </header>
         {status === "sent" ? (
-          <div className="contact-success" ref={success} tabIndex={-1} role="status"><span aria-hidden="true">↗</span><h2>It’s in<br /><em>my inbox.</em></h2><p>Thanks for reaching out. I’ll reply to the email address you shared.</p><a className="contact-send" href="/">Back to the story <span aria-hidden="true">↗</span></a></div>
+          <div className="contact-success" ref={success} tabIndex={-1} role="status"><span aria-hidden="true">↗</span><h2>It’s in<br /><em>my inbox.</em></h2><p>Thanks for reaching out. I’ll reply to the email address you shared.</p><Link className="contact-send" href="/">Back to the story <span aria-hidden="true">↗</span></Link></div>
         ) : (
           <form onSubmit={submit} aria-busy={status === "sending"} onInput={event => trackNote(event.currentTarget)} onChange={event => trackNote(event.currentTarget)}>
             <fieldset disabled={status === "sending"} className="contact-fields">
