@@ -4,7 +4,6 @@ export const head: DesignHead = {
   id: "signal",
   // Geist Mono only sets small labels, so it can arrive a beat later.
   fontPreloads: ["/fonts/mona-sans-latin-wdth-normal.woff2"],
-  imagePreloads: ["/portraits/gab-signal.webp"],
   routeModules: {
     home: ["pages/Home.tsx", "scene/field.ts"],
     contact: ["pages/Contact.tsx", "scene/field.ts"],

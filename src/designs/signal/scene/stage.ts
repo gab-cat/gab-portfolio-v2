@@ -1,12 +1,12 @@
 /**
  * The bridge between pages and the particle field. Pages say which figure
- * they want; the field (loaded later, in its own chunk with three.js) picks up
- * the latest request whenever it arrives. Nothing here imports three.
+ * they want; the field (loaded later, in its own chunk) picks up
+ * the latest request whenever it arrives.
  */
 
 /** Every particle carries one destination per figure. */
 export const FIGURE = {
-  portrait: 0,
+  horizon: 0,
   wave: 1,
   lattice: 2,
   globe: 3,
@@ -28,7 +28,15 @@ export type Scene = {
   /** Scale the whole field (1 is the layout's size) and slide it sideways, for pages with wider copy. */
   zoom?: number;
   shift?: number;
+  /**
+   * Which page's placements to use. The home page spreads its chapters out
+   * on wide screens; the contact page keeps its figures beside the form.
+   */
+  layout?: "home" | "contact";
 };
+
+/** Screens roomy enough for the home page's spread-out chapters. signal.css uses the same query. */
+export const WIDE = "(min-width: 1024px) and (min-aspect-ratio: 11/10)";
 
 export type FieldController = {
   set: (scene: Scene) => void;
@@ -53,7 +61,7 @@ export const smoothstep = (a: number, b: number, v: number) => {
 };
 
 let field: FieldController | null = null;
-let latest: Scene = only(FIGURE.portrait);
+let latest: Scene = only(FIGURE.horizon);
 let latestLevel = 1;
 
 export const signal = {

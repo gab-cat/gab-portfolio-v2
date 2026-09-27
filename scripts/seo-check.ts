@@ -112,6 +112,7 @@ for (const asset of [
   ...head.fontPreloads.map((href) => href.replace(/^\//, "")),
   "portraits/gab-halftone.webp",
   "portraits/gab-editorial.webp",
+  ...(design === "signal" ? ["horizon-dark.webp", "horizon-light.webp"].map((name) => `${brand}/${name}`) : []),
 ]) {
   if (!existsSync(resolve(dist, asset))) fail(`missing asset ${asset}`);
 }
@@ -138,6 +139,13 @@ function gzipKb(path: string) {
 const og = `${brand}/og.png`;
 if (existsSync(resolve(dist, og)) && gzipKb(og) > 180) {
   fail(`${og} gzip is ${gzipKb(og).toFixed(1)} kB (budget 180)`);
+}
+// The no-WebGL stills only load when the particle field can't run, but keep them modest anyway.
+for (const theme of ["dark", "light"]) {
+  const still = resolve(dist, brand, `horizon-${theme}.webp`);
+  if (existsSync(still) && statSync(still).size / 1024 > 160) {
+    fail(`horizon-${theme}.webp is ${(statSync(still).size / 1024).toFixed(0)} kB (budget 160)`);
+  }
 }
 if (existsSync(resolve(dist, "portraits/gab-halftone.webp"))) {
   const kb = statSync(resolve(dist, "portraits/gab-halftone.webp")).size / 1024;

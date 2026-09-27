@@ -4,10 +4,10 @@ import { Link } from "../../../lib/router";
 import { CRAFTS, EMAIL, ROLES, SOCIALS, TROPHIES, WORK, hostOf } from "../content";
 import { Magnetic } from "../Magnetic";
 import { Lines, Rise, Stagger } from "../reveal";
-import { FIGURE, FIGURES, signal, smoothstep } from "../scene/stage";
+import { FIGURE, FIGURES, WIDE, signal, smoothstep } from "../scene/stage";
 
 const CHAPTERS = [
-  { id: "top", label: "Signal", figure: FIGURE.portrait },
+  { id: "top", label: "Signal", figure: FIGURE.horizon },
   { id: "story", label: "Listen", figure: FIGURE.wave },
   { id: "craft", label: "Build", figure: FIGURE.lattice },
   { id: "journey", label: "Ship", figure: FIGURE.globe },
@@ -31,6 +31,17 @@ function useSmoothScroll() {
       cancelled = true;
       stop?.();
     };
+  }, []);
+}
+
+/** On wide screens the story's waveform runs as a low horizon line, so it sits between the lines of copy. */
+function useCalmWave() {
+  useEffect(() => {
+    const wide = window.matchMedia(WIDE);
+    const apply = () => signal.level(wide.matches ? 0.5 : 1);
+    apply();
+    wide.addEventListener("change", apply);
+    return () => wide.removeEventListener("change", apply);
   }, []);
 }
 
@@ -86,6 +97,7 @@ function useChapters() {
 
 export default function Home() {
   useSmoothScroll();
+  useCalmWave();
   const active = useChapters();
 
   return (
@@ -130,10 +142,13 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="story" className="sg-sec" aria-labelledby="story-title">
+        {/* Wide screens: the headline above a horizon of sound, the story and the stat below it. */}
+        <section id="story" className="sg-sec sg-listen" aria-labelledby="story-title">
           <div className="sg-copy">
-            <p className="sg-label">2022 – 2025 · Bell Canada, through Quantrics</p>
-            <Lines id="story-title" className="sg-h2" lines={["First, I learned", "to listen."]} />
+            <div className="sg-listen-head">
+              <p className="sg-label">2022 – 2025 · Bell Canada, through Quantrics</p>
+              <Lines id="story-title" className="sg-h2" lines={["First, I learned", "to listen."]} />
+            </div>
             <Rise as="p" className="sg-body">
               Before writing code, I spent three years on the other side of a support chat, solving strangers’
               problems in real time. Every conversation started with someone who needed something to work, and the
@@ -146,10 +161,13 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="craft" className="sg-sec" aria-labelledby="craft-title">
+        {/* Wide screens: an exploded view, the four crafts in two columns either side of the lattice. */}
+        <section id="craft" className="sg-sec sg-build" aria-labelledby="craft-title">
           <div className="sg-copy">
-            <p className="sg-label">What I do</p>
-            <Lines id="craft-title" className="sg-h2" lines={["Then I built", "the fix."]} />
+            <div className="sg-build-head">
+              <p className="sg-label">What I do</p>
+              <Lines id="craft-title" className="sg-h2" lines={["Then I built", "the fix."]} />
+            </div>
             <Rise as="p" className="sg-body">
               Four parts of the job, one habit behind all of them: listen first, then make it work.
             </Rise>

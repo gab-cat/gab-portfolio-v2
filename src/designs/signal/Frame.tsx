@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "../../lib/router";
-import { HALFTONE } from "./content";
 import { Footer } from "./Footer";
 import { Nav } from "./Nav";
 import { useBootFlag } from "./reveal";
@@ -53,7 +52,8 @@ export function Frame({ children }: { children: ReactNode }) {
         Skip to content
       </a>
       <div ref={host} className={`sg-canvas${ready ? " is-ready" : ""}`} aria-hidden="true" />
-      {flat && route === "home" && <img className="sg-flat" src={HALFTONE} alt="" aria-hidden="true" />}
+      {/* Without WebGL the home page gets a still of the black hole; the stylesheet picks it per theme. */}
+      {flat && route === "home" && <div className="sg-flat" aria-hidden="true" />}
       <div className="sg-grain" aria-hidden="true" />
       {mounted && <Tuner ready={ready} failed={flat} />}
       <Nav />

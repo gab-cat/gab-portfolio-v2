@@ -38,7 +38,7 @@ export default function Contact() {
       const narrow = window.innerWidth < 820;
       const dim = narrow ? 0.1 + 0.9 * smoothstep(vh * 0.14, vh * 0.5, top) : 1;
       // The form is wider than a chapter's copy, so the figure steps back and to the right.
-      signal.show({ ...only(figure, 0, dim), zoom: narrow ? 1 : 0.84, shift: narrow ? 0 : 0.3 });
+      signal.show({ ...only(figure, 0, dim), zoom: narrow ? 1 : 0.84, shift: narrow ? 0 : 0.3, layout: "contact" });
     };
     raf = requestAnimationFrame(tick);
     return () => {

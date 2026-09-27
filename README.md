@@ -13,13 +13,13 @@ imports only the live one through the `@design` alias, so the others never ship.
 
 | Design | What it is | Status |
 | --- | --- | --- |
-| `signal` | One GPU particle field (22,000 points, custom GLSL) that re-forms for each chapter: your portrait, a waveform, a lattice, a globe with arcs leaving Naga City, a seven, "hello." The contact waveform listens as you type; the 404 has no signal. | **Live** |
+| `signal` | One GPU particle field (36,000 points on desktop, custom GLSL) that re-forms for each chapter. The hero is a black hole: the disk orbits (inner edge fastest), its far side bends up over the shadow, and stars bend around it as they drift past. Then a waveform, a lattice, a globe with arcs leaving Naga City, a seven, "hello." The contact waveform listens as you type; the 404 has no signal. | **Live** |
 | `clay` | The hand-made clay world: procedural 3D machine hero, clay chapters, a postbox contact page, and the hero terminal (`help`, `coffee`, `sudo hire-me`). | Archived, still builds |
 
 - **Ship a different design:** change `LIVE_DESIGN` in `src/designs/live.ts`.
 - **Preview one without shipping it:** `bun run dev:clay`, or `DESIGN=<id> bun dev`. `DESIGN=<id> bun run build` builds it.
 - The clay site exactly as it was live is also tagged `clay-site` in git.
-- Each design's `meta.ts` sets what the prerender puts in every head: fonts to preload, theme colours, and a brand folder (`public/brand/<id>/`) with the favicon, app icons and social card. Regenerate them with `bun scripts/brand-signal.ts` or `bun scripts/rasterize-brand.ts` (clay).
+- Each design's `meta.ts` sets what the prerender puts in every head: fonts to preload, theme colours, and a brand folder (`public/brand/<id>/`) with the favicon, app icons and social card (Signal's also holds the still black hole shown without WebGL). Regenerate them with `bun scripts/brand-signal.ts` or `bun scripts/rasterize-brand.ts` (clay).
 - Directions that were explored but not shipped are dev-only pages under `explorations/`; open `/explorations/` in dev.
 
 ## Stack
@@ -51,7 +51,7 @@ What keeps it there:
 
 - The particle field is plain WebGL2 (one draw call, about 8 kB gzipped) instead of a 3D library, builds its figures in small slices, and compiles its shader off the main thread where the browser supports it. It loads in parallel with the app and never blocks the first paint.
 - No animation library on Signal: reveals use IntersectionObserver and the Web Animations API. Copy that is on screen at first paint is never hidden, so the prerendered text is the largest paint.
-- The prerender inlines the stylesheet when it is small, preloads the headline font and the tiny portrait the field samples, and adds `modulepreload` links for each route's own chunks (from the Vite manifest).
+- The prerender inlines the stylesheet when it is small, preloads the headline font, and adds `modulepreload` links for each route's own chunks (from the Vite manifest). The field needs no images: every figure is maths or text.
 - Structured data: Person, Organization (logo at `/logo.png`, contact point), WebSite, ProfilePage with the selected work as an ItemList, ContactPage with breadcrumbs, and `dateModified` from git. `bun run seo:check` verifies all of it, plus the CSP hash of the inline theme script.
 
 ## Develop

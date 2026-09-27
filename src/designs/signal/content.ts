@@ -7,10 +7,6 @@ import { CRAFT, EMAIL, JOURNEY, PROJECTS, SOCIALS, TOOLBOX, TROPHIES as RAW_TROP
 
 export { EMAIL, SOCIALS };
 
-export const HALFTONE = "/portraits/gab-halftone.webp";
-/** A small copy of the portrait for the particle field to sample; it only reads a 165 by 220 grid. */
-export const FIELD_PORTRAIT = "/portraits/gab-signal.webp";
-
 /** "Vue, Nuxt, Express — learned fast" reads as two sentences once the dash goes. */
 export function clean(text: string) {
   return text.replace(/\s*—\s*/g, ". ").replace(/\. ([a-z])/g, (_, c: string) => `. ${c.toUpperCase()}`);
