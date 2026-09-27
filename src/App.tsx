@@ -1,18 +1,10 @@
-import type { ComponentType } from "react";
-import type { RouteId } from "./seo";
+import { design } from "@design/server";
 import { RouterProvider, useRouter } from "./lib/router";
-import ContactApp from "./pages/ContactApp";
-import HomeApp from "./pages/HomeApp";
-import NotFoundApp from "./pages/NotFoundApp";
 
-const PAGES: Record<RouteId, ComponentType> = {
-  home: HomeApp,
-  contact: ContactApp,
-  notFound: NotFoundApp,
-};
+const { Frame, pages } = design;
 
 function Page() {
-  const Current = PAGES[useRouter().route];
+  const Current = pages[useRouter().route];
   return <Current />;
 }
 
@@ -20,7 +12,9 @@ function Page() {
 export default function App({ path = "/" }: { path?: string }) {
   return (
     <RouterProvider initialPath={path}>
-      <Page />
+      <Frame>
+        <Page />
+      </Frame>
     </RouterProvider>
   );
 }

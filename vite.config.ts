@@ -4,6 +4,10 @@ import { defineConfig, loadEnv, type PreviewServer } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { createContactHandler } from "./server/contact";
+import { pickDesign } from "./src/designs/live";
+
+// Which design to build or serve: LIVE_DESIGN unless DESIGN=<id> says otherwise.
+const design = pickDesign(process.env.DESIGN);
 
 function staticStatusPages() {
   return {
@@ -22,6 +26,7 @@ function staticStatusPages() {
           url === "/" ||
           url.startsWith("/assets/") ||
           url.startsWith("/fonts/") ||
+          url.startsWith("/brand/") ||
           url.startsWith("/portraits/") ||
           url.startsWith("/api/")
         ) {
@@ -51,6 +56,13 @@ export default defineConfig(({ mode }) => ({
     configureServer(server) {
       const env = { ...loadEnv(mode, process.cwd(), ""), ...process.env };
       const handle = createContactHandler({ env });
+      // The prerender copies the design's favicon and logo to the root; do the same in dev.
+      for (const [path, file, type] of [["/favicon.ico", "favicon.ico", "image/x-icon"], ["/logo.png", "icon-512.png", "image/png"]]) {
+        server.middlewares.use(path, (_req, res) => {
+          res.setHeader("Content-Type", type);
+          res.end(readFileSync(resolve(import.meta.dirname, `public/brand/${design}/${file}`)));
+        });
+      }
       server.middlewares.use("/api/contact", async (req, res) => {
         try {
           // Bound the body before constructing a Web Request; mirrors production.
@@ -71,9 +83,18 @@ export default defineConfig(({ mode }) => ({
       });
     },
   }],
+  resolve: {
+    // `@design` is the one design this build renders; `@design/server` is its prerender half.
+    alias: [{ find: /^@design(\/server)?$/, replacement: resolve(import.meta.dirname, "src/designs", design) + "$1" }],
+  },
   base: "/",
   build: {
     manifest: true,
+    modulePreload: {
+      // The entry stylesheet is inlined into every prerendered page, so lazy routes
+      // must not fetch it again as a "dependency".
+      resolveDependencies: (_file, deps) => deps.filter((dep) => !/^assets\/index-[\w-]+\.css$/.test(dep)),
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {

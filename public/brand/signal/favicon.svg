@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Signal: a ring of particles around one orange point, like the globe's arcs leaving Naga City. -->
+  <rect width="64" height="64" rx="14" fill="#060607"/>
+  <g fill="#efebe4"><circle cx="32.00" cy="11.00" r="3.1"/><circle cx="44.34" cy="15.01" r="3.1"/><circle cx="51.97" cy="25.51" r="3.1"/><circle cx="51.97" cy="38.49" r="3.1"/><circle cx="44.34" cy="48.99" r="3.1"/><circle cx="32.00" cy="53.00" r="3.1"/><circle cx="19.66" cy="48.99" r="3.1"/><circle cx="12.03" cy="38.49" r="3.1"/><circle cx="12.03" cy="25.51" r="3.1"/><circle cx="19.66" cy="15.01" r="3.1"/></g>
+  <circle cx="32" cy="32" r="8" fill="#ff6a3d"/>
+</svg>

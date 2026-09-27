@@ -1,0 +1,924 @@
+/*
+  Support Chat.
+  The portfolio is a conversation with the person who used to be on the other
+  side of the support window. Bricolage Grotesque for a human voice, one orange
+  accent, soft radii: bubbles and cards 20px, chips and buttons full pill.
+*/
+:root {
+  --bg: #ebebe7;
+  --panel: #fbfbf9;
+  --bubble: #efefeb;
+  --ink: #141416;
+  --fog: #5d5e63;
+  --line: #deded9;
+  --accent: #e8501f;
+  --accent-ink: #c23d0b;
+  --accent-soft: #fbe4da;
+  --you: #141416;
+  --you-ink: #f5f5f2;
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.9) inset, 0 30px 80px -40px rgb(40 30 20 / 0.35), 0 2px 6px -2px rgb(40 30 20 / 0.08);
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0e0e10;
+  --panel: #17171a;
+  --bubble: #232327;
+  --ink: #ededea;
+  --fog: #9c9ca3;
+  --line: #2a2a2f;
+  --accent: #ff6a3d;
+  --accent-ink: #ff8c66;
+  --accent-soft: #3a1f15;
+  --you: #ededea;
+  --you-ink: #141416;
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.05) inset, 0 30px 80px -40px rgb(0 0 0 / 0.8);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.sc-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- layout ---------- */
+
+.sc {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  gap: 16px;
+  min-height: 100dvh;
+  padding: 16px;
+}
+
+.sc-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 20px 24px 28px 28px;
+}
+
+.sc-brand {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+}
+
+.sc-brand span {
+  margin-left: 4px;
+  padding: 3px 10px 4px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  vertical-align: 3px;
+}
+
+.sc-intro h1 {
+  margin: 0;
+  max-width: 13ch;
+  font-size: clamp(40px, 4.4vw, 76px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.sc-intro h1 em {
+  display: block;
+  font-style: normal;
+  color: var(--accent);
+}
+
+.sc-intro p {
+  max-width: 36ch;
+  margin: 24px 0 0;
+  color: var(--fog);
+  font-size: clamp(17px, 1.3vw, 20px);
+  line-height: 1.45;
+}
+
+.sc-agent {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+}
+
+.sc-agent img {
+  width: clamp(120px, 12vw, 176px);
+  height: auto;
+  flex: none;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: 50% 12%;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.sc-agent b {
+  display: block;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+}
+
+.sc-agent span {
+  display: block;
+  color: var(--fog);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.sc-agent .sc-tz {
+  font-size: 13px;
+}
+
+.sc-links {
+  display: flex;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.sc-links a {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s;
+}
+
+.sc-links a:hover {
+  transform: translateY(-2px);
+  border-color: var(--ink);
+}
+
+/* ---------- chat panel ---------- */
+
+.sc-panel {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 32px);
+  border-radius: 28px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.sc-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sc-avatar,
+.sc-mini {
+  flex: none;
+  border-radius: 999px;
+  object-fit: cover;
+  object-position: 50% 14%;
+  background: #fff;
+}
+
+.sc-avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.sc-head b {
+  display: block;
+  font-size: 16px;
+}
+
+.sc-head span {
+  display: block;
+  color: var(--fog);
+  font-size: 13px;
+}
+
+.sc-restart {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.sc-restart:hover {
+  border-color: var(--ink);
+}
+
+.sc-restart:active {
+  transform: scale(0.97);
+}
+
+.sc-thread {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px clamp(16px, 3vw, 36px) 28px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-top: 16px;
+}
+
+.sc-day {
+  align-self: center;
+  margin: 0 0 10px;
+  color: var(--fog);
+  font-size: 13px;
+}
+
+.sc-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  max-width: 100%;
+  scroll-margin-top: 16px;
+}
+
+.sc-row.is-first {
+  margin-top: 10px;
+}
+
+.sc-row.is-you {
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.sc-mini {
+  width: 30px;
+  height: 30px;
+}
+
+span.sc-mini {
+  background: none;
+}
+
+.sc-start {
+  margin: auto 0 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.sc-start img {
+  width: 76px;
+  height: 76px;
+  margin-bottom: 8px;
+  border-radius: 999px;
+  object-fit: cover;
+  object-position: 50% 14%;
+  background: #fff;
+}
+
+.sc-start b {
+  font-size: 18px;
+}
+
+.sc-start span {
+  max-width: 34ch;
+  color: var(--fog);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.sc-bubble {
+  max-width: min(78%, 520px);
+  margin: 0;
+  padding: 11px 16px 12px;
+  border-radius: 20px;
+  background: var(--bubble);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.is-gab .sc-bubble {
+  border-bottom-left-radius: 6px;
+}
+
+.is-you .sc-bubble {
+  background: var(--you);
+  color: var(--you-ink);
+  border-bottom-right-radius: 6px;
+}
+
+.sc-seen {
+  margin-top: 4px;
+  color: var(--fog);
+  font-size: 12px;
+}
+
+.sc-typing {
+  display: inline-flex;
+  gap: 5px;
+  padding: 15px 16px;
+}
+
+.sc-typing i {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--fog);
+  animation: sc-dot 1.1s infinite ease-in-out;
+}
+
+.sc-typing i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.sc-typing i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes sc-dot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.sc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.sc-chips button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sc-chips button:hover {
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  transform: translateY(-2px);
+}
+
+.sc-chips button:active {
+  transform: scale(0.97);
+}
+
+.sc-compose {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.sc-compose input {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  padding: 0 18px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+}
+
+.sc-compose input::placeholder {
+  color: var(--fog);
+}
+
+.sc-compose input:focus {
+  outline: none;
+  border-color: var(--ink);
+}
+
+.sc-compose button {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.2s;
+}
+
+.sc-compose button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.sc-compose button:not(:disabled):active {
+  transform: scale(0.94);
+}
+
+/* ---------- rich cards ---------- */
+
+.sc-card {
+  width: min(100%, 520px);
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+}
+
+.sc-card-title {
+  margin: 0 0 10px;
+  font-weight: 700;
+}
+
+.sc-now ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sc-now li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+}
+
+.sc-now svg {
+  flex: none;
+  color: var(--accent);
+}
+
+/* projects: a swipeable row of tinted cards */
+.sc-work {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(250px, 280px);
+  gap: 10px;
+  width: calc(100% - 40px);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+}
+
+.sc-proj {
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.sc-proj-top {
+  min-height: 138px;
+  padding: 18px;
+}
+
+.sc-proj-top h3 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.sc-proj-top p {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.tone-0 .sc-proj-top {
+  background: var(--accent);
+  color: #1a0b04;
+}
+
+.tone-1 .sc-proj-top {
+  background: var(--ink);
+  color: var(--panel);
+}
+
+.tone-2 .sc-proj-top {
+  background: var(--accent-soft);
+}
+
+.tone-3 .sc-proj-top {
+  background: var(--bubble);
+}
+
+.sc-proj-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px 18px;
+}
+
+.sc-proj-body p {
+  margin: 0;
+  color: var(--fog);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.sc-proj-body ul,
+.sc-stack ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sc-proj-body li,
+.sc-stack li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--bubble);
+  font-size: 13px;
+}
+
+.sc-proj-body a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--accent-ink);
+}
+
+.sc-proj-body a:hover {
+  text-decoration: underline;
+}
+
+/* journey: a compact rail */
+.sc-journey ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sc-journey li {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0 10px 20px;
+}
+
+.sc-journey li::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--line);
+}
+
+.sc-journey li::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 17px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--panel);
+  box-shadow: 0 0 0 2px var(--fog);
+}
+
+.sc-journey li:first-child::before {
+  top: 17px;
+}
+
+.sc-journey li:last-child::before {
+  bottom: calc(100% - 17px);
+}
+
+.sc-journey b {
+  display: block;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.sc-journey span {
+  color: var(--fog);
+  font-size: 14px;
+}
+
+.sc-journey time {
+  flex: none;
+  color: var(--fog);
+  font-size: 13px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sc-journey em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+
+/* wins: one featured tile, then an even 2x3 */
+.sc-wins {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 8px;
+}
+
+.sc-wins > div {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--bubble);
+}
+
+.sc-wins .is-hero {
+  grid-column: 1 / -1;
+  padding: 16px;
+  background: var(--accent);
+  color: #1a0b04;
+}
+
+.sc-wins .is-hero small {
+  color: #1a0b04;
+  opacity: 0.8;
+}
+
+.sc-wins .is-gold b {
+  color: var(--accent-ink);
+}
+
+.sc-wins b {
+  display: block;
+  font-size: 15px;
+}
+
+.sc-wins .is-hero b {
+  margin-top: 6px;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.sc-wins span {
+  display: block;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.sc-wins small {
+  display: block;
+  margin-top: 4px;
+  color: var(--fog);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.sc-stack {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 18px;
+}
+
+.sc-stack p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sc-contact {
+  display: grid;
+  gap: 10px;
+}
+
+.sc-mail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 6px 6px 14px;
+  border-radius: 999px;
+  background: var(--bubble);
+  font-size: 15px;
+}
+
+.sc-mail span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sc-mail button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--panel);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.sc-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 50px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--panel);
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sc-cta:hover {
+  transform: translateY(-2px);
+}
+
+.sc-cta:active {
+  transform: scale(0.98);
+}
+
+/* ---------- small screens: the side becomes a header, the page is the chat ---------- */
+
+@media (max-width: 900px) {
+  .sc {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: 0;
+  }
+
+  .sc-side {
+    gap: 22px;
+    padding: 18px 16px 24px;
+  }
+
+  .sc-intro h1 {
+    font-size: clamp(34px, 9vw, 52px);
+  }
+
+  .sc-intro p {
+    margin-top: 14px;
+    font-size: 16px;
+  }
+
+  :root {
+    --xs-bottom: 84px;
+  }
+
+  .sc-agent,
+  .sc-head span {
+    display: none;
+  }
+
+  .sc-restart {
+    width: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  /* visible overflow so the composer can stick to the phone's viewport */
+  .sc-panel {
+    position: static;
+    height: auto;
+    min-height: 70dvh;
+    border-radius: 24px 24px 0 0;
+    overflow: visible;
+  }
+
+  .sc-thread {
+    overflow: visible;
+    padding-bottom: 20px;
+  }
+
+  .sc-compose {
+    position: sticky;
+    bottom: 0;
+    background: var(--panel);
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .sc-bubble {
+    max-width: 86%;
+  }
+
+  .sc-chips {
+    justify-content: flex-start;
+    padding-left: 40px;
+  }
+
+  .sc-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .sc-journey li {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .sc-journey time {
+    text-align: left;
+  }
+
+  .sc-restart span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-typing i {
+    animation: none;
+    opacity: 0.7;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}

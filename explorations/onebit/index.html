@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>1-Bit Bicol · Gabriel Catimbang</title>
+    <link rel="icon" href="/brand/signal/favicon.svg" type="image/svg+xml" />
+    <script>
+      (function () {
+        var stored = new URLSearchParams(location.search).get("mode") || localStorage.getItem("theme");
+        var dark = stored === "dark" || (stored !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+        if (dark) document.documentElement.classList.add("dark");
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>

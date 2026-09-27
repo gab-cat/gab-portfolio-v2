@@ -18,7 +18,12 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    /* Types only. vite.config.ts decides which design `@design` really is; they all share one shape. */
+    "paths": {
+      "@design": ["./src/designs/signal/index.ts"],
+      "@design/server": ["./src/designs/signal/server.tsx"]
+    }
   },
   "include": [
     "src",

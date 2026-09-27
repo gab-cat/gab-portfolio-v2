@@ -1,28 +1,58 @@
 # gabcat.dev
 
-Personal portfolio of **Gabriel "Gab" Catimbang** — developer & DevOps engineer
+Personal portfolio of **Gabriel "Gab" Catimbang**, developer & DevOps engineer
 from Naga City, Philippines. Live at [gabcat.dev](https://gabcat.dev).
 
-Orange & black, always. Light mode and dark mode are both first-class citizens
-(there's a toggle in the nav — or type `theme` into the hero terminal).
+Light mode and dark mode are both first-class citizens (there's a toggle in the nav).
 
-## The terminal is real
+## Designs
 
-The terminal in the hero accepts input. Try `help`, `coffee`, or `sudo hire-me`.
+The same three routes (`/`, `/contact`, `404`) and the same facts (`src/data.ts`)
+render through one design at a time. Each lives in `src/designs/<id>` and the build
+imports only the live one through the `@design` alias, so the others never ship.
+
+| Design | What it is | Status |
+| --- | --- | --- |
+| `signal` | One GPU particle field (22,000 points, custom GLSL) that re-forms for each chapter: your portrait, a waveform, a lattice, a globe with arcs leaving Naga City, a seven, "hello." The contact waveform listens as you type; the 404 has no signal. | **Live** |
+| `clay` | The hand-made clay world: procedural 3D machine hero, clay chapters, a postbox contact page, and the hero terminal (`help`, `coffee`, `sudo hire-me`). | Archived, still builds |
+
+- **Ship a different design:** change `LIVE_DESIGN` in `src/designs/live.ts`.
+- **Preview one without shipping it:** `bun run dev:clay`, or `DESIGN=<id> bun dev`. `DESIGN=<id> bun run build` builds it.
+- The clay site exactly as it was live is also tagged `clay-site` in git.
+- Each design's `meta.ts` sets what the prerender puts in every head: fonts to preload, theme colours, and a brand folder (`public/brand/<id>/`) with the favicon, app icons and social card. Regenerate them with `bun scripts/brand-signal.ts` or `bun scripts/rasterize-brand.ts` (clay).
+- Directions that were explored but not shipped are dev-only pages under `explorations/`; open `/explorations/` in dev.
 
 ## Stack
 
 - [Vite](https://vitejs.dev) + [React 19](https://react.dev) + TypeScript
-- [Tailwind CSS v4](https://tailwindcss.com) — theme tokens in `src/index.css`
-- [Motion](https://motion.dev) — reveals, kinetic type, springs
-- [Lenis](https://lenis.darkroom.engineering) — smooth scrolling
+- [Three.js](https://threejs.org) for the particle field (and clay's 3D scenes), loaded in its own chunk
+- [Motion](https://motion.dev) for reveals and springs, [Lenis](https://lenis.darkroom.engineering) for smooth scrolling
+- [Phosphor](https://phosphoricons.com) icons; self-hosted Mona Sans and Geist Mono
+- [Tailwind CSS v4](https://tailwindcss.com), used by the clay design only
 - [Bun](https://bun.sh) for package management
 
 Production HTML is prerendered for `/` and `/contact`, with a `noindex` `404.html`.
 Crawler files live at `/robots.txt`, `/sitemap.xml`, `/llms.txt`, and `/llms-full.txt`.
 Run `bun run check` to typecheck, test the contact API, build, and validate SEO artifacts.
 
-## Develop
+## Performance and SEO
+
+Measured with Lighthouse 12 on the production build (simulated mobile / desktop):
+
+| Page | Mobile | Desktop |
+| --- | --- | --- |
+| `/` | 98 · 100 · 100 · 100 | 100 · 100 · 100 · 100 |
+| `/contact` | 97 · 100 · 100 · 100 | 100 · 100 · 100 · 100 |
+| `404` | 98 · 100 · 100 · (noindex) | |
+
+(Performance · Accessibility · Best Practices · SEO; mobile LCP 2.2 s, TBT 0 ms, CLS 0.)
+
+What keeps it there:
+
+- The particle field is plain WebGL2 (one draw call, about 8 kB gzipped) instead of a 3D library, builds its figures in small slices, and compiles its shader off the main thread where the browser supports it. It loads in parallel with the app and never blocks the first paint.
+- No animation library on Signal: reveals use IntersectionObserver and the Web Animations API. Copy that is on screen at first paint is never hidden, so the prerendered text is the largest paint.
+- The prerender inlines the stylesheet when it is small, preloads the headline font and the tiny portrait the field samples, and adds `modulepreload` links for each route's own chunks (from the Vite manifest).
+- Structured data: Person, Organization (logo at `/logo.png`, contact point), WebSite, ProfilePage with the selected work as an ItemList, ContactPage with breadcrumbs, and `dateModified` from git. `bun run seo:check` verifies all of it, plus the CSP hash of the inline theme script.
 
 ## Develop
 
@@ -34,6 +64,9 @@ bun run preview
 ```
 
 Tip: append `?mode=light` or `?mode=dark` to the URL to force a theme.
+
+The inline theme script in `index.html` is allowed by hash in the CSP in `vercel.json`.
+If you edit it, update the hash; `bun run seo:check` fails until you do.
 
 ## Contact form and Vercel deployment
 

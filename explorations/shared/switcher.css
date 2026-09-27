@@ -1,0 +1,142 @@
+/* Review chrome only. Deliberately neutral so it never reads as part of a direction. */
+.xs {
+  position: fixed;
+  left: 16px;
+  bottom: var(--xs-bottom, 16px);
+  z-index: 900;
+  font: 500 13px/1.3 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #f4f4f2;
+}
+
+.xs-bar {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgb(22 22 24 / 0.88);
+  box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.xs-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 14px 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.xs-btn:hover,
+.xs-btn[aria-expanded="true"] {
+  background: rgb(255 255 255 / 0.12);
+}
+
+.xs-btn:focus-visible,
+.xs-menu a:focus-visible {
+  outline: 2px solid #f4f4f2;
+  outline-offset: 2px;
+}
+
+.xs-icon {
+  width: 34px;
+  padding: 0;
+  justify-content: center;
+}
+
+.xs-menu {
+  position: absolute;
+  left: 0;
+  bottom: 50px;
+  width: min(300px, calc(100vw - 32px));
+  padding: 8px;
+  border-radius: 18px;
+  background: rgb(22 22 24 / 0.96);
+  box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+
+.xs-menu ol {
+  margin: 4px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.xs-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.xs-menu a:hover {
+  background: rgb(255 255 255 / 0.08);
+}
+
+.xs-menu a[aria-current="page"] {
+  background: rgb(255 255 255 / 0.14);
+}
+
+.xs-menu b {
+  display: block;
+  font-weight: 600;
+}
+
+.xs-menu small {
+  display: block;
+  color: rgb(244 244 242 / 0.62);
+  font-size: 12px;
+}
+
+.xs-n {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.1);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.xs-earlier {
+  margin: 0;
+  padding: 8px 10px;
+  color: rgb(244 244 242 / 0.62);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.xs-menu .xs-earlier a {
+  display: inline;
+  padding: 0;
+  color: #f4f4f2;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.xs-home,
+.xs-live {
+  color: rgb(244 244 242 / 0.72) !important;
+  font-size: 12px;
+}
+
+.xs-live {
+  justify-content: space-between;
+}
+
+@media print {
+  .xs {
+    display: none;
+  }
+}

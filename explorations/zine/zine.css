@@ -1,0 +1,1162 @@
+/*
+  Issue 01.
+  A two-ink risograph zine: fluorescent orange and black on cool paper
+  (black stock after dark). Anybody's width axis does the shouting, Martian
+  Mono does the small print. Paper is cut square; only stickers get shapes.
+*/
+:root {
+  --paper: #f0f0eb;
+  --sheet: #fafaf6;
+  --ink: #161616;
+  --fog: #4c4c48;
+  --riso: #ff6c2f;
+  --on-riso: #161616;
+  --tape: rgb(214 212 200 / 0.72);
+  --shadow: 0 1px 1px rgb(20 20 10 / 0.06), 0 14px 30px -18px rgb(20 20 10 / 0.35);
+  --grain-opacity: 0.22;
+  color-scheme: light;
+}
+
+.dark {
+  --paper: #121212;
+  --sheet: #1c1c1b;
+  --ink: #f0eee8;
+  --fog: #b7b5ad;
+  --riso: #ff6c2f;
+  --on-riso: #161616;
+  --tape: rgb(90 90 84 / 0.7);
+  --shadow: 0 14px 30px -18px rgb(0 0 0 / 0.9);
+  --grain-opacity: 0.12;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Anybody Variable", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+:focus-visible {
+  outline: 3px solid var(--riso);
+  outline-offset: 3px;
+}
+
+.zn-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* Paper grain: fixed and non-interactive so scrolling never repaints it. */
+.zn-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.dark .zn-grain {
+  mix-blend-mode: screen;
+  filter: invert(1);
+}
+
+.zn {
+  overflow: hidden;
+}
+
+.zn-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 54px;
+  padding: 0 24px;
+  border: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  font-stretch: 110%;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 5px 5px 0 var(--riso);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.zn-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--riso);
+}
+
+.zn-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 var(--riso);
+}
+
+.zn-btn.is-riso {
+  background: var(--riso);
+  color: var(--on-riso);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+
+.zn-btn.is-riso:hover {
+  box-shadow: 7px 7px 0 var(--ink);
+}
+
+.zn-section-title {
+  margin: 0;
+  font-size: clamp(56px, 9vw, 150px);
+  font-weight: 900;
+  font-stretch: 62%;
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.zn-section-title span {
+  color: var(--fog);
+  font-weight: 500;
+}
+
+/* ---------- cover ---------- */
+
+.zn-cover {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: 18px 24px 48px;
+}
+
+.zn-mast {
+  position: relative;
+  z-index: 1;
+}
+
+.zn-issue {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 4px;
+  padding-bottom: 8px;
+  border-bottom: 3px solid var(--ink);
+  font-family: "Martian Mono Variable", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.zn-masthead {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  /* six expanded letters measure about 6.7em: fill the column edge to edge */
+  font-size: calc((100vw - 48px) / 6.75);
+  font-weight: 900;
+  font-stretch: 150%;
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  text-shadow: 0.028em 0.022em 0 var(--riso);
+}
+
+.zn-masthead span {
+  display: inline-block;
+}
+
+.zn-cover-body {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+  flex: 1;
+  gap: 32px;
+  margin-top: 28px;
+}
+
+.zn-cover-copy {
+  position: relative;
+  z-index: 2;
+  align-self: end;
+  padding-bottom: 12px;
+}
+
+.zn-cover-copy h1 {
+  margin: 0;
+  font-size: clamp(48px, 6.4vw, 110px);
+  text-wrap: balance;
+  font-weight: 850;
+  font-stretch: 70%;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.zn-cover-copy p {
+  max-width: 38ch;
+  margin: 22px 0 0;
+  font-size: 19px;
+  line-height: 1.45;
+}
+
+.zn-cover-actions {
+  margin-top: 30px;
+}
+
+/* The photo is always black ink on an orange cutout, in either theme. */
+.zn-photo {
+  position: relative;
+  z-index: 2;
+  justify-self: end;
+  align-self: start;
+  width: min(100%, clamp(300px, 34vw, 500px), calc((100dvh - 250px) * 0.75));
+  margin: -120px 24px 0 0;
+  padding: 0;
+  background: var(--riso);
+  isolation: isolate;
+  box-shadow: var(--shadow);
+}
+
+.zn-photo img {
+  width: 100%;
+  mix-blend-mode: multiply;
+  filter: contrast(1.15);
+}
+
+.zn-sticker-cta {
+  position: absolute;
+  z-index: 3;
+  right: min(400px, 30vw);
+  bottom: 40px;
+  display: grid;
+  place-items: center;
+  width: 148px;
+  height: 148px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--riso);
+  box-shadow: 0 0 0 6px var(--paper), var(--shadow);
+  font-size: 22px;
+  font-weight: 900;
+  font-stretch: 80%;
+  line-height: 0.95;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 24px;
+  transition: scale 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dark .zn-sticker-cta {
+  background: var(--riso);
+  color: var(--on-riso);
+}
+
+.zn-sticker-cta:hover {
+  scale: 1.06;
+}
+
+/* ---------- feature spread ---------- */
+
+.zn-feature {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 32px;
+  padding: 120px 24px 80px;
+}
+
+.zn-pull {
+  grid-column: 1 / span 5;
+  align-self: start;
+  padding: 28px 28px 32px;
+  background: var(--sheet);
+  box-shadow: var(--shadow);
+}
+
+.zn-pull p {
+  margin: 0;
+  font-size: clamp(36px, 3.8vw, 60px);
+  font-weight: 800;
+  font-stretch: 72%;
+  line-height: 0.98;
+}
+
+.zn-pull mark {
+  padding: 0 0.08em;
+  background: linear-gradient(transparent 12%, var(--riso) 12%, var(--riso) 90%, transparent 90%);
+  color: var(--on-riso);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.zn-article {
+  grid-column: 7 / span 6;
+}
+
+.zn-article h2 {
+  margin: 0 0 28px;
+  font-size: clamp(36px, 3.6vw, 56px);
+  font-weight: 900;
+  font-stretch: 100%;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+}
+
+.zn-columns {
+  columns: 2;
+  column-gap: 28px;
+  column-rule: 1.5px solid var(--ink);
+}
+
+.zn-columns p {
+  margin: 0 0 16px;
+  font-size: 17px;
+  line-height: 1.55;
+  break-inside: avoid-column;
+}
+
+.zn-drop::first-letter {
+  float: left;
+  margin: 6px 10px 0 0;
+  padding: 4px 10px 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 64px;
+  font-weight: 900;
+  font-stretch: 60%;
+  line-height: 0.85;
+}
+
+.zn-sidebar {
+  grid-column: 7 / span 4;
+  padding: 18px 20px;
+  border: 3px solid var(--ink);
+}
+
+.zn-sidebar-title {
+  margin: 0 0 10px;
+  font-family: "Martian Mono Variable", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.zn-sidebar ul {
+  margin: 0;
+  padding: 0 0 0 20px;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.zn-sidebar li::marker {
+  content: "+ ";
+  font-weight: 800;
+}
+
+/* ---------- the work ---------- */
+
+.zn-work {
+  padding: 40px 24px 80px;
+}
+
+.zn-cuttings {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 48px 32px;
+  margin-top: 56px;
+}
+
+.zn-cutting {
+  position: relative;
+  padding: 44px 30px 30px;
+  background: var(--sheet);
+  box-shadow: var(--shadow);
+  transition: rotate 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), translate 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.zn-cutting:hover {
+  rotate: 0deg !important;
+  translate: 0 -6px;
+}
+
+.c-0 {
+  grid-column: 1 / span 6;
+}
+
+.c-1 {
+  grid-column: 7 / span 6;
+  margin-top: 90px;
+}
+
+.c-2 {
+  grid-column: 2 / span 5;
+}
+
+.c-3 {
+  grid-column: 7 / span 5;
+  margin-top: 40px;
+}
+
+.zn-tape {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  width: 120px;
+  height: 34px;
+  translate: -50% 0;
+  rotate: -4deg;
+  background: var(--tape);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+}
+
+.zn-num {
+  position: absolute;
+  top: -40px;
+  right: 18px;
+  color: var(--riso);
+  font-size: 128px;
+  font-weight: 900;
+  font-stretch: 50%;
+  line-height: 1;
+  -webkit-text-stroke: 3px var(--ink);
+  paint-order: stroke fill;
+}
+
+.zn-cutting h3 {
+  margin: 0;
+  padding-right: 72px;
+  font-size: clamp(40px, 4vw, 64px);
+  font-weight: 900;
+  font-stretch: 85%;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.zn-tagline {
+  margin: 12px 0 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.zn-cutting > p:not(.zn-tagline) {
+  max-width: 48ch;
+  margin: 12px 0 0;
+  color: var(--fog);
+  font-size: 16.5px;
+  line-height: 1.55;
+}
+
+.zn-stamps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.zn-stamps li {
+  padding: 5px 9px 4px;
+  border: 2px solid var(--ink);
+  font-family: "Martian Mono Variable", ui-monospace, monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  rotate: -2deg;
+}
+
+.zn-stamps li:nth-child(even) {
+  rotate: 1.5deg;
+}
+
+.zn-stamps li.is-live {
+  border-color: var(--riso);
+  background: var(--riso);
+  color: var(--on-riso);
+}
+
+.zn-cutting a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 22px;
+  font-weight: 800;
+  font-size: 16px;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+/* ---------- tape band marquee ---------- */
+
+.zn-tapeband {
+  margin: 60px -40px 40px;
+  padding: 16px 0 12px;
+  background: var(--riso);
+  color: var(--on-riso);
+  rotate: -3deg;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.zn-tapeband-track {
+  display: flex;
+  width: max-content;
+  animation: zn-marquee 36s linear infinite;
+}
+
+.zn-tapeband-track.is-still {
+  animation: none;
+}
+
+.zn-tapeband-track > span {
+  display: flex;
+}
+
+.zn-tapeband-track > span > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 28px;
+  padding-right: 28px;
+  font-size: clamp(28px, 3.4vw, 48px);
+  font-weight: 900;
+  font-stretch: 120%;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@keyframes zn-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- sticker sheet ---------- */
+
+.zn-stickers {
+  padding: 100px 24px 60px;
+}
+
+.zn-sheet {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: center;
+  gap: 28px 20px;
+  margin: 48px 0 0;
+  padding: 48px 40px;
+  list-style: none;
+  background: var(--sheet);
+  box-shadow: var(--shadow);
+}
+
+.zn-stk {
+  display: grid;
+  place-items: center;
+}
+
+.zn-stk > div {
+  transition: rotate 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.zn-stk > div:hover {
+  scale: 1.06;
+  rotate: 0deg !important;
+}
+
+.zn-stk-face {
+  display: grid;
+  place-content: center;
+  gap: 4px;
+  text-align: center;
+  filter: drop-shadow(0 0 0 var(--sheet)) drop-shadow(0 8px 12px rgb(0 0 0 / 0.18));
+}
+
+.zn-stk-face b {
+  font-size: 26px;
+  font-weight: 900;
+  font-stretch: 75%;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.zn-stk-face span {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.zn-stk-face small {
+  font-family: "Martian Mono Variable", ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tone-riso .zn-stk-face {
+  background: var(--riso);
+  color: var(--on-riso);
+}
+
+.tone-ink .zn-stk-face {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.tone-ink.is-burst .zn-stk-face b {
+  color: var(--riso);
+}
+
+.dark .tone-ink.is-burst .zn-stk-face b {
+  color: inherit;
+}
+
+.tone-paper .zn-stk-face {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 3px var(--ink);
+}
+
+.is-circle .zn-stk-face {
+  width: 200px;
+  height: 200px;
+  padding: 28px;
+  border-radius: 999px;
+  outline: 6px solid var(--sheet);
+}
+
+.is-burst .zn-stk-face {
+  width: 250px;
+  height: 250px;
+  padding: 58px;
+  clip-path: polygon(50% 0%, 58.8% 17.1%, 75% 6.7%, 74.1% 25.9%, 93.3% 25%, 82.9% 41.2%, 100% 50%, 82.9% 58.8%, 93.3% 75%, 74.1% 74.1%, 75% 93.3%, 58.8% 82.9%, 50% 100%, 41.2% 82.9%, 25% 93.3%, 25.9% 74.1%, 6.7% 75%, 17.1% 58.8%, 0% 50%, 17.1% 41.2%, 6.7% 25%, 25.9% 25.9%, 25% 6.7%, 41.2% 17.1%);
+}
+
+.is-square .zn-stk-face {
+  width: 190px;
+  height: 190px;
+  padding: 22px;
+  border-radius: 28px;
+  outline: 6px solid var(--sheet);
+}
+
+.is-pill .zn-stk-face {
+  width: 260px;
+  padding: 26px 30px;
+  border-radius: 999px;
+  outline: 6px solid var(--sheet);
+}
+
+.is-ticket .zn-stk-face {
+  width: 250px;
+  padding: 26px 30px;
+  border-radius: 10px;
+  -webkit-mask: radial-gradient(circle 14px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 14px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+  mask: radial-gradient(circle 14px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 14px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+}
+
+.is-burst .zn-stk-face b {
+  font-size: 30px;
+}
+
+.s-0 {
+  grid-column: 1 / span 4;
+}
+
+.s-1 {
+  grid-column: 5 / span 3;
+}
+
+.s-2 {
+  grid-column: 8 / span 3;
+}
+
+.s-3 {
+  grid-column: 10 / span 3;
+  grid-row: 2;
+}
+
+.s-4 {
+  grid-column: 1 / span 4;
+  grid-row: 2 / span 2;
+}
+
+.s-5 {
+  grid-column: 5 / span 3;
+  grid-row: 2;
+}
+
+.s-6 {
+  grid-column: 6 / span 4;
+  grid-row: 3;
+}
+
+/* ---------- time card ---------- */
+
+.zn-timecard-wrap {
+  padding: 80px 24px 60px;
+}
+
+.zn-timecard {
+  position: relative;
+  max-width: 980px;
+  margin: 48px auto 0;
+  padding: 28px 32px 28px 76px;
+  background: var(--sheet);
+  box-shadow: var(--shadow);
+  font-family: "Martian Mono Variable", ui-monospace, monospace;
+}
+
+.zn-timecard::before {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: 24px;
+  bottom: 24px;
+  width: 22px;
+  background: radial-gradient(circle 9px at 50% 50%, var(--paper) 96%, transparent) 0 0 / 22px 44px repeat-y;
+  box-shadow: none;
+}
+
+.zn-tc-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding-bottom: 14px;
+  border-bottom: 3px solid var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.zn-tc-cols,
+.zn-timecard li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px 120px;
+  align-items: center;
+  gap: 16px;
+}
+
+.zn-tc-cols {
+  padding: 12px 12px 8px;
+  color: var(--fog);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.zn-timecard ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.zn-timecard li {
+  padding: 14px 12px;
+}
+
+.zn-timecard li:nth-child(odd) {
+  background: color-mix(in srgb, var(--riso) 10%, transparent);
+}
+
+.zn-timecard li b {
+  display: block;
+  font-family: "Anybody Variable", sans-serif;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.zn-timecard li div span {
+  font-family: "Anybody Variable", sans-serif;
+  font-size: 15px;
+  color: var(--fog);
+}
+
+.zn-in,
+.zn-out {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  rotate: -2deg;
+}
+
+.zn-out {
+  rotate: 1.5deg;
+}
+
+.zn-still {
+  justify-self: start;
+  padding: 4px 8px;
+  background: var(--riso);
+  color: var(--on-riso);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  rotate: -4deg;
+}
+
+/* ---------- label maker ---------- */
+
+.zn-labels {
+  padding: 80px 24px 60px;
+}
+
+.zn-label-groups {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 32px;
+  margin-top: 48px;
+}
+
+.zn-label-groups h3 {
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 3px solid var(--ink);
+  font-size: 22px;
+  font-weight: 850;
+  font-stretch: 80%;
+  text-transform: uppercase;
+}
+
+.zn-label-groups ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.zn-label-groups li {
+  padding: 7px 12px 6px;
+  border-radius: 3px;
+  background: #1b1b1b;
+  color: #f3f3ef;
+  font-family: "Martian Mono Variable", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.28), 0 -1px 0 rgb(0 0 0 / 0.5);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), inset 0 -2px 0 rgb(0 0 0 / 0.35), 0 3px 6px -3px rgb(0 0 0 / 0.4);
+}
+
+.zn-label-groups li.is-riso {
+  background: var(--riso);
+  color: #161616;
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.35);
+}
+
+/* ---------- back cover ---------- */
+
+.zn-back {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 56px;
+  align-items: end;
+  padding: 100px 24px 96px;
+}
+
+.zn-coupon {
+  position: relative;
+  padding: 40px 36px 36px;
+  border: 3px dashed var(--ink);
+  background: var(--sheet);
+}
+
+.zn-scissors {
+  position: absolute;
+  top: -18px;
+  left: 36px;
+  padding: 0 6px;
+  background: var(--paper);
+  rotate: 180deg;
+}
+
+.zn-coupon h2 {
+  margin: 0;
+  font-size: clamp(48px, 5.6vw, 88px);
+  font-weight: 900;
+  font-stretch: 65%;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.zn-coupon > p {
+  margin: 14px 0 0;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.zn-coupon fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  margin: 18px 0 24px;
+  padding: 0;
+  border: 0;
+}
+
+.zn-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.zn-check input {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  border: 3px solid var(--ink);
+  background: var(--sheet);
+  cursor: pointer;
+}
+
+.zn-check input:checked::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  background: var(--riso);
+  box-shadow: 0 0 0 2px var(--ink);
+}
+
+.zn-field {
+  display: block;
+  margin-bottom: 8px;
+  font-family: "Martian Mono Variable", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.zn-coupon textarea {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  border: 3px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 17px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.zn-coupon textarea::placeholder {
+  color: var(--fog);
+}
+
+.zn-help {
+  margin: 8px 0 22px !important;
+  color: var(--fog);
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+.zn-colophon {
+  padding-bottom: 8px;
+}
+
+.zn-colophon .zn-colophon-mast {
+  max-width: none;
+  margin: 0 0 12px;
+  font-size: clamp(64px, 9vw, 150px);
+  font-weight: 900;
+  font-stretch: 150%;
+  line-height: 0.8;
+  text-shadow: 0.028em 0.022em 0 var(--riso);
+}
+
+.zn-colophon p {
+  max-width: 40ch;
+  margin: 12px 0 0;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.zn-social {
+  display: flex;
+  gap: 20px;
+}
+
+.zn-social a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 900px) {
+  .zn-cover {
+    padding: 14px 16px 40px;
+  }
+
+  .zn-masthead {
+    font-size: calc((100vw - 32px) / 6.75);
+  }
+
+  .zn-cover-body {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .zn-photo {
+    justify-self: center;
+    width: min(78%, 360px);
+    margin: 0 auto;
+    order: -1;
+  }
+
+  .zn-sticker-cta {
+    right: 12px;
+    top: 30%;
+    bottom: auto;
+    width: 112px;
+    height: 112px;
+    font-size: 17px;
+    padding: 16px;
+  }
+
+  .zn-feature {
+    grid-template-columns: 1fr;
+    padding: 80px 16px 40px;
+  }
+
+  .zn-pull,
+  .zn-article,
+  .zn-sidebar {
+    grid-column: 1;
+  }
+
+  .zn-columns {
+    columns: 1;
+  }
+
+  .zn-work,
+  .zn-stickers,
+  .zn-timecard-wrap,
+  .zn-labels {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .zn-cuttings {
+    grid-template-columns: 1fr;
+    gap: 56px;
+  }
+
+  .zn-cutting {
+    grid-column: 1 !important;
+    margin-top: 0 !important;
+    padding: 40px 22px 24px;
+  }
+
+  .zn-num {
+    font-size: 96px;
+  }
+
+  .zn-sheet {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 32px 12px;
+  }
+
+  .is-burst .zn-stk-face {
+    width: 220px;
+    height: 220px;
+    padding: 50px;
+  }
+
+  .is-circle .zn-stk-face,
+  .is-square .zn-stk-face {
+    width: 170px;
+    height: 170px;
+  }
+
+  .zn-timecard {
+    padding: 22px 16px 22px 52px;
+  }
+
+  .zn-timecard::before {
+    left: 14px;
+    width: 18px;
+  }
+
+  .zn-tc-cols {
+    display: none;
+  }
+
+  .zn-timecard li {
+    grid-template-columns: auto auto;
+    justify-content: start;
+    gap: 6px 16px;
+  }
+
+  .zn-timecard li > div {
+    grid-column: 1 / -1;
+  }
+
+  .zn-label-groups {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 16px;
+  }
+
+  .zn-back {
+    grid-template-columns: 1fr;
+    gap: 48px;
+    padding: 80px 16px 96px;
+  }
+
+  .zn-coupon {
+    padding: 32px 20px 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .zn-tapeband-track {
+    animation: none;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}

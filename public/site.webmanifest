@@ -6,29 +6,29 @@
   "scope": "/",
   "display": "standalone",
   "lang": "en",
-  "background_color": "#f6f1e8",
-  "theme_color": "#e8501f",
+  "background_color": "#efeee9",
+  "theme_color": "#e2480f",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/brand/signal/favicon.svg",
       "type": "image/svg+xml",
       "sizes": "any",
       "purpose": "any"
     },
     {
-      "src": "/apple-touch-icon.png",
+      "src": "/brand/signal/apple-touch-icon.png",
       "type": "image/png",
       "sizes": "180x180",
       "purpose": "any"
     },
     {
-      "src": "/icon-192.png",
+      "src": "/brand/signal/icon-192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/brand/signal/icon-512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any"

@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer-core";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 
@@ -37,19 +37,19 @@ async function raster(svgPath: string, width: number, height: number, out: strin
   console.log("wrote", out);
 }
 
-mkdirSync(resolve(root, "public"), { recursive: true });
 const tmp = mkdtempSync(resolve(tmpdir(), "gabcat-brand-"));
-await raster("public/og.svg", 1200, 630, "public/og.png");
-await raster("public/apple-touch-icon.svg", 180, 180, "public/apple-touch-icon.png");
-await raster("public/apple-touch-icon.svg", 192, 192, "public/icon-192.png");
-await raster("public/apple-touch-icon.svg", 512, 512, "public/icon-512.png");
-await raster("public/favicon.svg", 48, 48, resolve(tmp, "favicon-48.png"), true);
+const dir = "public/brand/clay";
+await raster(`${dir}/og.svg`, 1200, 630, `${dir}/og.png`);
+await raster(`${dir}/apple-touch-icon.svg`, 180, 180, `${dir}/apple-touch-icon.png`);
+await raster(`${dir}/apple-touch-icon.svg`, 192, 192, `${dir}/icon-192.png`);
+await raster(`${dir}/apple-touch-icon.svg`, 512, 512, `${dir}/icon-512.png`);
+await raster(`${dir}/favicon.svg`, 48, 48, resolve(tmp, "favicon-48.png"), true);
 await browser.close();
 
 const png = readFileSync(resolve(tmp, "favicon-48.png"));
-writeFileSync(resolve(root, "public/favicon.ico"), pngIco(png, 48, 48));
+writeFileSync(resolve(root, dir, "favicon.ico"), pngIco(png, 48, 48));
 rmSync(tmp, { recursive: true, force: true });
-console.log("wrote public/favicon.ico");
+console.log(`wrote ${dir}/favicon.ico`);
 
 function pngIco(png: Buffer, width: number, height: number): Buffer {
   const header = Buffer.alloc(6);

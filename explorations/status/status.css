@@ -1,0 +1,871 @@
+/*
+  Status Page.
+  The portfolio as the uptime report of a DevOps engineer. Geist and Geist Mono,
+  a narrow calm column, dense data. Green is semantic (operational), orange is
+  semantic (an upgrade shipped). Radius: 10px panels, 2px bars, pill buttons.
+*/
+:root {
+  --bg: #f6f6f4;
+  --panel: #ffffff;
+  --ink: #0f1011;
+  --fog: #62646a;
+  --line: #e4e4e0;
+  --ok: #16a05a;
+  --ok-ink: #0f7a43;
+  --ok-deep: #117a45;
+  --up: #e8501f;
+  --off: #e6e6e2;
+  --pending: #d8d8d3;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0b0c0d;
+  --panel: #131416;
+  --ink: #edeeef;
+  --fog: #999ca3;
+  --line: #24262a;
+  --ok: #33c47a;
+  --ok-ink: #5fd99a;
+  --ok-deep: #145c38;
+  --up: #ff7043;
+  --off: #202226;
+  --pending: #2b2d32;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ok);
+  outline-offset: 3px;
+}
+
+.st-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.st {
+  width: min(100% - 32px, 920px);
+  margin: 0 auto;
+  padding-bottom: 96px;
+}
+
+/* ---------- top ---------- */
+
+.st-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+.st-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.st-logo > span:last-child {
+  color: var(--fog);
+  font-weight: 450;
+}
+
+.st-mark {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--up);
+  color: #160800;
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.st-page {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 14px;
+  font-weight: 550;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.15s, opacity 0.2s;
+}
+
+.st-page:hover {
+  opacity: 0.88;
+}
+
+.st-page:active {
+  transform: scale(0.98);
+}
+
+.st-page.is-big {
+  height: 48px;
+  padding: 0 22px;
+  font-size: 15px;
+}
+
+/* ---------- hero ---------- */
+
+.st-hero {
+  padding: 40px 0 8px;
+}
+
+.st-who {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.st-who img {
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  object-fit: cover;
+  object-position: 50% 14%;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.st-who b {
+  display: block;
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+
+.st-who span {
+  color: var(--fog);
+}
+
+.st-banner {
+  display: flex;
+  gap: 18px;
+  padding: 28px 30px 30px;
+  border-radius: 14px;
+  background: var(--pending);
+  color: var(--ink);
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+.st-banner.is-ok {
+  background: var(--ok-deep);
+  color: #f3fbf6;
+}
+
+.st-banner-icon {
+  padding-top: 6px;
+}
+
+.st-banner h1 {
+  margin: 0;
+  font-size: clamp(30px, 4.6vw, 48px);
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.st-banner p {
+  max-width: 48ch;
+  margin: 12px 0 0;
+  font-size: 17px;
+  line-height: 1.5;
+  opacity: 0.86;
+}
+
+.st-spin {
+  animation: st-spin 0.8s linear infinite;
+}
+
+@keyframes st-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- blocks ---------- */
+
+.st-block {
+  margin-top: 64px;
+}
+
+.st-block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.st-block-head h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.st-block-head > span {
+  color: var(--fog);
+  font-size: 14px;
+}
+
+/* ---------- systems + uptime bars ---------- */
+
+.st-systems {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.st-sys {
+  padding: 18px 22px 16px;
+}
+
+.st-sys + .st-sys {
+  border-top: 1px solid var(--line);
+}
+
+.st-sys-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.st-sys-head b {
+  font-weight: 600;
+}
+
+.st-sys-head span {
+  margin-left: 10px;
+  color: var(--fog);
+  font-size: 13.5px;
+}
+
+.st-sys-state {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  margin: 0 !important;
+  font-size: 14px !important;
+  color: var(--fog) !important;
+}
+
+.is-ready .st-sys-state {
+  color: var(--ok-ink) !important;
+  font-weight: 550;
+}
+
+.st-bars {
+  display: flex;
+  gap: 3px;
+  height: 36px;
+}
+
+.st-bars span {
+  flex: 1;
+  min-width: 0;
+  border-radius: 2px;
+  background: var(--pending);
+  transform-origin: bottom;
+  transition: background 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: default;
+}
+
+.st-sys:not(.is-ready) .st-bars span {
+  transform: scaleY(0.4);
+  animation: st-wait 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes st-wait {
+  to {
+    opacity: 0.45;
+  }
+}
+
+.is-ready .st-bars .is-ok {
+  background: var(--ok);
+}
+
+.is-ready .st-bars .is-up {
+  background: var(--up);
+}
+
+.is-ready .st-bars .is-off {
+  background: var(--off);
+}
+
+.is-ready .st-bars span:hover {
+  transform: scaleY(1.12);
+}
+
+.st-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  color: var(--fog);
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 11.5px;
+}
+
+.st-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 12px;
+  color: var(--fog);
+  font-size: 13px;
+}
+
+.st-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.st-legend i {
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+}
+
+.st-legend .is-ok {
+  background: var(--ok);
+}
+
+.st-legend .is-up {
+  background: var(--up);
+}
+
+.st-legend .is-off {
+  background: var(--off);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.st-tip {
+  position: fixed;
+  z-index: 50;
+  width: 240px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 13px;
+  line-height: 1.45;
+  transform: translate(-50%, calc(-100% - 10px));
+  pointer-events: none;
+  box-shadow: 0 16px 40px -16px rgb(0 0 0 / 0.5);
+}
+
+.st-tip b {
+  display: block;
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.st-tip-state {
+  display: block;
+  margin-top: 2px;
+  opacity: 0.75;
+}
+
+.st-tip p {
+  margin: 8px 0 0;
+}
+
+/* ---------- metrics ---------- */
+
+.st-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 40px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.st-metrics > div {
+  padding: 22px 22px 20px;
+}
+
+.st-metrics > div + div {
+  border-left: 1px solid var(--line);
+}
+
+.st-metrics b {
+  display: block;
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: clamp(28px, 3.4vw, 38px);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+.st-metrics span {
+  display: block;
+  margin-top: 6px;
+  color: var(--fog);
+  font-size: 13.5px;
+  line-height: 1.35;
+}
+
+/* ---------- services ---------- */
+
+.st-services {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.st-services details + details {
+  border-top: 1px solid var(--line);
+}
+
+.st-services summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 22px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.st-services summary::-webkit-details-marker {
+  display: none;
+}
+
+.st-services summary:hover {
+  background: color-mix(in srgb, var(--panel) 92%, var(--ink));
+}
+
+.st-svc-state {
+  display: flex;
+  color: var(--ok);
+}
+
+.st-svc-name b {
+  font-weight: 600;
+}
+
+.st-svc-name span {
+  margin-left: 10px;
+  color: var(--fog);
+  font-size: 14px;
+}
+
+.st-svc-stack {
+  color: var(--fog);
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 12px;
+  text-align: right;
+}
+
+.st-caret {
+  color: var(--fog);
+  transition: transform 0.25s ease;
+}
+
+details[open] .st-caret {
+  transform: rotate(180deg);
+}
+
+.st-svc-body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 22px 20px 56px;
+}
+
+.st-svc-body p {
+  max-width: 60ch;
+  margin: 0;
+  line-height: 1.55;
+}
+
+.st-svc-body a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  color: var(--ok-ink);
+  font-weight: 550;
+  text-decoration: none;
+}
+
+.st-svc-body a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- incident history ---------- */
+
+.st-year {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 24px;
+  padding-top: 20px;
+}
+
+.st-year + .st-year {
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.st-year h3 {
+  position: sticky;
+  top: 20px;
+  align-self: start;
+  margin: 0;
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.st-incidents {
+  display: grid;
+  gap: 28px;
+}
+
+.st-incident header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.st-incident h4 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.st-state {
+  flex: none;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 550;
+}
+
+.st-state.is-ongoing {
+  background: color-mix(in srgb, var(--ok) 16%, transparent);
+  color: var(--ok-ink);
+}
+
+.st-state.is-resolved,
+.st-state.is-completed {
+  background: var(--off);
+  color: var(--fog);
+}
+
+.st-incident ol {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0 0 0 16px;
+  border-left: 2px solid var(--line);
+  list-style: none;
+}
+
+.st-incident li p {
+  max-width: 64ch;
+  margin: 0;
+  line-height: 1.55;
+}
+
+.st-incident li b {
+  font-weight: 600;
+}
+
+.st-incident time {
+  display: block;
+  margin-top: 2px;
+  color: var(--fog);
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 12px;
+}
+
+/* ---------- recognition ---------- */
+
+.st-wins {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.st-wins > div {
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+.st-wins h3 {
+  margin: 0 0 14px;
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fog);
+}
+
+.st-wins ul {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-wins li > span {
+  display: inline-block;
+  margin-bottom: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--fog);
+}
+
+.st-wins li > span.is-gold {
+  color: var(--up);
+}
+
+.st-wins b {
+  display: block;
+  font-weight: 600;
+}
+
+.st-wins small {
+  display: block;
+  margin-top: 2px;
+  color: var(--fog);
+  font-size: 13.5px;
+}
+
+/* ---------- on-call ---------- */
+
+.st-oncall {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  margin-top: 72px;
+  padding: 32px;
+  border-radius: 14px;
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.st-oncall h2 {
+  margin: 0;
+  font-size: clamp(26px, 3.4vw, 36px);
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+}
+
+.st-oncall p {
+  max-width: 46ch;
+  margin: 12px 0 0;
+  line-height: 1.55;
+  opacity: 0.75;
+}
+
+.st-oncall .st-page {
+  background: var(--up);
+  color: #160800;
+}
+
+.st-oncall-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  flex: none;
+}
+
+.st-mail {
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.st-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 28px;
+  color: var(--fog);
+  font-size: 13px;
+}
+
+.st-foot-links {
+  display: flex;
+  gap: 14px;
+}
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 720px) {
+  .st-hero {
+    padding-top: 16px;
+  }
+
+  .st-banner {
+    flex-direction: column;
+    gap: 10px;
+    padding: 22px;
+  }
+
+  .st-banner-icon {
+    padding: 0;
+  }
+
+  .st-sys {
+    padding: 16px;
+  }
+
+  .st-sys-head {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .st-sys-head span {
+    display: block;
+    margin: 2px 0 0;
+  }
+
+  .st-bars {
+    gap: 1.5px;
+    height: 30px;
+  }
+
+  .st-axis span:nth-child(2) {
+    display: none;
+  }
+
+  .st-block-head {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .st-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .st-metrics > div:nth-child(3) {
+    border-left: 0;
+  }
+
+  .st-metrics > div:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+
+  .st-services summary {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding: 16px;
+  }
+
+  .st-svc-name span {
+    display: block;
+    margin: 2px 0 0;
+  }
+
+  .st-svc-stack {
+    display: none;
+  }
+
+  .st-svc-body {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 16px 18px 50px;
+  }
+
+  .st-year {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .st-year h3 {
+    position: static;
+  }
+
+  .st-incident header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .st-wins {
+    grid-template-columns: 1fr;
+  }
+
+  .st-oncall {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 24px;
+  }
+
+  .st-oncall-actions {
+    align-items: stretch;
+  }
+
+  .st-page.is-big {
+    justify-content: center;
+  }
+
+  .st-foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 56px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-spin,
+  .st-bars span {
+    animation: none !important;
+  }
+
+  .st-bars span,
+  .st-banner {
+    transition: none !important;
+  }
+}

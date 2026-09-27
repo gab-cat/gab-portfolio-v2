@@ -7,19 +7,16 @@ import {
   TOOLBOX,
   TROPHIES,
 } from "./data";
+import type { DesignHead } from "./designs/types";
 
 export const SITE_ORIGIN = "https://gabcat.dev";
 export const SITE_NAME = "gabcat.dev";
 export const PERSON_NAME = "Gabriel Angelo Catimbang";
 export const PERSON_SHORT = "Gabriel Catimbang";
 export const PERSON_NICK = "Gab Catimbang";
-export const OG_IMAGE_PATH = "/og.png";
 export const PERSON_IMAGE_PATH = "/portraits/gab-editorial.webp";
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
-export const THEME_LIGHT = "#f6f1e8";
-export const THEME_DARK = "#15120f";
-export const THEME_ACCENT = "#e8501f";
 
 export type RouteId = "home" | "contact" | "notFound";
 
@@ -80,20 +77,38 @@ export function routeFromPath(path: string): RouteId {
   return "notFound";
 }
 
+const ID = {
+  person: `${SITE_ORIGIN}/#gab`,
+  org: `${SITE_ORIGIN}/#org`,
+  site: `${SITE_ORIGIN}/#site`,
+  work: `${SITE_ORIGIN}/#work`,
+};
+
+/** Served at the root by every design (the prerender copies it from the design's brand folder). */
+export const LOGO_PATH = "/logo.png";
+
 function personNode() {
   return {
     "@type": "Person",
-    "@id": `${SITE_ORIGIN}/#gab`,
+    "@id": ID.person,
     name: PERSON_NAME,
+    givenName: "Gabriel",
+    familyName: "Catimbang",
     alternateName: [PERSON_NICK, PERSON_SHORT],
     url: `${SITE_ORIGIN}/`,
-    image: `${SITE_ORIGIN}${PERSON_IMAGE_PATH}`,
+    image: {
+      "@type": "ImageObject",
+      "@id": `${SITE_ORIGIN}${PERSON_IMAGE_PATH}`,
+      url: `${SITE_ORIGIN}${PERSON_IMAGE_PATH}`,
+      width: 900,
+      height: 1200,
+    },
     email: `mailto:${EMAIL}`,
     jobTitle: ["DevOps Engineer", "Full-Stack Developer"],
     description: ROUTES.home.description,
     worksFor: [
-      { "@type": "Organization", "name": "Detken Development" },
-      { "@type": "Organization", "name": "ThePILLARS Publication" },
+      { "@type": "Organization", name: "Detken Development" },
+      { "@type": "Organization", name: "ThePILLARS Publication" },
     ],
     alumniOf: {
       "@type": "CollegeOrUniversity",
@@ -102,6 +117,7 @@ function personNode() {
     address: {
       "@type": "PostalAddress",
       addressLocality: "Naga City",
+      addressRegion: "Camarines Sur",
       addressCountry: "PH",
     },
     knowsAbout: [
@@ -116,8 +132,41 @@ function personNode() {
       "AWS",
     ],
     award: TROPHIES.map(
-      (trophy) => `${trophy.place} — ${trophy.event} ${trophy.year}`,
+      (trophy) => `${trophy.place}, ${trophy.event} ${trophy.year}`,
     ),
+    sameAs: SOCIALS.map((social) => social.href),
+  };
+}
+
+/** The personal brand behind gabcat.dev: logo, contact point and profiles for knowledge panels. */
+function organizationNode() {
+  return {
+    "@type": "Organization",
+    "@id": ID.org,
+    name: SITE_NAME,
+    alternateName: "gabcat",
+    url: `${SITE_ORIGIN}/`,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_ORIGIN}${LOGO_PATH}`,
+      width: 512,
+      height: 512,
+    },
+    description: `The portfolio and studio name of ${PERSON_SHORT}, a developer and DevOps engineer in Naga City, Philippines.`,
+    founder: { "@id": ID.person },
+    email: EMAIL,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Naga City",
+      addressRegion: "Camarines Sur",
+      addressCountry: "PH",
+    },
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "project inquiries",
+      email: EMAIL,
+      url: ROUTES.contact.canonical,
+    },
     sameAs: SOCIALS.map((social) => social.href),
   };
 }
@@ -125,33 +174,78 @@ function personNode() {
 function websiteNode() {
   return {
     "@type": "WebSite",
-    "@id": `${SITE_ORIGIN}/#site`,
+    "@id": ID.site,
     url: `${SITE_ORIGIN}/`,
     name: SITE_NAME,
-    description: "Portfolio of Gabriel Catimbang — developer & DevOps engineer.",
-    publisher: { "@id": `${SITE_ORIGIN}/#gab` },
+    alternateName: PERSON_SHORT,
+    description: `Portfolio of ${PERSON_SHORT}, developer and DevOps engineer.`,
+    publisher: { "@id": ID.org },
+    author: { "@id": ID.person },
     inLanguage: "en",
   };
 }
 
-export function jsonLdFor(route: RouteId): Record<string, unknown> {
+/** Selected work as creative works credited to Gabriel. */
+function workNode() {
+  return {
+    "@type": "ItemList",
+    "@id": ID.work,
+    name: "Selected work",
+    itemListElement: PROJECTS.map((project, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "CreativeWork",
+        name: project.name,
+        headline: project.tagline,
+        description: project.story.replace(/\s*—\s*/g, ". ").replace(/\. ([a-z])/g, (_, c: string) => `. ${c.toUpperCase()}`),
+        url: project.href,
+        keywords: project.tech.join(", "),
+        creator: { "@id": ID.person },
+      },
+    })),
+  };
+}
+
+function breadcrumbs(...trail: { name: string; url: string }[]) {
+  return {
+    "@type": "BreadcrumbList",
+    itemListElement: trail.map((crumb, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: crumb.name,
+      item: crumb.url,
+    })),
+  };
+}
+
+/** `modified` (YYYY-MM-DD) comes from the prerender; client-side route changes leave it out. */
+export function jsonLdFor(route: RouteId, { modified }: { modified?: string } = {}): Record<string, unknown> {
   const person = personNode();
+  const organization = organizationNode();
   const website = websiteNode();
+  const dates = modified ? { dateModified: modified } : {};
   if (route === "home") {
     return {
       "@context": "https://schema.org",
       "@graph": [
         person,
+        organization,
         website,
+        workNode(),
         {
           "@type": "ProfilePage",
           "@id": `${SITE_ORIGIN}/#page`,
           url: `${SITE_ORIGIN}/`,
           name: ROUTES.home.title,
-          isPartOf: { "@id": `${SITE_ORIGIN}/#site` },
-          about: { "@id": `${SITE_ORIGIN}/#gab` },
-          mainEntity: { "@id": `${SITE_ORIGIN}/#gab` },
+          description: ROUTES.home.description,
+          isPartOf: { "@id": ID.site },
+          about: { "@id": ID.person },
+          mainEntity: { "@id": ID.person },
+          hasPart: { "@id": ID.work },
+          primaryImageOfPage: { "@id": `${SITE_ORIGIN}${PERSON_IMAGE_PATH}` },
           inLanguage: "en",
+          ...dates,
         },
       ],
     };
@@ -161,6 +255,7 @@ export function jsonLdFor(route: RouteId): Record<string, unknown> {
       "@context": "https://schema.org",
       "@graph": [
         person,
+        organization,
         website,
         {
           "@type": "ContactPage",
@@ -168,9 +263,15 @@ export function jsonLdFor(route: RouteId): Record<string, unknown> {
           url: ROUTES.contact.canonical,
           name: ROUTES.contact.title,
           description: ROUTES.contact.description,
-          isPartOf: { "@id": `${SITE_ORIGIN}/#site` },
-          mainEntity: { "@id": `${SITE_ORIGIN}/#gab` },
+          isPartOf: { "@id": ID.site },
+          about: { "@id": ID.org },
+          mainEntity: { "@id": ID.person },
+          breadcrumb: breadcrumbs(
+            { name: "Home", url: `${SITE_ORIGIN}/` },
+            { name: "Contact", url: ROUTES.contact.canonical },
+          ),
           inLanguage: "en",
+          ...dates,
         },
       ],
     };
@@ -184,19 +285,18 @@ export function jsonLdFor(route: RouteId): Record<string, unknown> {
         "@id": `${SITE_ORIGIN}/404#page`,
         url: ROUTES.notFound.canonical,
         name: ROUTES.notFound.title,
-        isPartOf: { "@id": `${SITE_ORIGIN}/#site` },
+        isPartOf: { "@id": ID.site },
         inLanguage: "en",
       },
     ],
   };
 }
 
-export function headMarkup(
-  route: RouteId,
-  extras: { fontPreloads?: string[] } = {},
-): string {
+/** Every page's head. Fonts, colours and icons come from the design being built. */
+export function headMarkup(route: RouteId, design: DesignHead, { modified }: { modified?: string } = {}): string {
   const seo = ROUTES[route];
-  const image = `${SITE_ORIGIN}${OG_IMAGE_PATH}`;
+  const { brand, theme } = design;
+  const image = `${SITE_ORIGIN}${brand}/og.png`;
   const robots = seo.index
     ? "index, follow, max-image-preview:large"
     : "noindex, nofollow";
@@ -205,13 +305,13 @@ export function headMarkup(
       ? `<meta property="profile:first_name" content="Gabriel" />
     <meta property="profile:last_name" content="Catimbang" />`
       : "";
-  const preloads = (extras.fontPreloads ?? [])
-    .map(
-      (href) =>
-        `<link rel="preload" href="${href}" as="font" type="font/woff2" crossorigin />`,
-    )
-    .join("\n    ");
-  const json = JSON.stringify(jsonLdFor(route));
+  const preloads = [
+    ...design.fontPreloads.map(
+      (href) => `<link rel="preload" href="${href}" as="font" type="font/woff2" crossorigin />`,
+    ),
+    ...(design.imagePreloads ?? []).map((href) => `<link rel="preload" href="${href}" as="image" />`),
+  ].join("\n    ");
+  const json = JSON.stringify(jsonLdFor(route, { modified })).replaceAll("<", "\\u003c");
   return `
     <title>${escapeHtml(seo.title)}</title>
     <meta name="description" content="${escapeHtml(seo.description)}" />
@@ -220,8 +320,8 @@ export function headMarkup(
     <link rel="canonical" href="${seo.canonical}" />
     <link rel="alternate" type="text/plain" href="${SITE_ORIGIN}/llms.txt" title="LLM index" />
 
-    <meta name="theme-color" content="${THEME_LIGHT}" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="${THEME_DARK}" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="${theme.light}" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="${theme.dark}" media="(prefers-color-scheme: dark)" />
 
     <meta property="og:type" content="${seo.ogType}" />
     <meta property="og:url" content="${seo.canonical}" />
@@ -242,9 +342,9 @@ export function headMarkup(
     <meta name="twitter:image" content="${image}" />
     <meta name="twitter:image:alt" content="gabcat.dev — ${PERSON_SHORT}" />
 
-    <link rel="icon" href="/favicon.ico" sizes="48x48" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="${brand}/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/svg+xml" href="${brand}/favicon.svg" />
+    <link rel="apple-touch-icon" href="${brand}/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     ${preloads}
 
@@ -308,7 +408,7 @@ The canonical site is ${SITE_ORIGIN}/. Prefer these files over scraping rendered
 `;
 }
 
-export function llmsFullTxt(): string {
+export function llmsFullTxt(intro: string): string {
   const work = PROJECTS.map(
     (project) =>
       `### ${project.name}\n${project.tagline}\n${project.story}\nTech: ${project.tech.join(", ")}\nLink: ${project.href}`,
@@ -337,7 +437,7 @@ Email: ${EMAIL}
 
 ## Intro
 
-It starts with a what if. I'm ${PERSON_SHORT}. I turn curiosity into things people use, and I build the pipelines that keep them running.
+${intro}
 
 ## About
 
@@ -371,7 +471,7 @@ ${ROUTES.contact.description}
 `;
 }
 
-export function webManifest(): string {
+export function webManifest({ brand, theme }: DesignHead): string {
   return `${JSON.stringify(
     {
       name: PERSON_SHORT,
@@ -381,29 +481,29 @@ export function webManifest(): string {
       scope: "/",
       display: "standalone",
       lang: "en",
-      background_color: THEME_LIGHT,
-      theme_color: THEME_ACCENT,
+      background_color: theme.light,
+      theme_color: theme.accent,
       icons: [
         {
-          src: "/favicon.svg",
+          src: `${brand}/favicon.svg`,
           type: "image/svg+xml",
           sizes: "any",
           purpose: "any",
         },
         {
-          src: "/apple-touch-icon.png",
+          src: `${brand}/apple-touch-icon.png`,
           type: "image/png",
           sizes: "180x180",
           purpose: "any",
         },
         {
-          src: "/icon-192.png",
+          src: `${brand}/icon-192.png`,
           type: "image/png",
           sizes: "192x192",
           purpose: "any",
         },
         {
-          src: "/icon-512.png",
+          src: `${brand}/icon-512.png`,
           type: "image/png",
           sizes: "512x512",
           purpose: "any",

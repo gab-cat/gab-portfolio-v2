@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <!-- Home-screen icon: the favicon mark on a full square (iOS rounds the corners itself). -->
+  <rect width="180" height="180" fill="#060607"/>
+  <g fill="#efebe4"><circle cx="90.00" cy="40.00" r="6.5"/><circle cx="115.00" cy="46.70" r="6.5"/><circle cx="133.30" cy="65.00" r="6.5"/><circle cx="140.00" cy="90.00" r="6.5"/><circle cx="133.30" cy="115.00" r="6.5"/><circle cx="115.00" cy="133.30" r="6.5"/><circle cx="90.00" cy="140.00" r="6.5"/><circle cx="65.00" cy="133.30" r="6.5"/><circle cx="46.70" cy="115.00" r="6.5"/><circle cx="40.00" cy="90.00" r="6.5"/><circle cx="46.70" cy="65.00" r="6.5"/><circle cx="65.00" cy="46.70" r="6.5"/></g>
+  <circle cx="90" cy="90" r="19" fill="#ff6a3d"/>
+</svg>

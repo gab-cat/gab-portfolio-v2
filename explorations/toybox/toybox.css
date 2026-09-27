@@ -1,0 +1,433 @@
+/*
+  Toybox. After Bruno Simon and Shopify Editions: no scrolling, just a pit
+  of toys. Unbounded for the chunky voice, Onest for reading. Five toy
+  colours are the palette, on purpose. Everything is soft: panels 28px,
+  buttons are pills with a physical press.
+*/
+:root {
+  --bg: #eceef2;
+  --panel: #ffffff;
+  --ink: #16161a;
+  --fog: #5d5f66;
+  --line: #dfe1e6;
+  --orange: #ff5a1f;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #121316;
+  --panel: #1c1d22;
+  --ink: #f1f1ee;
+  --fog: #a2a4ab;
+  --line: #2c2e34;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Onest Variable", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+svg {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--orange);
+  outline-offset: 3px;
+}
+
+.tb-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  touch-action: none;
+}
+
+.tb-flat {
+  position: fixed;
+  left: 24px;
+  top: 45%;
+  max-width: 30ch;
+  color: var(--fog);
+}
+
+/* ---------- top bar ---------- */
+
+.tb-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 76px;
+  padding: 0 24px;
+  pointer-events: none;
+}
+
+.tb-top > * {
+  pointer-events: auto;
+}
+
+.tb-brand {
+  font-family: "Unbounded Variable", sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+}
+
+.tb-brand span {
+  color: var(--orange);
+}
+
+.tb-tools {
+  display: flex;
+  gap: 8px;
+}
+
+.tb-tools button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--panel);
+  box-shadow: 0 0 0 1.5px var(--line), 0 4px 0 var(--line);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.tb-tools button:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 1.5px var(--line), 0 0 0 var(--line);
+}
+
+/* ---------- panel ---------- */
+
+.tb-panel {
+  position: fixed;
+  z-index: 10;
+  top: 92px;
+  right: 24px;
+  bottom: 124px;
+  width: min(400px, 34vw);
+  padding: 28px 28px 30px;
+  border-radius: 28px;
+  background: var(--panel);
+  box-shadow: 0 0 0 1.5px var(--line), 0 30px 60px -30px rgb(20 20 40 / 0.25);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.tb-eyebrow {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--orange);
+}
+
+.tb-panel h2 {
+  margin: 0;
+  font-family: "Unbounded Variable", sans-serif;
+  font-size: clamp(24px, 2.2vw, 32px);
+  font-weight: 750;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+.tb-lede {
+  margin: 16px 0 0;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.tb-panel p:not(.tb-eyebrow):not(.tb-lede):not(.tb-meta) {
+  margin: 14px 0 0;
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--fog);
+}
+
+.tb-now {
+  display: grid;
+  gap: 8px;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tb-now li {
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--bg);
+  font-size: 15px;
+}
+
+.tb-list {
+  display: grid;
+  gap: 8px;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tb-list button {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--bg);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tb-list button:hover {
+  transform: translateX(4px);
+}
+
+.tb-list b {
+  font-size: 16px;
+}
+
+.tb-list span {
+  font-size: 14px;
+  color: var(--fog);
+}
+
+.tb-group {
+  display: grid;
+  gap: 4px;
+  margin-top: 18px;
+}
+
+.tb-group b {
+  font-family: "Unbounded Variable", sans-serif;
+  font-size: 14px;
+}
+
+.tb-group span {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--fog);
+}
+
+.tb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tb-chips li {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.tb-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 22px;
+  font-weight: 700;
+}
+
+.tb-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: -6px 0 16px;
+  padding: 6px 12px 6px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tb-cta {
+  display: inline-flex;
+  align-items: center;
+  height: 56px;
+  margin-top: 24px;
+  padding: 0 28px;
+  border-radius: 999px;
+  background: var(--orange);
+  color: #1a0700;
+  font-family: "Unbounded Variable", sans-serif;
+  font-size: 16px;
+  font-weight: 750;
+  text-decoration: none;
+  box-shadow: 0 5px 0 #b83a0b;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.tb-cta:active {
+  transform: translateY(5px);
+  box-shadow: 0 0 0 #b83a0b;
+}
+
+.tb-meta {
+  margin: 20px 0 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--fog);
+}
+
+/* ---------- tab bar: chunky toy buttons ---------- */
+
+.tb-tabs {
+  position: fixed;
+  z-index: 10;
+  left: 50%;
+  bottom: 24px;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 999px;
+  background: var(--panel);
+  box-shadow: 0 0 0 1.5px var(--line), 0 20px 40px -24px rgb(20 20 40 / 0.35);
+  translate: -50% 0;
+}
+
+.tb-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 54px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--c);
+  color: #fff;
+  font-family: "Unbounded Variable", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: inset 0 -5px 0 rgb(0 0 0 / 0.22);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.2s ease;
+}
+
+.tb-tabs button:nth-child(3) {
+  color: var(--ink);
+}
+
+.dark .tb-tabs button:nth-child(3) {
+  color: #16161a;
+}
+
+.tb-tabs button:hover {
+  filter: brightness(1.06);
+}
+
+.tb-tabs button:active,
+.tb-tabs button.is-on {
+  transform: translateY(3px);
+  box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.22);
+}
+
+.tb-tabs button.is-on {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 900px) {
+  :root {
+    --xs-bottom: 108px;
+  }
+
+  .tb-top {
+    height: 64px;
+    padding: 0 14px;
+  }
+
+  .tb-brand {
+    font-size: 18px;
+  }
+
+  .tb-tools button {
+    height: 38px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .tb-panel {
+    top: 68px;
+    left: 12px;
+    right: 12px;
+    bottom: auto;
+    width: auto;
+    max-height: 36vh;
+    padding: 20px 20px 22px;
+    border-radius: 22px;
+  }
+
+  .tb-panel h2 {
+    font-size: 21px;
+  }
+
+  .tb-lede {
+    font-size: 15.5px;
+  }
+
+  .tb-tabs {
+    bottom: 14px;
+    gap: 6px;
+    padding: 6px;
+    max-width: calc(100vw - 24px);
+  }
+
+  .tb-tabs button {
+    height: 50px;
+    padding: 0 14px;
+  }
+
+  .tb-tabs button span {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

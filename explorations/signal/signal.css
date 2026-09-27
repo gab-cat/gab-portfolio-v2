@@ -1,0 +1,592 @@
+/*
+  Signal. After Lusion and Igloo Inc: a single particle system carries the
+  whole story. Mona Sans stretched wide and light for the voice, Geist Mono
+  for labels. Orange is reserved for accents inside the particles and the
+  primary button. Buttons are pills; nothing else has a radius.
+*/
+:root {
+  --bg: #efeee9;
+  --ink: #121211;
+  --fog: #5b5a56;
+  --line: rgb(18 18 17 / 0.14);
+  --accent: #e2480f;
+  --on-accent: #140600;
+  --grain: 0.09;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #060607;
+  --ink: #efebe4;
+  --fog: #8e8b85;
+  --line: rgb(239 235 228 / 0.14);
+  --accent: #ff6a3d;
+  --on-accent: #140600;
+  --grain: 0.07;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Mona Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.sg-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* ---------- stage ---------- */
+
+.sg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.sg-canvas.is-ready {
+  opacity: 1;
+}
+
+.sg-flat {
+  position: fixed;
+  right: 6vw;
+  top: 12vh;
+  z-index: 0;
+  height: 76vh;
+  width: auto;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+}
+
+.dark .sg-flat {
+  mix-blend-mode: screen;
+  filter: invert(1);
+}
+
+.sg-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: var(--grain);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- loader ---------- */
+
+.sg-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 28px 32px;
+  background: var(--bg);
+}
+
+.sg-loader-label {
+  padding-bottom: 1.6vw;
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+
+.sg-loader-count {
+  font-size: clamp(96px, 22vw, 360px);
+  font-weight: 200;
+  font-stretch: 125%;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- chrome ---------- */
+
+.sg-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+  padding: 0 32px;
+  mix-blend-mode: difference;
+  color: #efebe4;
+}
+
+.sg-mark {
+  font-size: 15px;
+  font-weight: 600;
+  font-stretch: 118%;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.sg-nav nav {
+  display: flex;
+  gap: 28px;
+  font-size: 14px;
+}
+
+.sg-nav nav a {
+  text-decoration: none;
+  opacity: 0.8;
+}
+
+.sg-nav nav a:hover {
+  opacity: 1;
+}
+
+.sg-index {
+  position: fixed;
+  left: 32px;
+  top: 50%;
+  z-index: 30;
+  display: grid;
+  gap: 10px;
+  translate: 0 -50%;
+}
+
+.sg-index a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: var(--fog);
+  transition: color 0.3s ease;
+}
+
+.sg-index i {
+  width: 14px;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.sg-index span {
+  opacity: 0;
+  translate: -6px 0;
+  transition: opacity 0.3s ease, translate 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.sg-index:hover span,
+.sg-index a.is-on span {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.sg-index a.is-on {
+  color: var(--ink);
+}
+
+.sg-index a.is-on i {
+  width: 36px;
+  background: var(--accent);
+}
+
+/* ---------- sections ---------- */
+
+.sg {
+  position: relative;
+  z-index: 1;
+}
+
+.sg-sec {
+  display: flex;
+  align-items: center;
+  min-height: 130vh;
+  padding: 0 32px 0 max(32px, 12vw);
+}
+
+.sg-copy {
+  max-width: 560px;
+}
+
+.sg-right {
+  justify-content: flex-end;
+  padding-right: max(32px, 9vw);
+}
+
+.sg-hero {
+  align-items: flex-end;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-bottom: 72px;
+}
+
+.sg-hero .sg-copy {
+  max-width: 720px;
+}
+
+.sg-label {
+  margin: 0 0 22px;
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+
+.sg-h1,
+.sg-h2 {
+  margin: 0;
+  font-weight: 250;
+  font-stretch: 125%;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+
+.sg-h1 {
+  font-size: clamp(56px, 8.2vw, 148px);
+}
+
+.sg-h2 {
+  font-size: clamp(44px, 5.4vw, 96px);
+}
+
+.sg-lede {
+  max-width: 34ch;
+  margin: 28px 0 0;
+  font-size: clamp(17px, 1.35vw, 21px);
+  font-stretch: 105%;
+  line-height: 1.5;
+  color: var(--fog);
+}
+
+.sg-body {
+  max-width: 40ch;
+  margin: 28px 0 0;
+  font-size: 18px;
+  font-stretch: 105%;
+  line-height: 1.55;
+  color: var(--fog);
+}
+
+.sg-note {
+  max-width: 40ch;
+  margin: 22px 0 0;
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--accent);
+}
+
+.sg-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  margin-top: 40px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+
+.sg-stat b {
+  font-size: clamp(44px, 4.6vw, 76px);
+  font-weight: 300;
+  font-stretch: 125%;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.sg-stat span {
+  max-width: 22ch;
+  color: var(--fog);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.sg-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+.sg-actions.is-center {
+  justify-content: center;
+}
+
+.sg-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 52px;
+  padding: 0 26px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 500;
+  font-stretch: 110%;
+  text-decoration: none;
+  white-space: nowrap;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.sg-btn:hover {
+  border-color: var(--ink);
+}
+
+.sg-btn.is-solid {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.sg-btn.is-big {
+  height: 64px;
+  padding: 0 38px;
+  font-size: 17px;
+}
+
+.sg-hint {
+  position: absolute;
+  right: 32px;
+  bottom: 76px;
+  margin: 0;
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+
+.sg-hero {
+  position: relative;
+}
+
+/* wins */
+.sg-wins {
+  margin: 40px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sg-wins li {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+
+.sg-wins span {
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.sg-wins b {
+  font-size: 19px;
+  font-weight: 450;
+  font-stretch: 110%;
+}
+
+.sg-wins small {
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--fog);
+}
+
+/* work */
+.sg-work {
+  padding-left: max(32px, 12vw);
+}
+
+.sg-wide {
+  width: 100%;
+  max-width: 1280px;
+}
+
+.sg-projects {
+  margin: 56px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sg-projects a {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 32px;
+  padding: 26px 0;
+  border-top: 1px solid var(--line);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.sg-projects li:last-child a {
+  border-bottom: 1px solid var(--line);
+}
+
+.sg-pname {
+  font-size: clamp(36px, 4.4vw, 76px);
+  font-weight: 250;
+  font-stretch: 125%;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  transition: font-weight 0.5s cubic-bezier(0.19, 1, 0.22, 1), color 0.3s ease;
+}
+
+.sg-projects a:hover .sg-pname {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.sg-pmeta span {
+  display: block;
+  font-size: 17px;
+}
+
+.sg-pmeta small {
+  display: block;
+  margin-top: 6px;
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--fog);
+}
+
+.sg-plink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--fog);
+}
+
+/* hello */
+.sg-hello {
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 110vh;
+  padding: 0 32px 12vh;
+}
+
+.sg-center {
+  text-align: center;
+}
+
+.sg-hello-line {
+  max-width: 30ch;
+  margin: 0 auto;
+  font-size: clamp(20px, 1.8vw, 28px);
+  font-weight: 350;
+  font-stretch: 112%;
+  line-height: 1.35;
+}
+
+.sg-contact-meta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin: 32px 0 0;
+  font-family: "Geist Mono Variable", ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--fog);
+}
+
+/* ---------- small screens: figures above, copy below ---------- */
+
+@media (max-width: 820px) {
+  .sg-nav {
+    padding: 0 18px;
+  }
+
+  .sg-index {
+    display: none;
+  }
+
+  .sg-sec,
+  .sg-right,
+  .sg-work {
+    align-items: flex-end;
+    justify-content: flex-start;
+    min-height: 120svh;
+    padding: 0 18px 12svh;
+  }
+
+  .sg-hero {
+    min-height: 100svh;
+    padding-bottom: 88px;
+  }
+
+  .sg-hint {
+    display: none;
+  }
+
+  .sg-body {
+    font-size: 16.5px;
+  }
+
+  .sg-wins li {
+    grid-template-columns: 1fr auto;
+    gap: 4px 12px;
+  }
+
+  .sg-wins span {
+    grid-column: 1 / -1;
+  }
+
+  .sg-projects a {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .sg-work {
+    align-items: center;
+  }
+
+  .sg-hello {
+    min-height: 100svh;
+    padding-bottom: 14svh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-canvas {
+    transition: none;
+  }
+}

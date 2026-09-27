@@ -2,11 +2,11 @@ import Lenis from "lenis";
 import { setScroller } from "./scroll";
 
 /** One Lenis instance for the homepage; skipped for reduced-motion users. */
-export function initLenis(): (() => void) | undefined {
+export function initLenis({ lerp = 0.12 }: { lerp?: number } = {}): (() => void) | undefined {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   const lenis = new Lenis({
-    lerp: 0.12,
+    lerp,
     wheelMultiplier: 1,
     touchMultiplier: 1.3,
   });

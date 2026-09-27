@@ -1,0 +1,1019 @@
+/*
+  The Line.
+  The career as a transit network: Overpass (drawn from US highway signage)
+  and Overpass Mono, four categorical line colours carried by real data, no
+  other accents. Radius: line badges and buttons are round, panels 10px.
+*/
+:root {
+  --bg: #f2f3f0;
+  --panel: #ffffff;
+  --ink: #14171a;
+  --fog: #5c636a;
+  --line: #d9dcd6;
+  --listen: #178a4e;
+  --build: #e8501f;
+  --ship: #2f56d9;
+  --play: #b8286f;
+  --board: #121416;
+  --board-ink: #f1efe9;
+  --board-fog: #8d949b;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0d1013;
+  --panel: #151a1e;
+  --ink: #e9ecee;
+  --fog: #98a1a9;
+  --line: #262d33;
+  --listen: #2fb36d;
+  --build: #ff6a3d;
+  --ship: #6384ff;
+  --play: #e2559b;
+  --board: #07090b;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Overpass Variable", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ship);
+  outline-offset: 3px;
+}
+
+/* ---------- badges + buttons ---------- */
+
+.ln-badge {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1;
+  padding-top: 2px;
+}
+
+.ln-badge.is-sm {
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+}
+
+.ln-badge.is-lg {
+  width: 44px;
+  height: 44px;
+  font-size: 21px;
+}
+
+.on-listen {
+  background: var(--listen);
+}
+
+.on-build {
+  background: var(--build);
+  color: #1b0a03;
+}
+
+.on-ship {
+  background: var(--ship);
+}
+
+.on-play {
+  background: var(--play);
+}
+
+.ln-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 50px;
+  padding: 2px 24px 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ln-btn:hover {
+  transform: translateY(-2px);
+}
+
+.ln-btn:active {
+  transform: scale(0.98);
+}
+
+.ln-btn.is-small {
+  height: 40px;
+  padding: 2px 18px 0;
+  font-size: 14px;
+}
+
+/* ---------- nav ---------- */
+
+.ln-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  height: 68px;
+  padding: 0 24px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.ln-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.ln-logo span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding-top: 2px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 16px;
+}
+
+.ln-nav nav {
+  display: flex;
+  gap: 24px;
+  margin-left: auto;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.ln-nav nav a {
+  text-decoration: none;
+  color: var(--fog);
+}
+
+.ln-nav nav a:hover {
+  color: var(--ink);
+}
+
+/* ---------- hero + map ---------- */
+
+.ln-hero {
+  position: relative;
+  padding: 8px 24px 0;
+}
+
+.ln-hero-copy {
+  position: absolute;
+  z-index: 2;
+  top: 24px;
+  left: 48px;
+  max-width: 560px;
+  pointer-events: none;
+}
+
+.ln-hero-copy h1 {
+  margin: 0;
+  font-size: clamp(44px, 5.6vw, 88px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.ln-hero-copy p {
+  max-width: 34ch;
+  margin: 20px 0 0;
+  color: var(--fog);
+  font-size: 19px;
+  line-height: 1.45;
+}
+
+.ln-legend {
+  position: absolute;
+  z-index: 2;
+  top: 32px;
+  right: 48px;
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: 0 0 0 1px var(--line);
+  list-style: none;
+}
+
+.ln-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.ln-legend small {
+  margin-left: 12px;
+  color: var(--fog);
+  font-family: "Overpass Mono Variable", ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.ln-map-scroll {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.ln-map-wrap {
+  position: relative;
+  min-width: 960px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.ln-map {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.ln-track,
+.ln-ext {
+  fill: none;
+  stroke-width: 11;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ln-track {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: ln-draw 1.3s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  animation-delay: calc(var(--i) * 0.18s);
+}
+
+.ln-ext {
+  stroke-dasharray: 2 16;
+  stroke-width: 9;
+  opacity: 0;
+  animation: ln-fade 0.6s ease forwards;
+  animation-delay: calc(1.2s + var(--i) * 0.12s);
+}
+
+@keyframes ln-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ln-fade {
+  to {
+    opacity: 0.9;
+  }
+}
+
+.ln-train {
+  stroke: var(--bg);
+  stroke-width: 2.5;
+}
+
+.ln-stn {
+  cursor: pointer;
+  opacity: 0;
+  animation: ln-fade 0.4s ease forwards;
+  animation-delay: var(--d);
+  outline: none;
+}
+
+.ln-hit {
+  fill: transparent;
+}
+
+.ln-dot {
+  fill: var(--bg);
+  stroke-width: 4.5;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.ln-dot.is-x,
+.ln-term {
+  fill: var(--bg);
+  stroke: var(--ink);
+  stroke-width: 4.5;
+}
+
+.ln-name {
+  fill: var(--ink);
+  font-family: "Overpass Variable", sans-serif;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.ln-name.is-big {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.ln-sub {
+  fill: var(--fog);
+  font-family: "Overpass Mono Variable", monospace;
+  font-size: 11px;
+}
+
+.ln-stn:hover .ln-dot,
+.ln-stn:focus-visible .ln-dot,
+.ln-stn.is-active .ln-dot {
+  transform: scale(1.35);
+}
+
+.ln-stn:focus-visible .ln-name,
+.ln-stn:hover .ln-name,
+.ln-stn.is-active .ln-name {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.ln-stn.is-active .ln-dot {
+  fill: var(--ink);
+}
+
+.is-still .ln-track,
+.is-still .ln-ext,
+.is-still .ln-stn {
+  animation: none;
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+.is-still .ln-ext {
+  opacity: 0.9;
+}
+
+.ln-drag {
+  display: none;
+}
+
+.ln-note {
+  margin: 4px 0 0;
+  padding: 0 24px;
+  color: var(--fog);
+  font-family: "Overpass Mono Variable", monospace;
+  font-size: 12px;
+  text-align: right;
+}
+
+/* station card, pinned to its station */
+.ln-card {
+  position: absolute;
+  z-index: 5;
+  width: 300px;
+  padding: 16px 18px 18px;
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: 0 0 0 1px var(--line), 0 24px 50px -20px rgb(10 20 30 / 0.35);
+  transform-origin: bottom left;
+  translate: -24px calc(-100% - 22px);
+}
+
+.ln-card.is-left {
+  transform-origin: bottom right;
+  translate: calc(-100% + 24px) calc(-100% - 22px);
+}
+
+.ln-card.is-below {
+  transform-origin: top left;
+  translate: -24px 22px;
+}
+
+.ln-card.is-left.is-below {
+  translate: calc(-100% + 24px) 22px;
+}
+
+.ln-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ln-card-lines {
+  display: flex;
+  gap: 4px;
+}
+
+.ln-card-top button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.ln-card h3 {
+  margin: 12px 0 6px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.ln-card p {
+  margin: 0;
+  color: var(--fog);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.ln-card .ln-btn {
+  margin-top: 14px;
+  height: 44px;
+  font-size: 15px;
+}
+
+.ln-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  color: var(--ship);
+}
+
+.ln-link:hover {
+  text-decoration: underline;
+}
+
+/* ---------- lines (tabs + strip map) ---------- */
+
+.ln-lines,
+.ln-departures {
+  width: min(100% - 48px, 1200px);
+  margin: 120px auto 0;
+}
+
+.ln-lines h2,
+.ln-departures h2 {
+  margin: 0;
+  font-size: clamp(40px, 5vw, 72px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.ln-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 36px;
+}
+
+.ln-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 0 0 1px var(--line);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ln-tabs button:hover {
+  transform: translateY(-2px);
+}
+
+.ln-tabs button.is-on {
+  box-shadow: 0 0 0 3px var(--c);
+}
+
+.ln-tabs b {
+  display: block;
+  font-size: 17px;
+}
+
+.ln-tabs small {
+  display: block;
+  color: var(--fog);
+  font-family: "Overpass Mono Variable", monospace;
+  font-size: 12px;
+}
+
+.ln-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 56px;
+  margin-top: 40px;
+}
+
+.ln-panel-copy h3 {
+  margin: 0;
+  font-size: clamp(30px, 3vw, 44px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.ln-panel-copy p {
+  max-width: 44ch;
+  margin: 18px 0 0;
+  color: var(--fog);
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.ln-panel-copy .ln-alert {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: inset 4px 0 0 var(--c);
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.ln-strip {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ln-strip li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 24px;
+  padding: 0 0 28px 44px;
+}
+
+.ln-strip li::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 8px;
+  bottom: -8px;
+  width: 10px;
+  background: var(--c);
+}
+
+.ln-strip li:last-child::before {
+  display: none;
+}
+
+.ln-strip li::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 4.5px var(--c);
+}
+
+.ln-strip li.is-x::after,
+.ln-strip li.is-terminal::after {
+  left: 3px;
+  top: 0;
+  width: 26px;
+  height: 26px;
+  box-shadow: inset 0 0 0 4.5px var(--ink);
+}
+
+.ln-strip-name b {
+  display: block;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.ln-strip-name > span {
+  display: block;
+  margin-top: 2px;
+  color: var(--fog);
+  font-family: "Overpass Mono Variable", monospace;
+  font-size: 12.5px;
+}
+
+.ln-strip-name .ln-change {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ln-strip p {
+  max-width: 56ch;
+  margin: 0;
+  color: var(--fog);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+/* ---------- departures board ---------- */
+
+.ln-departures > p {
+  margin: 14px 0 0;
+  color: var(--fog);
+  font-size: 18px;
+}
+
+.ln-board {
+  margin-top: 32px;
+  padding: 10px 24px 14px;
+  border-radius: 14px;
+  background: var(--board);
+  color: var(--board-ink);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.ln-board-head,
+.ln-board li {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1.4fr) minmax(0, 1fr) 120px;
+  align-items: center;
+  gap: 20px;
+}
+
+.ln-board-head {
+  padding: 12px 0;
+  color: var(--board-fog);
+  font-family: "Overpass Mono Variable", monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ln-board ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ln-board li {
+  padding: 18px 0;
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.ln-flap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  font-family: "Overpass Mono Variable", monospace;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.ln-flap span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 0.95em;
+  padding: 3px 1px 1px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.07);
+  box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.04);
+}
+
+.ln-dest > span {
+  display: block;
+  margin-top: 8px;
+  color: var(--board-fog);
+  font-size: 14px;
+}
+
+.ln-via {
+  color: var(--board-fog);
+  font-family: "Overpass Mono Variable", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ln-board a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  font-family: "Overpass Mono Variable", monospace;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: var(--board-ink);
+}
+
+.ln-board a.is-live {
+  color: #7be0a6;
+}
+
+.ln-board a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- terminus ---------- */
+
+.ln-terminus {
+  position: relative;
+  width: min(100% - 48px, 1200px);
+  margin: 140px auto 0;
+  padding: 64px 0 220px;
+}
+
+.ln-converge {
+  position: absolute;
+  left: calc(50% - 50vw);
+  right: 0;
+  bottom: 0;
+  width: calc(50vw + 50%);
+  height: 180px;
+  overflow: visible;
+}
+
+.ln-converge path {
+  fill: none;
+  stroke-width: 11;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.ln-terminus-cap {
+  position: absolute;
+  right: -8px;
+  bottom: 30px;
+  width: 36px;
+  height: 120px;
+  border-radius: 999px;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 5px var(--ink);
+}
+
+.ln-terminus-copy h2 {
+  margin: 0;
+  font-size: clamp(48px, 7.4vw, 120px);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+}
+
+.ln-terminus-copy p {
+  margin: 22px 0 0;
+  color: var(--fog);
+  font-size: 20px;
+}
+
+.ln-terminus-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.ln-mail {
+  font-family: "Overpass Mono Variable", monospace;
+  font-size: 15px;
+}
+
+.ln-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: min(100% - 48px, 1200px);
+  margin: 48px auto 0;
+  padding: 24px 0 40px;
+  color: var(--fog);
+  font-size: 14px;
+}
+
+.ln-foot-links {
+  display: flex;
+  gap: 16px;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 1100px) {
+  .ln-hero-copy,
+  .ln-legend {
+    position: static;
+  }
+
+  .ln-hero {
+    padding: 16px 16px 0;
+  }
+
+  .ln-hero-copy {
+    max-width: none;
+  }
+
+  .ln-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    margin: 24px 0 8px;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .ln-legend li {
+    display: flex;
+    gap: 8px;
+  }
+
+  .ln-legend small {
+    display: none;
+  }
+
+  .ln-map-scroll {
+    margin: 0 -16px;
+    padding: 8px 8px 0;
+  }
+
+  .ln-note {
+    padding: 0;
+    text-align: left;
+  }
+}
+
+@media (max-width: 960px) {
+  .ln-drag {
+    display: inline;
+  }
+
+  /* The map scrolls sideways here, so the station card becomes a bottom sheet. */
+  .ln-card,
+  .ln-card.is-left,
+  .ln-card.is-below,
+  .ln-card.is-left.is-below {
+    position: fixed;
+    z-index: 950;
+    left: 12px !important;
+    right: 12px;
+    top: auto !important;
+    bottom: 12px;
+    width: auto;
+    translate: none;
+    transform-origin: bottom center;
+  }
+}
+
+@media (max-width: 860px) {
+  .ln-nav {
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .ln-nav nav {
+    display: none;
+  }
+
+  .ln-logo {
+    margin-right: auto;
+  }
+
+  .ln-lines,
+  .ln-departures,
+  .ln-terminus,
+  .ln-foot {
+    width: calc(100% - 32px);
+  }
+
+  .ln-lines,
+  .ln-departures {
+    margin-top: 80px;
+  }
+
+  .ln-tabs {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ln-tabs button {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .ln-tabs .ln-badge.is-lg {
+    width: 34px;
+    height: 34px;
+    font-size: 17px;
+  }
+
+  .ln-panel {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .ln-strip li {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .ln-board {
+    padding: 4px 16px 8px;
+  }
+
+  .ln-board-head {
+    display: none;
+  }
+
+  .ln-board li {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px 14px;
+  }
+
+  .ln-via,
+  .ln-board a {
+    grid-column: 2;
+  }
+
+  .ln-board a {
+    justify-content: flex-start;
+  }
+
+  .ln-flap {
+    font-size: 17px;
+  }
+
+  .ln-terminus {
+    margin-top: 96px;
+    padding-bottom: 200px;
+  }
+
+  .ln-terminus-cap {
+    right: 0;
+  }
+
+  .ln-foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 80px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .ln-track,
+  .ln-ext,
+  .ln-stn {
+    animation: none !important;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
