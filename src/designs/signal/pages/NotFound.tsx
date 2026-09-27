@@ -5,10 +5,8 @@ import { FIGURE, only, signal } from "../scene/stage";
 
 export default function NotFound() {
   useEffect(() => {
-    signal.show(only(FIGURE.lost, 0.12));
-    // Now and then the picture drops out, like a channel with no signal.
-    const glitch = window.setInterval(() => signal.kick(0.5), 3800);
-    return () => clearInterval(glitch);
+    // A radar sweeping an empty sky.
+    signal.show(only(FIGURE.lost));
   }, []);
 
   return (

@@ -8,9 +8,10 @@ import { FIGURE, only, signal, smoothstep } from "../scene/stage";
 const READOUT = ["No signal yet", "Picking you up", "Coming through", "Almost clear", "Loud and clear"];
 
 /**
- * The waveform listens while you write: flat when the form is empty, taller
- * as each field comes good, with a ripple on every keystroke. Sending bursts
- * it into noise and re-forms the globe around Naga City.
+ * A Lissajous curve tunes in while you write: a loose, noisy cloud when the
+ * form is empty, pulling into a crisp knot as each field comes good, with a
+ * ripple on every keystroke. Sending bursts it into noise and re-forms the
+ * globe around Naga City.
  */
 export default function Contact() {
   const { token, status, error, refresh, submit } = useContactForm();
@@ -18,7 +19,7 @@ export default function Contact() {
   const [length, setLength] = useState(0);
   const copy = useRef<HTMLDivElement>(null);
   const sent = useRef<HTMLDivElement>(null);
-  const figure = status === "sent" ? FIGURE.globe : FIGURE.wave;
+  const figure = status === "sent" ? FIGURE.globe : FIGURE.lissajous;
 
   // Hold the figure; on phones it sits above the form, so fade it back as the form scrolls up.
   useEffect(() => {

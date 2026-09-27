@@ -11,7 +11,7 @@ const CHAPTERS = [
   { id: "story", label: "Listen", figure: FIGURE.wave },
   { id: "craft", label: "Build", figure: FIGURE.lattice },
   { id: "journey", label: "Ship", figure: FIGURE.globe },
-  { id: "wins", label: "Wins", figure: FIGURE.seven },
+  { id: "wins", label: "Wins", figure: FIGURE.trophy },
   { id: "work", label: "Work", figure: FIGURE.field },
   { id: "hello", label: "Hello", figure: FIGURE.hello },
 ] as const;
@@ -214,8 +214,8 @@ export default function Home() {
             <p className="sg-label">2024 – 2025 · Hackathons and CTFs</p>
             <Lines id="wins-title" className="sg-h2" lines={["Seven podiums,", "so far."]} />
             <Stagger as="ol" className="sg-wins">
-              {TROPHIES.map((trophy) => (
-                <li key={trophy.event}>
+              {TROPHIES.map((trophy, i) => (
+                <li key={trophy.event} onPointerEnter={() => signal.focus(i)} onPointerLeave={() => signal.focus(null)}>
                   <span>{trophy.place}</span>
                   <b>{trophy.event}</b>
                   <em>{trophy.detail}</em>
@@ -258,11 +258,9 @@ export default function Home() {
               A project, a role, or a what if you can’t shake. Tell me about it.
             </Rise>
             <Rise className="sg-actions is-center" delay={0.1}>
-              <Magnetic strength={0.4}>
-                <Link className="sg-btn is-solid is-big" href="/contact">
-                  Get in touch
-                </Link>
-              </Magnetic>
+              <Link className="sg-btn is-solid is-big" href="/contact">
+                Get in touch
+              </Link>
             </Rise>
             <p className="sg-contact-meta">
               <a href={`mailto:${EMAIL}`}>{EMAIL}</a>

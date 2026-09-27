@@ -13,7 +13,7 @@ imports only the live one through the `@design` alias, so the others never ship.
 
 | Design | What it is | Status |
 | --- | --- | --- |
-| `signal` | One GPU particle field (36,000 points on desktop, custom GLSL) that re-forms for each chapter. The hero is a black hole: the disk orbits (inner edge fastest), its far side bends up over the shadow, and stars bend around it as they drift past. Then a waveform, a lattice, a globe with arcs leaving Naga City, a seven, "hello." The contact waveform listens as you type; the 404 has no signal. | **Live** |
+| `signal` | One GPU particle field (36,000 points on desktop, custom GLSL) that re-forms for each chapter. The hero is a black hole: the disk orbits (inner edge fastest), its far side bends up over the shadow, and stars bend around it as they drift past. Then a travelling waveform, a lattice that twists like a puzzle, a dotted globe whose arcs carry light out of the Philippines to the countries the work has reached, a trophy with seven lights circling it, one per podium (hover a row to light its own), drifting dust, and a still "hello." whose full stop sends out rings that light the word as they pass. The contact page has a Lissajous curve that tunes in from noise to a crisp knot as you fill in the form; the 404 is a radar sweeping an empty sky. Every figure keeps moving and is complete the moment it appears. | **Live** |
 | `clay` | The hand-made clay world: procedural 3D machine hero, clay chapters, a postbox contact page, and the hero terminal (`help`, `coffee`, `sudo hire-me`). | Archived, still builds |
 
 - **Ship a different design:** change `LIVE_DESIGN` in `src/designs/live.ts`.

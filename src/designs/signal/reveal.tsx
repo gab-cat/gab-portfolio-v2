@@ -77,7 +77,7 @@ function useReveal(ref: RefObject<HTMLElement | null>, { parts, from, to, durati
 }
 
 const RISE = { from: { opacity: "0", transform: "translateY(24px)" }, to: { opacity: "1", transform: "translateY(0px)" } };
-const LINE = { from: { transform: "translateY(110%)" }, to: { transform: "translateY(0%)" } };
+const LINE = { from: { transform: "translateY(130%)" }, to: { transform: "translateY(0%)" } };
 
 type Common = { as?: ElementType; className?: string; id?: string; delay?: number };
 

@@ -48,12 +48,15 @@
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.6",
     "@types/three": "^0.185.4",
+    "@types/topojson-client": "^3.1.5",
     "@vitejs/plugin-react": "^4.5.1",
     "cannon-es": "^0.20.0",
     "puppeteer-core": "^25.4.0",
     "qrcode": "^1.5.4",
     "tailwindcss": "^4.1.8",
+    "topojson-client": "^3.1.0",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "world-atlas": "^2.0.2"
   }
 }

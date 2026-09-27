@@ -10,13 +10,14 @@ export const FIGURE = {
   wave: 1,
   lattice: 2,
   globe: 3,
-  seven: 4,
+  trophy: 4,
   field: 5,
   hello: 6,
   lost: 7,
+  lissajous: 8,
 } as const;
 
-export const FIGURES = 8;
+export const FIGURES = 9;
 
 export type Scene = {
   /** How much of each figure to show; the field eases toward it. */
@@ -42,10 +43,12 @@ export type FieldController = {
   set: (scene: Scene) => void;
   /** A one-off shove of noise that decays on its own: a send, an error. */
   kick: (amount: number) => void;
-  /** Height of the waveform figure. 1 is its natural shape, near 0 a flat line. */
+  /** Height of the waveform figure (1 its natural shape, near 0 a flat line), and how clearly the contact page's Lissajous curve comes through. */
   level: (value: number) => void;
-  /** A ripple along the waveform, like a keystroke landing. */
+  /** A ripple along the waveform and the Lissajous curve, like a keystroke landing. */
   beat: (amount: number) => void;
+  /** Light up one of the seven lights circling the wins trophy (its row is hovered), or none. */
+  focus: (index: number | null) => void;
   dispose: () => void;
 };
 
@@ -78,6 +81,9 @@ export const signal = {
   },
   beat(amount: number) {
     field?.beat(amount);
+  },
+  focus(index: number | null) {
+    field?.focus(index);
   },
 };
 

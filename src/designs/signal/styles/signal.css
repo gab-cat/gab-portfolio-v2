@@ -452,8 +452,8 @@ main:focus {
 .sg-ln {
   display: block;
   overflow: hidden;
-  padding-bottom: 0.06em;
-  margin-bottom: -0.06em;
+  padding-bottom: 0.22em;
+  margin-bottom: -0.22em;
 }
 
 .sg-ln > span {
