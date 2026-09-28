@@ -824,113 +824,138 @@ main:focus {
 }
 
 .sg-contact .sg-copy {
-  max-width: 620px;
-}
-
-.sg-contact .sg-lede {
-  max-width: 36ch;
-}
-
-.sg-direct {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 20px;
-  margin-top: 20px;
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--fog);
-}
-
-.sg-direct a {
-  text-underline-offset: 4px;
-}
-
-.sg-direct a:hover {
-  color: var(--ink);
+  max-width: 600px;
 }
 
 .sg-form {
-  margin-top: 48px;
+  position: relative;
+  margin-top: 64px;
 }
 
 .sg-fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 28px 24px;
+  gap: 40px 28px;
   margin: 0;
   padding: 0;
   border: 0;
   min-width: 0;
+  transition: opacity 0.4s ease;
 }
 
+.sg-form[aria-busy="true"] .sg-fields {
+  opacity: 0.5;
+}
+
+/* The label sits in the field like a placeholder and lifts out of the way once you write. */
 .sg-field {
-  display: grid;
-  gap: 10px;
+  position: relative;
+  display: block;
+  padding-top: 20px;
 }
 
 .sg-field.is-full {
   grid-column: 1 / -1;
 }
 
-.sg-field > span,
-.sg-topics legend {
-  padding: 0;
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.sg-field::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+  transform-origin: right;
+  transition: background-color 0.3s ease, transform 0.9s var(--ease);
+}
+
+.sg-field:focus-within::after {
+  background: var(--accent);
+}
+
+.sg-field > span {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  font-size: 19px;
+  font-stretch: 108%;
+  line-height: 1.45;
   color: var(--fog);
+  transform-origin: left top;
+  pointer-events: none;
+  transition: transform 0.5s var(--ease), color 0.3s ease, opacity 0.4s ease;
+}
+
+.sg-field:focus-within > span,
+.sg-field:has(:is(input, textarea):not(:placeholder-shown)) > span {
+  transform: translateY(-30px) scale(0.68);
+}
+
+.sg-field:focus-within > span {
+  color: var(--ink);
 }
 
 .sg-field input,
 .sg-field textarea {
+  display: block;
   width: 100%;
   padding: 10px 0 12px;
   border: 0;
-  border-bottom: 1px solid var(--line);
   border-radius: 0;
   background: transparent;
+  color: inherit;
   font-size: 19px;
   font-stretch: 108%;
   line-height: 1.45;
-  transition: border-color 0.3s ease;
+  outline: none;
 }
 
 .sg-field textarea {
-  min-height: 132px;
-  resize: vertical;
+  min-height: calc(3 * 1.45em + 22px);
+  overflow: hidden;
+  resize: none;
 }
 
-.sg-field input::placeholder,
-.sg-field textarea::placeholder {
+.sg-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-style: normal;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
   color: var(--fog);
-  opacity: 0.7;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.sg-field input:focus,
-.sg-field textarea:focus {
-  outline: none;
-  border-bottom-color: var(--accent);
+.sg-field:focus-within .sg-count {
+  opacity: 1;
 }
 
-.sg-field input:focus-visible,
-.sg-field textarea:focus-visible {
-  box-shadow: 0 1px 0 var(--accent);
-}
-
+/* Topics read as one quiet line of text, not a row of buttons. */
 .sg-topics {
   grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px 26px;
   margin: 0;
   padding: 0;
   border: 0;
   min-width: 0;
 }
 
-.sg-topics div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+.sg-topics legend {
+  float: left;
+  padding: 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fog);
 }
 
 .sg-topics label {
@@ -940,46 +965,48 @@ main:focus {
 .sg-topics input {
   position: absolute;
   inset: 0;
+  margin: 0;
   opacity: 0;
   cursor: pointer;
 }
 
 .sg-topics span {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  height: 40px;
-  padding: 0 18px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-size: 14.5px;
+  font-size: 15.5px;
   font-stretch: 108%;
-  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  color: var(--fog);
+  transition: color 0.25s ease;
 }
 
-.sg-topics label:hover span {
-  border-color: var(--ink);
+/* The selected dot hangs in the gap, so unselected topics don't carry empty space. */
+.sg-topics span::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: calc(50% - 3px);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: scale(0);
+  transition: transform 0.45s var(--ease);
 }
 
+.sg-topics label:hover span,
 .sg-topics input:checked + span {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--bg);
+  color: var(--ink);
+}
+
+.sg-topics input:checked + span::before {
+  transform: scale(1);
 }
 
 .sg-topics input:focus-visible + span {
   outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
-
-.sg-hint {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: -16px;
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--fog);
+  outline-offset: 4px;
+  border-radius: 2px;
 }
 
 .sg-trap {
@@ -995,7 +1022,7 @@ main:focus {
   flex-wrap: wrap;
   align-items: center;
   gap: 16px 28px;
-  margin-top: 36px;
+  margin-top: 48px;
 }
 
 .sg-meter {
@@ -1031,12 +1058,34 @@ main:focus {
   background: var(--accent);
 }
 
-.sg-privacy {
-  max-width: 52ch;
-  margin-top: 24px;
+.sg-meter.is-busy i {
+  animation: sg-carrier 0.9s ease-in-out infinite;
+}
+
+.sg-meter.is-busy i:nth-child(2) { animation-delay: 0.1s; }
+.sg-meter.is-busy i:nth-child(3) { animation-delay: 0.2s; }
+.sg-meter.is-busy i:nth-child(4) { animation-delay: 0.3s; }
+
+@keyframes sg-carrier {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.sg-alt {
+  margin-top: 28px;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--fog);
+}
+
+.sg-alt a {
+  text-underline-offset: 4px;
+  transition: color 0.25s ease;
+}
+
+.sg-alt a:hover {
+  color: var(--ink);
 }
 
 .sg-error {
@@ -1062,34 +1111,127 @@ main:focus {
   cursor: pointer;
 }
 
+/* Sending: the typed words fly off (see transmit() in Contact.tsx) while everything else lets go. */
+.sg-form.is-leaving .sg-fields {
+  opacity: 1;
+}
+
+.sg-form.is-leaving .sg-field input,
+.sg-form.is-leaving .sg-field textarea {
+  color: transparent;
+  caret-color: transparent;
+}
+
+.sg-form.is-leaving .sg-field::after {
+  transform: scaleX(0);
+  transition-delay: 0.25s;
+}
+
+.sg-form.is-leaving .sg-field > span,
+.sg-form.is-leaving .sg-count,
+.sg-form.is-leaving .sg-topics,
+.sg-form.is-leaving .sg-send,
+.sg-form.is-leaving .sg-alt {
+  opacity: 0;
+  filter: blur(6px);
+  translate: 0 -10px;
+  transition: opacity 0.6s ease, filter 0.6s ease, translate 0.8s var(--ease);
+}
+
+.sg-form.is-leaving .sg-topics { transition-delay: 0.1s; }
+.sg-form.is-leaving .sg-send { transition-delay: 0.2s; }
+.sg-form.is-leaving .sg-alt { transition-delay: 0.28s; }
+
+.sg-dust {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sg-dust > div {
+  position: absolute;
+  color: var(--ink);
+}
+
+.sg-word {
+  white-space: nowrap;
+}
+
+.sg-word,
+.sg-word > span {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
 .sg-sent {
-  margin-top: 48px;
-  padding-top: 32px;
-  border-top: 1px solid var(--line);
+  margin-top: 64px;
 }
 
 .sg-sent:focus {
   outline: none;
 }
 
+.sg-stamp {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fog);
+}
+
+.sg-stamp i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: sg-carrier 2.4s ease-in-out infinite;
+}
+
 .sg-sent h2 {
-  font-size: clamp(36px, 4vw, 64px);
+  font-size: clamp(40px, 4.4vw, 72px);
   font-weight: 250;
   font-stretch: 125%;
   letter-spacing: -0.045em;
-  line-height: 1;
+  line-height: 0.98;
 }
 
-.sg-sent p {
-  max-width: 40ch;
-  margin-top: 18px;
+.sg-sent p:not(.sg-stamp) {
+  max-width: 36ch;
+  margin-top: 22px;
   font-size: 18px;
   line-height: 1.5;
   color: var(--fog);
 }
 
 .sg-sent .sg-actions {
-  margin-top: 28px;
+  margin-top: 36px;
+}
+
+/* Dev server only: replays the send sequence without posting anything. */
+.sg-devsend {
+  position: fixed;
+  left: var(--gutter);
+  bottom: 24px;
+  z-index: 60;
+  padding: 8px 12px;
+  border: 1px dashed var(--accent);
+  border-radius: 999px;
+  background: var(--bg);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.sg-devsend:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 /* ---------- 404 ---------- */
