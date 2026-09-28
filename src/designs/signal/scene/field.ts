@@ -694,8 +694,9 @@ vec3 trophy(vec4 t, out float lit, out float grow, out float tone) {
       n = vec3(cos(a) * outward, up, sin(a) * outward);
       p = vec3(cos(a) * t.z, t.y, sin(a) * t.z);
     } else {
-      n = spinY(normalize(t.xyz - vec3(sign(t.x) * 0.5, 0.3, 0.0)), spin);
-      p = spinY(t.xyz, spin);
+      // spinY turns the other way from the body's angle + spin, so turn by -spin to keep pace.
+      n = spinY(normalize(t.xyz - vec3(sign(t.x) * 0.5, 0.3, 0.0)), -spin);
+      p = spinY(t.xyz, -spin);
     }
     float glint;
     lit = shade(n, glint);
