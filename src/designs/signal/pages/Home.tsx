@@ -1,6 +1,7 @@
 import { ArrowUpRight, GithubLogo, LinkedinLogo } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { Link } from "../../../lib/router";
+import { dial, Dial } from "../Dial";
 import { CRAFTS, EMAIL, ROLES, SOCIALS, TROPHIES, WORK, hostOf } from "../content";
 import { Magnetic } from "../Magnetic";
 import { Lines, Rise, Stagger } from "../reveal";
@@ -55,14 +56,20 @@ function useChapters() {
     // Page positions are measured only when the layout changes, so each frame just reads scrollY.
     const middles: number[] = [];
     const copyTops: number[] = [];
+    let end = 1;
     const measure = () => {
       const y = window.scrollY;
+      const vh = window.innerHeight;
+      end = Math.max(1, document.documentElement.scrollHeight - vh);
       sections.forEach((el, i) => {
         const box = el.getBoundingClientRect();
         middles[i] = box.top + y + box.height / 2;
         copyTops[i] = (el.firstElementChild?.getBoundingClientRect().top ?? box.top) + y;
       });
+      // Each chapter's station on the dial is where the page locks onto it.
+      dial.stations = middles.map((middle) => Math.min(1, Math.max(0, (middle - vh / 2) / end)));
     };
+    let lastY = window.scrollY;
     measure();
     const resized = new ResizeObserver(measure);
     resized.observe(document.body);
@@ -83,7 +90,11 @@ function useChapters() {
       if (i < CHAPTERS.length - 1) weights[CHAPTERS[i + 1].figure] += t;
       // On phones the figure sits above the copy; fade it back as long copy scrolls up into it.
       const dim = window.innerWidth < 820 ? 0.1 + 0.9 * smoothstep(vh * 0.14, vh * 0.5, copyTops[now] - y) : 1;
-      signal.show({ weights: [...weights], chaos: Math.sin(Math.PI * t), dim });
+      const chaos = Math.sin(Math.PI * t);
+      signal.show({ weights: [...weights], chaos, dim });
+      dial.progress = Math.min(1, Math.max(0, y / end));
+      dial.noise = Math.max(chaos, Math.min(1, Math.abs(y - lastY) / 50));
+      lastY = y;
       setActive((prev) => (prev === now ? prev : now));
     };
     raf = requestAnimationFrame(tick);
@@ -102,19 +113,8 @@ export default function Home() {
 
   return (
     <>
-      <nav className="sg-index" aria-label="Chapters">
-        {CHAPTERS.map((chapter, i) => (
-          <Link
-            key={chapter.id}
-            href={`/#${chapter.id}`}
-            className={i === active ? "is-on" : undefined}
-            aria-current={i === active ? "location" : undefined}
-          >
-            <i aria-hidden="true" />
-            <span>{chapter.label}</span>
-          </Link>
-        ))}
-      </nav>
+      {/* The hero and the closing call to action stay clear of it. */}
+      <Dial stations={CHAPTERS} active={active} away={active === 0 || active === CHAPTERS.length - 1} />
 
       <main id="main" tabIndex={-1}>
         <section id="top" className="sg-sec sg-hero" aria-labelledby="hero-title">

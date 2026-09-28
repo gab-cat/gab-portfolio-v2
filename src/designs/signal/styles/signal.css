@@ -62,6 +62,11 @@ html {
   background: var(--bg);
   scroll-behavior: auto; /* Lenis owns smooth scrolling on the home page */
   overflow-x: clip;
+  scrollbar-width: none; /* the home page's tuner dial shows progress instead */
+}
+
+html::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -329,58 +334,118 @@ html.theme-fade * {
   scale: 0.94;
 }
 
-/* ---------- chapter rail (home) ---------- */
+/* ---------- tuner dial (home): scroll progress as a radio band ---------- */
 
-.sg-index {
+.sg-dial {
   position: fixed;
   left: var(--gutter);
   top: 50%;
   z-index: 30;
-  display: grid;
-  gap: 10px;
+  width: 52px;
+  height: min(60vh, 560px);
   translate: 0 -50%;
+  /* Tuning in: the band opens out from its middle like a CRT warming up. */
+  clip-path: inset(-24px -140px -24px -12px);
+  transition:
+    clip-path 0.9s var(--ease),
+    opacity 0.5s ease,
+    filter 0.7s ease;
 }
 
-.sg-index a {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* Tuned out on the hero and the closing call to action: it collapses to a line and fades. */
+.sg-dial.is-away {
+  clip-path: inset(50% -140px 50% -12px);
+  opacity: 0;
+  filter: blur(6px);
+  pointer-events: none;
+  transition:
+    clip-path 0.7s var(--ease),
+    opacity 0.6s ease 0.1s,
+    filter 0.6s ease;
+}
+
+.sg-dial canvas {
+  width: 100%;
+  height: 100%;
+  mask-image: linear-gradient(transparent, #000 12px, #000 calc(100% - 12px), transparent);
+}
+
+.sg-dial-tag,
+.sg-dial a {
   font-family: var(--mono);
   font-size: 11px;
+  line-height: 12px;
   letter-spacing: 0.08em;
-  text-decoration: none;
   text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Rides the needle; the scroll loop moves it. */
+.sg-dial-tag {
+  position: absolute;
+  top: -12px;
+  left: calc(100% + 10px);
+  display: grid;
+  gap: 1px;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  will-change: transform;
+}
+
+.sg-dial-tag span {
+  color: var(--ink);
+}
+
+.sg-dial-tag i {
+  font-style: normal;
+}
+
+.sg-dial-tag b {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+.sg-dial-tag small {
+  margin-left: 4px;
+  font-size: 9px;
   color: var(--fog);
-  transition: color 0.3s ease;
 }
 
-.sg-index i {
-  width: 14px;
-  height: 1px;
-  background: currentColor;
-  transition: width 0.4s var(--ease);
+.sg-dial a {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  height: 24px;
+  margin-top: -12px;
+  padding-left: calc(52px + 10px);
+  color: var(--fog);
+  text-decoration: none;
 }
 
-.sg-index span {
+.sg-dial a span {
   opacity: 0;
   translate: -6px 0;
-  transition: opacity 0.3s ease, translate 0.4s var(--ease);
+  transition: opacity 0.3s ease, translate 0.4s var(--ease), color 0.2s ease;
 }
 
-.sg-index:hover span,
-.sg-index:focus-within span,
-.sg-index a.is-on span {
+/* Hovering the band trades the moving readout for every station's name. */
+.sg-dial:hover .sg-dial-tag,
+.sg-dial:focus-within .sg-dial-tag {
+  opacity: 0;
+}
+
+.sg-dial:hover a span,
+.sg-dial:focus-within a span {
   opacity: 1;
   translate: 0 0;
 }
 
-.sg-index a.is-on {
+.sg-dial a.is-on span,
+.sg-dial a:hover span,
+.sg-dial a:focus-visible span {
   color: var(--ink);
-}
-
-.sg-index a.is-on i {
-  width: 36px;
-  background: var(--accent);
 }
 
 /* ---------- sections ---------- */
@@ -1462,7 +1527,7 @@ main:focus {
     gap: 0;
   }
 
-  .sg-index {
+  .sg-dial {
     display: none;
   }
 
@@ -1574,5 +1639,12 @@ main:focus {
 
   .sg-pname {
     transition: color 0.3s ease;
+  }
+
+  .sg-dial,
+  .sg-dial.is-away {
+    clip-path: none;
+    filter: none;
+    transition: opacity 0.3s ease;
   }
 }
