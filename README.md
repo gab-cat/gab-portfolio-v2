@@ -84,8 +84,13 @@ Set these **server-side** environment variables in Vercel, then redeploy:
 | --- | --- |
 | `RESEND_API_KEY` | A Resend key with sending access for the verified domain |
 | `CONTACT_ORIGIN` | `https://gabcat.dev` (exact browser origin, no trailing slash) |
-| `UPSTASH_REDIS_REST_URL` | HTTPS REST endpoint from an Upstash Redis database |
-| `UPSTASH_REDIS_REST_TOKEN` | Database REST token with read/write and EVAL access |
+| `CONTACT_KV_REST_API_URL` | HTTPS REST endpoint of the Upstash Redis database (set by the Vercel Upstash integration with the `CONTACT_` prefix) |
+| `CONTACT_KV_REST_API_TOKEN` | Its read/write REST token (needs EVAL) |
+
+The handler also accepts `UPSTASH_REDIS_REST_URL`/`_TOKEN` or `KV_REST_API_URL`/`_TOKEN`,
+and falls back to a TCP `CONTACT_REDIS_URL` or `REDIS_URL`. REST is checked first. If the
+store is missing or unreachable the form fails closed and the function logs
+`contact form unavailable: <cause>`, so check the function logs when the form returns 503.
 
 Verify `generalsonline.app` in Resend and publish the required DNS records. The
 sender is fixed to `Gabcat Portfolio <contact@generalsonline.app>`. Messages are

@@ -17,10 +17,19 @@ async function redisUrlCommand(url: string, args: (string | number)[]) {
   if (!redis || redisUrl !== url || !redis.isOpen) {
     if (redis?.isOpen) await redis.close().catch(() => undefined);
     redisUrl = url;
-    redis = createClient({ url, socket: { connectTimeout: 4000 } });
-    await redis.connect();
+    // Fail fast: no endless reconnect loop and no queued commands while the store is down.
+    // The next request opens a fresh connection instead.
+    const client: RedisClientType = createClient({ url, disableOfflineQueue: true, socket: { connectTimeout: 4000, reconnectStrategy: false } });
+    client.on("error", () => undefined);
+    redis = client;
+    try { await client.connect(); } catch (error) { redis = undefined; throw error; }
   }
   return asNumber(await redis.sendCommand(args.map(String)));
+}
+
+// The first name set wins. Covers the names Upstash and Redis use on Vercel, with and without our CONTACT_ prefix.
+function pick(env: ContactEnv, ...names: string[]) {
+  for (const name of names) if (env[name]) return env[name];
 }
 const MAX_BYTES = 16_384;
 const TTL = 1800;
@@ -72,16 +81,18 @@ export function createContactHandler(deps: Dependencies) {
   const now = deps.now ?? Date.now;
   const sign = (value: string) => createHmac("sha256", env.RESEND_API_KEY!).update(`portfolio-contact:${value}`).digest("base64url");
   const command: Command = deps.command ?? (async (args) => {
-    const endpoint = env.UPSTASH_REDIS_REST_URL;
-    if (endpoint?.startsWith("https://") && env.UPSTASH_REDIS_REST_TOKEN) {
-      const result = await requestFetch(endpoint, { method: "POST", headers: { Authorization: `Bearer ${env.UPSTASH_REDIS_REST_TOKEN}`, "Content-Type": "application/json" }, body: JSON.stringify(args), signal: AbortSignal.timeout(4000) });
-      if (!result.ok) throw new Error("Protection unavailable");
+    const endpoint = pick(env, "UPSTASH_REDIS_REST_URL", "CONTACT_KV_REST_API_URL", "KV_REST_API_URL");
+    const token = pick(env, "UPSTASH_REDIS_REST_TOKEN", "CONTACT_KV_REST_API_TOKEN", "KV_REST_API_TOKEN");
+    if (endpoint?.startsWith("https://") && token) {
+      const result = await requestFetch(endpoint, { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(args), signal: AbortSignal.timeout(4000) });
+      if (!result.ok) throw new Error(`Redis REST returned ${result.status}`);
       const data = await result.json() as { result: unknown; error?: string };
-      if (data.error || data.result === undefined) throw new Error("Protection unavailable");
+      if (data.error || data.result === undefined) throw new Error(`Redis REST error: ${data.error ?? "no result"}`);
       return data.result;
     }
-    if (env.REDIS_URL?.startsWith("redis")) return redisUrlCommand(env.REDIS_URL, args);
-    throw new Error("Protection not configured");
+    const url = pick(env, "CONTACT_REDIS_URL", "REDIS_URL");
+    if (url?.startsWith("redis")) return redisUrlCommand(url, args);
+    throw new Error("Rate-limit store not configured");
   });
   async function limit(key: string, max: number, seconds: number) {
     const count = await command(["EVAL", LIMIT_SCRIPT, 1, `contact:${key}`, seconds]);
@@ -94,6 +105,7 @@ export function createContactHandler(deps: Dependencies) {
       const origin = env.CONTACT_ORIGIN ?? "https://gabcat.dev";
       const suppliedOrigin = request.headers.get("origin");
       if ((request.method === "POST" && suppliedOrigin !== origin) || (suppliedOrigin && suppliedOrigin !== origin) || request.headers.get("sec-fetch-site") === "cross-site") throw new HttpError(403, "Please send your message from the contact page.");
+      if (!env.RESEND_API_KEY || !trustedIP) console.error("contact form unavailable:", !env.RESEND_API_KEY ? "RESEND_API_KEY not set" : "no trusted client IP");
       if (!env.RESEND_API_KEY || !trustedIP) throw new HttpError(503, "The contact form is taking a break. Please email me directly.");
       const ip = sign(trustedIP);
       await limit(`${request.method === "GET" ? "form" : "attempt"}:${ip}`, request.method === "GET" ? 30 : 8, 900);
@@ -143,7 +155,9 @@ export function createContactHandler(deps: Dependencies) {
       return json(200, { ok: true });
     } catch (error) {
       if (error instanceof HttpError) return json(error.status, { error: error.message }, error.retryAfter ? { "Retry-After": String(error.retryAfter) } : {});
-      // No contact details, provider payloads, or secrets are logged or returned.
+      // Log the cause so an outage shows up in the function logs. These messages come from the
+      // store client or this file and carry no contact details, provider payloads or secrets.
+      console.error("contact form unavailable:", error instanceof Error ? error.message : "unknown error");
       return json(503, { error: "The contact form is unavailable right now. Please try again later, or email me directly." });
     }
   };

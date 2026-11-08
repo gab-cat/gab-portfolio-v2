@@ -129,4 +129,17 @@ describe("contact server boundary", () => {
     const other = createContactHandler({ env: f.env, command: f.command });
     expect((await other(new Request("https://gabcat.dev/api/contact", { method: "POST", headers: { Origin: f.env.CONTACT_ORIGIN } }), "203.0.113.42")).status).toBe(429);
   });
+  test("uses the Upstash REST variables Vercel sets, with or without the CONTACT_ prefix", async () => {
+    for (const prefix of ["", "CONTACT_"]) {
+      const calls: { url: string; auth: string }[] = [];
+      const store: typeof fetch = (async (url: string, init: RequestInit) => {
+        calls.push({ url, auth: (init.headers as Record<string, string>).Authorization });
+        return Response.json({ result: 1 });
+      }) as typeof fetch;
+      const env = { RESEND_API_KEY: "test-only-not-a-real-key", [`${prefix}KV_REST_API_URL`]: "https://store.example", [`${prefix}KV_REST_API_TOKEN`]: "store-token", REDIS_URL: "redis://dead.example:1" };
+      const handle = createContactHandler({ env, fetch: store });
+      expect((await handle(new Request("https://gabcat.dev/api/contact"), "203.0.113.42")).status).toBe(200);
+      expect(calls[0]).toEqual({ url: "https://store.example", auth: "Bearer store-token" });
+    }
+  });
 });
