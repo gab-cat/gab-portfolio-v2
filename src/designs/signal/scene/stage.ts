@@ -13,13 +13,14 @@ export const FIGURE = {
   lattice: 2,
   globe: 3,
   trophy: 4,
-  field: 5,
+  world: 5,
   hello: 6,
   lost: 7,
   lissajous: 8,
+  sea: 9,
 } as const;
 
-export const FIGURES = 9;
+export const FIGURES = 10;
 
 /** One light circles the wins trophy per award in src/data.ts. */
 export const LIGHTS = TROPHIES.length;
@@ -39,7 +40,25 @@ export type Scene = {
    * on wide screens; the contact page keeps its figures beside the form.
    */
   layout?: "home" | "contact";
+  /**
+   * The world a project gets: a band on the planet for each thing built, a
+   * ringlet for each tool it was built with, a moon for each result. The seed
+   * sets its tilt, its storm and where each ring and moon sits, so the same
+   * project always gets the same world. Changing it reshapes the planet in place.
+   */
+  world?: World;
+  /** How far the world's page has scrolled past its resting place, in CSS pixels; the planet goes up with it. */
+  lift?: number;
 };
+
+export type World = { seed: string; bands: number; rings: number; moons: number };
+
+/**
+ * The footer's sea, which every page ends on: how much of the footer is in
+ * view (0 to 1) and where its horizon, sky and bottom edge are on screen, in
+ * CSS pixels from the top of the viewport.
+ */
+export type Ending = { amount: number; horizon: number; sky: number; bottom: number };
 
 /** Screens roomy enough for the home page's spread-out chapters. signal.css uses the same query. */
 export const WIDE = "(min-width: 1024px) and (min-aspect-ratio: 11/10)";
@@ -52,8 +71,13 @@ export type FieldController = {
   level: (value: number) => void;
   /** A ripple along the waveform and the Lissajous curve, like a keystroke landing. */
   beat: (amount: number) => void;
-  /** Light up one of the lights circling the wins trophy (its row is hovered), or none. */
+  /**
+   * Light up one of the lights circling the wins trophy, or one band of the
+   * work planet (its line is hovered), or none. MOON_FOCUS + k lights moon k.
+   */
   focus: (index: number | null) => void;
+  /** Where the footer is, so the field can settle into the sea as it comes up. */
+  ending: (ending: Ending) => void;
   dispose: () => void;
 };
 
@@ -68,9 +92,13 @@ export const smoothstep = (a: number, b: number, v: number) => {
   return t * t * (3 - 2 * t);
 };
 
+/** signal.focus(MOON_FOCUS + k) lights the work planet's moon k. */
+export const MOON_FOCUS = 100;
+
 let field: FieldController | null = null;
 let latest: Scene = only(FIGURE.horizon);
 let latestLevel = 1;
+let latestEnding: Ending = { amount: 0, horizon: 0, sky: 0, bottom: 0 };
 
 export const signal = {
   show(scene: Scene) {
@@ -90,6 +118,10 @@ export const signal = {
   focus(index: number | null) {
     field?.focus(index);
   },
+  ending(ending: Ending) {
+    latestEnding = ending;
+    field?.ending(ending);
+  },
 };
 
 /** Called by the frame once the field exists; returns the detach. */
@@ -97,6 +129,7 @@ export function attach(controller: FieldController) {
   field = controller;
   controller.set(latest);
   controller.level(latestLevel);
+  controller.ending(latestEnding);
   return () => {
     if (field === controller) field = null;
   };

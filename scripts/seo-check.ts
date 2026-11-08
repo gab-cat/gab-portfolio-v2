@@ -6,7 +6,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { resolve } from "node:path";
 import { PAGE_PATHS, SITE_ORIGIN, pageSeo, routeFromPath } from "../src/seo.ts";
-import { PROJECTS, SOCIALS } from "../src/data.ts";
+import { PROJECTS, SOCIALS, thumbOf } from "../src/data.ts";
 import { pickDesign } from "../src/designs/live.ts";
 import type { DesignHead } from "../src/designs/types.ts";
 
@@ -90,6 +90,11 @@ for (const project of PROJECTS) {
     if (kind === "repo" && !href.startsWith(`${profile}/`)) fail(`data.ts: ${project.name} repo link is not under ${profile}`);
   }
   if (project.built.length === 0) fail(`data.ts: ${project.name} has nothing under built`);
+  if (project.image) {
+    for (const file of [project.image, thumbOf(project.image)]) {
+      if (!existsSync(resolve(dist, file.replace(/^\//, "")))) fail(`data.ts: ${project.name} image ${file} is not in dist`);
+    }
+  }
 }
 
 // The CSP in vercel.json allows the inline theme script by hash; any edit to it must update the hash.

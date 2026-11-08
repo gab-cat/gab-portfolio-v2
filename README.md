@@ -13,7 +13,7 @@ imports only the live one through the `@design` alias, so the others never ship.
 
 | Design | What it is | Status |
 | --- | --- | --- |
-| `signal` | One GPU particle field (36,000 points on desktop, custom GLSL) that re-forms for each chapter. The hero is a black hole: the disk orbits (inner edge fastest), its far side bends up over the shadow, and stars bend around it as they drift past. Then a travelling waveform, a lattice that twists like a puzzle, a dotted globe whose arcs carry light out of the Philippines to the countries the work has reached, a trophy with a light circling it for every award in `src/data.ts` (hover a row to light its own), drifting dust, and a still "hello." whose full stop sends out rings that light the word as they pass. The contact page has a Lissajous curve that tunes in from noise to a crisp knot as you fill in the form; the 404 is a radar sweeping an empty sky. Every figure keeps moving and is complete the moment it appears. | **Live** |
+| `signal` | One GPU particle field (36,000 points on desktop, custom GLSL) that re-forms for each chapter. The hero is a black hole: the disk orbits (inner edge fastest), its far side bends up over the shadow, and stars bend around it as they drift past. Then a travelling waveform, a lattice that twists like a puzzle, a dotted globe whose arcs carry light out of the Philippines to the countries the work has reached, a trophy with a light circling it for every award in `src/data.ts` (hover a row to light its own), and a still "hello." whose full stop sends out rings that light the word as they pass. Each project gets its own world beside its title: a ringed planet with a belt for each thing built, a ringlet for each tool in its stack and a moon for each result (hover a line to light its belt or moon), which scrolls away with the title so nothing sits behind the copy. The contact page has a Lissajous curve that tunes in from noise to a crisp knot as you fill in the form; the 404 is a radar sweeping an empty sky. Every page ends at sea: as the footer comes up, the figure settles into the water off Naga City under its sky at the hour it is there (the sun from six to six, then the moon in its real phase; `?hour=18.5` previews an hour on the dev server). Every figure keeps moving and is complete the moment it appears. | **Live** |
 | `clay` | The hand-made clay world: procedural 3D machine hero, clay chapters, a postbox contact page, and the hero terminal (`help`, `coffee`, `sudo hire-me`). | Archived, still builds |
 
 - **Ship a different design:** change `LIVE_DESIGN` in `src/designs/live.ts`.
@@ -118,6 +118,11 @@ hosted functions; the local Vite adapter instead uses the socket address.
   message 20–5,000 chars, and control-character rejection.
 - Honeypot plus HMAC-signed, IP-bound form sessions. Tokens require at least
   3 seconds and expire after 30 minutes; the Resend key signs tokens server-side.
+  The page (`src/lib/contact-form.ts`) fetches one quietly on load and never
+  disables the send button while it waits: a missing, spent or stale token is
+  fetched on send and allowed to age before the note goes.
+- The page checks the same field rules on send (`checkNote`) and shows each
+  problem under its own field, so a note the server would refuse never leaves.
 - Atomic Redis limits shared across function instances: 30 form sessions / 15 min,
   8 submission attempts / 15 min, 5 sends / hour per IP, 3 / hour per email, and
   a global maximum of 30 send attempts / rolling 24 hours. Failed sends and
@@ -159,5 +164,12 @@ from public pages with brand names replaced, and logos, photos, people's names
 and floating widgets blurred or removed. Never add a client screenshot that
 shows candidate, customer or company data.
 
+A project's `image` is a 1280x800 WebP in `public/work/`, with a 320px copy of
+the same name in `public/work/thumbs/` for the list rows on phones
+(`cwebp -resize 320 0 -q 78 public/work/<slug>.webp -o public/work/thumbs/<slug>.webp`).
+On a laptop the full screenshot trails the pointer over the Work lists
+(`src/designs/signal/Peek.tsx`).
+
 `bun run seo:check` fails if a project links to the bare GitHub profile, uses a
-non-https link, repeats a slug, or has nothing under `built`.
+non-https link, repeats a slug, has nothing under `built`, or names an image or
+thumbnail that isn't in the build.

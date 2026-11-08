@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { LIMITS, TOPICS, noteProgress, useContactForm, type FormStatus } from "../../../lib/contact-form";
+import { LIMITS, TOPICS, checkField, checkNote, noteProgress, useContactForm, type FormStatus, type NoteField } from "../../../lib/contact-form";
 import { Link } from "../../../lib/router";
 import { scrollToTop } from "../../../lib/scroll";
 import { EMAIL } from "../content";
@@ -8,6 +8,7 @@ import { Lines, Rise } from "../reveal";
 import { FIGURE, only, signal, smoothstep } from "../scene/stage";
 
 const READOUT = ["No signal yet", "Picking you up", "Coming through", "Almost clear", "Loud and clear"];
+const COUNTS = ["", "One thing", "Two things", "Three things"];
 const EASING = "cubic-bezier(0.19, 1, 0.22, 1)";
 const [MIN_MESSAGE, MAX_MESSAGE] = LIMITS.message;
 
@@ -28,7 +29,10 @@ export default function Contact() {
   const form = useContactForm();
   const [demo, setDemo] = useState<FormStatus | null>(null);
   const status = demo ?? form.status;
-  const { token, error, refresh, submit } = form;
+  const { error, submit } = form;
+  // What each field still needs, found when Send is pressed and cleared as each is put right.
+  const [problems, setProblems] = useState<Partial<Record<NoteField, string>>>({});
+  const [replyTo, setReplyTo] = useState("");
   // "leaving" holds the form on screen while its words fly off; "sent" swaps in the reply.
   const [stage, setStage] = useState<"form" | "leaving" | "sent">("form");
   const [progress, setProgress] = useState(0);
@@ -135,16 +139,35 @@ export default function Contact() {
   };
 
   const bars = stage !== "form" ? 4 : progress >= 1 ? 4 : progress >= 0.6 ? 3 : progress >= 0.3 ? 2 : progress > 0 ? 1 : 0;
-  const readout = status === "sending" ? "Transmitting" : status === "error" ? "Lost the signal" : READOUT[bars];
+  const toFix = Object.keys(problems).length;
+  // The one status line: read out when it says something, and the signal readout when it has nothing to say.
+  const message =
+    status === "sending"
+      ? "Sending your note…"
+      : status === "error" && !demo
+        ? error
+        : toFix
+          ? `${COUNTS[toFix]} to fix before it goes.`
+          : "";
+  const lost = (status === "error" && !demo) || toFix > 0;
+  const tone = status === "sending" ? " is-busy" : message ? " has-message" : "";
   const toGo = MIN_MESSAGE - length;
+
+  const field = (name: NoteField) => ({
+    "aria-invalid": problems[name] ? true : undefined,
+    "aria-describedby": [problems[name] ? `contact-${name}-error` : "", name === "message" ? "contact-hint" : ""].filter(Boolean).join(" ") || undefined,
+  });
+  const problem = (name: NoteField) =>
+    problems[name] ? (
+      <p id={`contact-${name}-error`} className="sg-field-error">
+        {problems[name]}
+      </p>
+    ) : null;
 
   return (
     <main id="main" tabIndex={-1}>
       <section className="sg-sec sg-contact" aria-labelledby="contact-title">
         <div className="sg-copy" ref={copy}>
-          <Rise as="p" className="sg-label">
-            Contact
-          </Rise>
           <Lines as="h1" id="contact-title" className="sg-h1" lines={["Send a", "signal."]} delay={0.05} />
           <Rise as="p" className="sg-lede" delay={0.25}>
             A rough idea is a perfectly good place to start.
@@ -154,13 +177,20 @@ export default function Contact() {
             <div className="sg-exchange" ref={exchange}>
               {stage === "sent" ? (
                 <div className="sg-sent" ref={sent} tabIndex={-1} role="status">
-                  <Rise as="p" className="sg-stamp" delay={0.1}>
+                  <Lines as="h2" lines={["Your note is", "in my inbox."]} delay={0.1} />
+                  <Rise as="p" className="sg-stamp" delay={0.25}>
                     <i aria-hidden="true" />
                     Received{sentAt && ` · ${sentAt}`}
                   </Rise>
-                  <Lines as="h2" lines={["It’s in", "my inbox."]} delay={0.15} />
                   <Rise as="p" delay={0.35}>
-                    Thanks for reaching out. I’ll reply to the email address you shared.
+                    {replyTo ? (
+                      <>
+                        I’ll reply to <b className="sg-replyto">{replyTo}</b>. If that address has a typo, write to me
+                        directly at <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.
+                      </>
+                    ) : (
+                      "I’ll reply to the email address you gave."
+                    )}
                   </Rise>
                   <Rise className="sg-actions" delay={0.45}>
                     <Link className="sg-btn" href="/">
@@ -172,42 +202,68 @@ export default function Contact() {
                 <form
                   ref={formEl}
                   className="sg-form"
+                  noValidate
                   aria-busy={status === "sending"}
                   onSubmit={(event) => {
                     event.preventDefault();
-                    void submit(event.currentTarget);
+                    const el = event.currentTarget;
+                    const found = checkNote(el);
+                    setProblems(found);
+                    const first = Object.keys(found)[0];
+                    if (first) {
+                      // The figure loses the signal for a moment, and the first field to fix takes the focus.
+                      signal.kick(0.35);
+                      (el.elements.namedItem(first) as HTMLElement | null)?.focus();
+                      return;
+                    }
+                    setReplyTo(String(new FormData(el).get("email") ?? "").trim());
+                    void submit(el);
                   }}
                   onInput={(event) => {
                     setProgress(noteProgress(event.currentTarget));
                     signal.beat(0.35);
+                    // A field that was flagged clears as soon as it's right; nothing is flagged while typing.
+                    const target = event.target as HTMLInputElement;
+                    const name = target.name as NoteField;
+                    if (problems[name] && !checkField(name, target.value)) {
+                      setProblems(({ [name]: _, ...rest }) => rest);
+                    }
                   }}
                 >
                   <fieldset className="sg-fields" disabled={status === "sending" || stage !== "form"}>
                     <legend className="sg-sr">Your message</legend>
-                    <label className="sg-field" htmlFor="contact-name">
-                      <span>Your name</span>
-                      <input
-                        id="contact-name"
-                        name="name"
-                        placeholder=" "
-                        autoComplete="name"
-                        required
-                        minLength={LIMITS.name[0]}
-                        maxLength={LIMITS.name[1]}
-                      />
-                    </label>
-                    <label className="sg-field" htmlFor="contact-email">
-                      <span>Your email</span>
-                      <input
-                        id="contact-email"
-                        name="email"
-                        type="email"
-                        placeholder=" "
-                        autoComplete="email"
-                        required
-                        maxLength={LIMITS.email[1]}
-                      />
-                    </label>
+                    <div className={problems.name ? "sg-cell is-invalid" : "sg-cell"}>
+                      <label className="sg-field" htmlFor="contact-name">
+                        <span>Your name</span>
+                        <input
+                          id="contact-name"
+                          name="name"
+                          placeholder=" "
+                          autoComplete="name"
+                          required
+                          maxLength={LIMITS.name[1]}
+                          {...field("name")}
+                        />
+                      </label>
+                      {problem("name")}
+                    </div>
+                    <div className={problems.email ? "sg-cell is-invalid" : "sg-cell"}>
+                      <label className="sg-field" htmlFor="contact-email">
+                        <span>Your email</span>
+                        <input
+                          id="contact-email"
+                          name="email"
+                          type="email"
+                          inputMode="email"
+                          placeholder=" "
+                          autoComplete="email"
+                          required
+                          maxLength={LIMITS.email[1]}
+                          {...field("email")}
+                        />
+                      </label>
+                      {problem("email")}
+                    </div>
                     <fieldset className="sg-topics">
                       <legend>About</legend>
                       {TOPICS.map((topic, i) => (
@@ -217,26 +273,28 @@ export default function Contact() {
                         </label>
                       ))}
                     </fieldset>
-                    <label className="sg-field is-full" htmlFor="contact-message">
-                      <span>Tell me a little about it</span>
-                      <textarea
-                        id="contact-message"
-                        name="message"
-                        placeholder=" "
-                        required
-                        minLength={MIN_MESSAGE}
-                        maxLength={MAX_MESSAGE}
-                        rows={3}
-                        aria-describedby="contact-hint"
-                        onChange={(event) => {
-                          grow(event.target);
-                          setLength(event.target.value.length);
-                        }}
-                      />
-                      <em className="sg-count" aria-hidden="true">
-                        {toGo > 0 ? `${toGo} to go` : `${length.toLocaleString()} / ${MAX_MESSAGE.toLocaleString()}`}
-                      </em>
-                    </label>
+                    <div className={problems.message ? "sg-cell is-full is-invalid" : "sg-cell is-full"}>
+                      <label className="sg-field" htmlFor="contact-message">
+                        <span>Tell me a little about it</span>
+                        <textarea
+                          id="contact-message"
+                          name="message"
+                          placeholder=" "
+                          required
+                          maxLength={MAX_MESSAGE}
+                          rows={3}
+                          {...field("message")}
+                          onChange={(event) => {
+                            grow(event.target);
+                            setLength(event.target.value.length);
+                          }}
+                        />
+                        <em className="sg-count" aria-hidden="true">
+                          {toGo > 0 ? `${toGo} to go` : `${length.toLocaleString()} / ${MAX_MESSAGE.toLocaleString()}`}
+                        </em>
+                      </label>
+                      {problem("message")}
+                    </div>
                     <p id="contact-hint" className="sg-sr">
                       A few sentences is plenty. At least {MIN_MESSAGE} characters.
                     </p>
@@ -248,33 +306,19 @@ export default function Contact() {
                     </div>
                   </fieldset>
 
-                  {error && !demo && (
-                    <div className="sg-error" role="alert">
-                      <p>{error}</p>
-                      {!token && (
-                        <button type="button" onClick={() => void refresh()}>
-                          Refresh the form
-                        </button>
-                      )}
-                    </div>
-                  )}
-
                   <div className="sg-send">
-                    <button
-                      className="sg-btn is-solid is-big"
-                      type="submit"
-                      disabled={!token || status === "sending" || status === "loading" || stage !== "form"}
-                    >
-                      {status === "sending" ? "Sending…" : status === "loading" ? "Getting ready…" : "Send my note"}
+                    <button className="sg-btn is-solid is-big" type="submit" disabled={status === "sending" || stage !== "form"}>
+                      {status === "sending" ? "Sending…" : "Send my note"}
                     </button>
-                    <span className={status === "sending" ? "sg-meter is-busy" : "sg-meter"}>
+                    <p className={`sg-meter${tone}`}>
                       <span className="sg-bars" aria-hidden="true">
                         {[0, 1, 2, 3].map((i) => (
-                          <i key={i} className={i < bars ? "is-on" : undefined} />
+                          <i key={i} className={i < bars && !lost ? "is-on" : undefined} />
                         ))}
                       </span>
-                      {readout}
-                    </span>
+                      <span role="status">{message}</span>
+                      {!message && <span aria-hidden="true">{READOUT[bars]}</span>}
+                    </p>
                   </div>
                   <p className="sg-alt">
                     Or write to <a href={`mailto:${EMAIL}`}>{EMAIL}</a>. Your details are only ever used to reply.

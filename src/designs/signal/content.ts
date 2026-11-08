@@ -16,6 +16,7 @@ import {
   SOCIALS,
   TOOLBOX,
   TROPHIES as RAW_TROPHIES,
+  thumbOf,
   type Project,
   type ProjectKind,
 } from "../../data";
@@ -59,13 +60,6 @@ const NUMBERS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", 
 /** "Thirteen" for 13, the digits past twenty. */
 export const spell = (n: number) => NUMBERS[n] ?? String(n);
 
-const trophyYears = RAW_TROPHIES.map((trophy) => Number(trophy.year));
-/** "2024 – 2025": the span the wins cover. */
-export const WIN_YEARS =
-  Math.min(...trophyYears) === Math.max(...trophyYears)
-    ? String(Math.max(...trophyYears))
-    : `${Math.min(...trophyYears)} – ${Math.max(...trophyYears)}`;
-
 /** One project's kind, for its row and its page. */
 export const KIND_ONE: Record<ProjectKind, string> = {
   client: "Client work",
@@ -94,6 +88,8 @@ export type Work = {
   /** What kind of client, for codenamed work. */
   confidential?: string;
   image?: string;
+  /** The 320px copy of the screenshot, for list rows on phones. */
+  thumb?: string;
 };
 
 export const hostOf = (href: string) => new URL(href).host.replace(/^www\./, "");
@@ -123,6 +119,7 @@ function toWork(project: Project): Work {
     status: project.status && clean(project.status),
     confidential: project.confidential,
     image: project.image,
+    thumb: project.image && thumbOf(project.image),
   };
 }
 

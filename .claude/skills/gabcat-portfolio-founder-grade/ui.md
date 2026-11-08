@@ -22,15 +22,16 @@ These are the same rules as Gab's global CLAUDE.md, restated so they hold in any
 
 ## Known deviations: raise with Gab before adding more
 
-Signal predates these rules being applied to it, and Gab chose and has approved the look, so
-don't "fix" any of this silently, and don't add more of it without asking.
+On 2026-11-09 (the "every screen" pass with tasteskill 2.5.1, which agrees with Gab's rules here) the
+eyebrows and the tracked capitals were removed: there is no `.sg-label` any more, the facts it carried
+moved into the copy (the hero lede, a `.sg-meta` line under the Listen story), and every mono label is
+sentence case at 13px or more. Reading text is ink; `--fog` (`#51504c` light, `#9e9b95` dark, 7:1 on
+both grounds) is left for dates, years, tool lists, the footer and inactive choices. What remains:
 
-- **Eyebrow labels.** `.sg-label` (in `src/designs/signal/styles/signal.css`) sits above a heading on the home hero ("Developer & DevOps engineer · Naga City, PH"), "What I do", "2022 – now · 6 roles", "2024 – 2025 · Hackathons and CTFs", "Selected work", on Contact ("Contact") and on the 404 ("Error 404"). That is the eyebrow pattern the rules forbid.
-- **Uppercase, letter-spaced labels.** `.sg-label` sets `text-transform: uppercase` with `letter-spacing: 0.08em`, and so do the tuner, dial links, craft and win row labels, topic legend, meter, stamp and dev-send button in the same file.
 - **Pills.** The file header says "Buttons and chips are pills; nothing else has a radius." `.sg-btn`, `.sg-icon`, `.sg-skip` and `.sg-devsend` are `border-radius: 999px` (buttons, not cards, but still pill-shaped controls).
-- **Muted text.** `var(--fog)` (`#5b5a56` light, `#8e8b85` dark) colours many body-adjacent lines, about thirty rules.
+- **Smooth scroll.** Lenis steers scrolling on the home page. tasteskill forbids smooth-scroll libraries; the dial and the figure blending were tuned with it, so it stays until Gab says otherwise.
 
-What to do: for new work, follow the rules (sentence case, heading first, ink colour, 6 to 8px if a card is ever needed). If a new section needs a label above its heading, put the question to Gab with your recommendation instead of reusing `.sg-label`. Report the deviation in your summary when you touch a line that has it. Gab's recorded feedback below is about layout and figures; it does not say the labels are approved.
+What to do: for new work, follow the rules (sentence case, heading first, ink colour, 6 to 8px if a card is ever needed). Never bring back a label above a heading; put a fact in the copy or in a `.sg-meta` line after it.
 
 ## Signal's taste: Gab's recorded feedback, with the reason
 
@@ -62,7 +63,11 @@ Each line is something Gab said about this site. The reason is what he wants, so
 
 - Scroll reveals: `Rise` (fade and rise), `Stagger` (each child in turn, 60ms gap) and `Lines` (masked line reveal, lines passed explicitly) in `src/designs/signal/reveal.tsx`. Plain IntersectionObserver and Web Animations; no animation library on Signal. Copy already on screen at first paint is never hidden, so the prerendered text stays the largest paint. Don't add `opacity: 0` styles to above-the-fold copy.
 - Magnetic buttons: `Magnetic` in `src/designs/signal/Magnetic.tsx` (mouse only, skipped for touch and reduced motion).
-- Pages pick the figure: `signal.show(scene)`, `signal.focus(i)`, `signal.kick(n)`, `signal.level(v)`, `signal.beat(n)` from `src/designs/signal/scene/stage.ts`. `FIGURE` lists the nine figures; `only(figure)` builds a scene; `Home.tsx` blends weights by scroll. `field.ts` is loaded later in its own chunk, so `signal` calls are safe before it arrives.
+- Work previews: `usePeek` in `src/designs/signal/Peek.tsx` trails the project's screenshot beside the hovered row on both Work lists, clear of the `[data-peek-avoid]` name (mouse only). Phones get the 320px `thumb` in the row instead. Pointing at a row also turns the planet into that project's world.
+- A project's world: `useWorld(worldOf(work))` in `src/designs/signal/world.ts` shows figure 5 beside the page's title and lifts it with the scroll (`Scene.lift`), so it never sits behind the copy. A belt per "What I built" line, a ringlet per tool, a moon per result; `signal.focus(i)` lights belt i and `signal.focus(MOON_FOCUS + k)` moon k. Gab rejected the git graph that came before it as "underwhelming and ugly" (2026-11-09).
+- The footer is the sea (figure 9): `Footer.tsx` reports its horizon, sky and bottom edge with `signal.ending()` while it is near, and the field blends whatever the page shows into the water as it comes up. The sky follows Manila time (`skyOverNaga` in `field.ts`); `?hour=` previews an hour on the dev server. Without WebGL (`html.sg-no-field`) the footer shrinks to its words. Gab rejected a giant `gabcat.dev` wordmark on a tuning scale before this (2026-11-09).
+- Project pages end on `.sg-next`: the next project's name set at chapter-heading size, with "Next" as its muted run-on.
+- Pages pick the figure: `signal.show(scene)`, `signal.focus(i)`, `signal.kick(n)`, `signal.level(v)`, `signal.beat(n)` from `src/designs/signal/scene/stage.ts`. `FIGURE` lists the ten figures; `only(figure)` builds a scene; `Home.tsx` blends weights by scroll. `field.ts` is loaded later in its own chunk, so `signal` calls are safe before it arrives.
 - Smooth scroll: `src/lib/lenis.ts` (`initLenis`), `src/lib/scroll.ts` (`scrollToId`, `scrollToTop`). Lenis owns scrolling on the home page, so `scroll-behavior` is `auto`.
 - Client routing: `src/lib/router.tsx` (`RouterProvider`, `Link`, `useRouter`). Use `Link` so Cmd-click still opens a new tab.
 - Motion pause: `src/lib/motion.ts` (`isMotionPaused`, `onMotionChange`, `setMotionPaused`) is one switch for every scene: the visitor's pause button in `Nav.tsx` and reduced motion.
@@ -85,7 +90,7 @@ the movement, keep the state change.
 
 ## Performance bar
 
-Set 2026-09-27: Lighthouse mobile 97 to 98, desktop 100, accessibility, best practices and SEO 100. Signal ships no three.js and no motion library (raw WebGL2, about 8 kB gzipped for the draw path). The chunk list from `bun run build` is the first check: the main `index-*.js` was 229 kB (73 kB gzip) on 2026-11-09, and `field-*.js` 44 kB. `scripts/seo-check.ts` fails if `three` lands in the main entry, if `og.png` exceeds 180 kB gzip, or if a horizon still exceeds 160 kB. Don't import `three` or `motion` into Signal.
+Set 2026-09-27: Lighthouse mobile 97 to 98, desktop 100, accessibility, best practices and SEO 100. Signal ships no three.js and no motion library (raw WebGL2, about 8 kB gzipped for the draw path). The chunk list from `bun run build` is the first check: the main `index-*.js` is 263 kB (84 kB gzip) on 2026-11-09, up from 229 kB when the per-project pages (commit a4b8ceb) put all 27 projects' copy in the main entry, and `field-*.js` 58 kB (23 kB gzip) with the world and sea figures. `scripts/seo-check.ts` fails if `three` lands in the main entry, if `og.png` exceeds 180 kB gzip, or if a horizon still exceeds 160 kB. Don't import `three` or `motion` into Signal.
 
 ## Every state of every dynamic surface
 
@@ -93,18 +98,20 @@ The one dynamic surface is the contact form (`src/designs/signal/pages/Contact.t
 
 | State | What good looks like |
 |---|---|
-| Loading | The form is real content; the send button reads "Getting ready…" and stays disabled until the token arrives. |
-| Ready | Floating labels, one-line topic picker, one email and privacy line. |
-| Sending | Button reads "Sending…", fields disabled, double submit blocked (`busy` ref), the meter shows busy. |
-| Sent | The typed letters lift off toward the figure, then the reply eases in. |
-| Error | The server's plain-words message in a `role="alert"` block, the input kept, a way to retry or email directly. A 400 or 409 clears the token so the form refreshes. |
+| Loading | The form is real content and the send button is live: the token loads quietly, and a send before it arrives (or with a spent or stale one) fetches it and waits out the server's 3 seconds. |
+| Ready | Floating labels (14px once lifted), one-line topic picker with 44px choices, one email and privacy line. |
+| Invalid | Checked on send, never while typing (`checkNote`, the server's rules): each field that needs something turns its line orange and says what under it (`aria-invalid`, `aria-describedby`), the first takes the focus, the status line counts them, the figure loses the signal for a moment. A field clears its error as soon as it's right. |
+| Sending | Button reads "Sending…", fields disabled, double submit blocked (`busy` ref), the status line reads "Sending your note…" and the meter shows busy. |
+| Sent | The typed letters lift off toward the figure, then "Your note is in my inbox." eases in with the address the reply will go to, so a typo can be caught. |
+| Error | The server's plain-words message in the one status line (`role="status"` beside the meter), the input kept, the email line under it. A 400 or 409 drops the token, so the next send fetches a fresh one. |
 | Rate limited | 429 with `Retry-After`; copy tells them to try later or email. |
 | Reduced motion | The lift-off is skipped; the state change still shows. |
 
 ## Interaction
 
 - Hover, press, focus-visible and disabled states on every control. Disabled controls say why.
-- Touch targets at least 40px (the icon button is 40px).
+- Touch targets at least 44px: nav words, icon buttons, footer links and small text buttons all have `min-height: 44px`. Below 375px the nav mark shortens to "Gabriel" so the nav fits at 320px.
+- Buttons step up 1px on hover (2px for `.is-big`) with the fill a shade toward the ink, and press 1px down at scale 0.985 (150ms in, 120ms out, 90ms press, fine pointer only). The `.sg-veil` gradient under the nav fades copy before it reaches the name.
 - Real `<a>` links for navigation. There is a skip link (`.sg-skip`); keep it.
 - Keyboard: tab order follows the page; Enter submits the form; the nav pause button and theme toggle work by keyboard.
 - Every page sets its own `<title>`, canonical and one `<h1>`; `scripts/seo-check.ts` fails on missing ones.

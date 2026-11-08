@@ -1,9 +1,9 @@
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
-import { useEffect } from "react";
 import { Link, useRouter } from "../../../lib/router";
 import { ALL_WORK } from "../content";
 import { Lines, Rise, Stagger } from "../reveal";
-import { FIGURE, only, signal } from "../scene/stage";
+import { MOON_FOCUS, signal } from "../scene/stage";
+import { useWorld, worldOf } from "../world";
 
 const lowerFirst = (text: string) => text.charAt(0).toLowerCase() + text.slice(1);
 
@@ -19,9 +19,8 @@ function CaseStudy({ path }: { path: string }) {
   const work = ALL_WORK[index];
   const next = ALL_WORK[(index + 1) % ALL_WORK.length];
 
-  useEffect(() => {
-    signal.show(only(FIGURE.field, 0, 0.4));
-  }, []);
+  // The project's own world beside its title: a belt for each thing built, a ringlet for each tool, a moon for each result.
+  useWorld(worldOf(work));
 
   return (
     <main id="main" tabIndex={-1}>
@@ -103,8 +102,11 @@ function CaseStudy({ path }: { path: string }) {
                 What I built
               </h2>
               <Stagger as="ul" className="sg-points">
-                {work.built.map((line) => (
-                  <li key={line}>{line}</li>
+                {work.built.map((line, i) => (
+                  // Pointing at a line lights its belt on the planet.
+                  <li key={line} onPointerEnter={() => signal.focus(i)} onPointerLeave={() => signal.focus(null)}>
+                    {line}
+                  </li>
                 ))}
               </Stagger>
             </section>
@@ -114,19 +116,26 @@ function CaseStudy({ path }: { path: string }) {
                   What came of it
                 </h2>
                 <Stagger as="ul" className="sg-points is-results">
-                  {work.results.map((line) => (
-                    <li key={line}>{line}</li>
+                  {work.results.map((line, i) => (
+                    // Pointing at a result lights its moon.
+                    <li key={line} onPointerEnter={() => signal.focus(MOON_FOCUS + i)} onPointerLeave={() => signal.focus(null)}>
+                      {line}
+                    </li>
                   ))}
                 </Stagger>
               </section>
             )}
           </div>
-          <nav className="sg-actions sg-case-nav" aria-label="More projects">
-            <Link className="sg-btn" href="/work">
-              All projects
+          <nav className="sg-case-nav" aria-label="More projects">
+            <Link className="sg-next" href={next.path}>
+              <span className="sg-next-name">
+                <span className="sg-next-word">Next</span> {next.name}
+              </span>
+              <span className="sg-next-line">{next.tagline}</span>
+              <ArrowRight className="sg-next-arrow" size={40} weight="light" aria-hidden />
             </Link>
-            <Link className="sg-btn is-solid" href={next.path}>
-              Next: {next.name} <ArrowRight size={15} weight="bold" aria-hidden />
+            <Link className="sg-back" href="/work">
+              <ArrowLeft size={15} weight="bold" aria-hidden /> All projects
             </Link>
           </nav>
         </div>

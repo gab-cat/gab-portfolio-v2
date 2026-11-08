@@ -1,4 +1,12 @@
-import { useEffect, useLayoutEffect, useRef, type ElementType, type ReactNode, type RefObject } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  type ElementType,
+  type PointerEventHandler,
+  type ReactNode,
+  type RefObject,
+} from "react";
 
 /**
  * Scroll reveals that behave with prerendered HTML. Copy that is already on
@@ -92,12 +100,21 @@ export function Rise({ as: Tag = "div", className, id, delay = 0, children }: Co
   );
 }
 
+type Pointer = { onPointerMove?: PointerEventHandler; onPointerLeave?: PointerEventHandler };
+
 /** Fade-and-rise each child in turn: list rows, stats. */
-export function Stagger({ as: Tag = "div", className, id, delay = 0, children }: Common & { children: ReactNode }) {
+export function Stagger({
+  as: Tag = "div",
+  className,
+  id,
+  delay = 0,
+  children,
+  ...pointer
+}: Common & Pointer & { children: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
   useReveal(ref, { parts: (root) => Array.from(root.children) as HTMLElement[], ...RISE, duration: 0.8, delay, gap: 0.06 });
   return (
-    <Tag ref={ref} id={id} className={className}>
+    <Tag ref={ref} id={id} className={className} {...pointer}>
       {children}
     </Tag>
   );

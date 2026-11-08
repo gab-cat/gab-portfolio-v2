@@ -117,9 +117,12 @@ export type Project = {
   featured?: boolean;
   /** Client or employer work under a codename. Says what kind of client it was, never who. */
   confidential?: string;
-  /** A 1280x800 screenshot in public/work. Client shots are redacted before they get here. */
+  /** A 1280x800 screenshot in public/work, with a 320px copy in public/work/thumbs. Client shots are redacted before they get here. */
   image?: string;
 };
+
+/** The 320px copy of a project screenshot, for list rows. Make it with `cwebp -resize 320 0 -q 78`. */
+export const thumbOf = (image: string) => image.replace(/^\/work\//, "/work/thumbs/");
 
 /** Newest first within each year. Every entry gets its own page at /work/<slug>. */
 export const PROJECTS: readonly Project[] = [

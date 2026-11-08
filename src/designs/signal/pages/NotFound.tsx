@@ -13,9 +13,6 @@ export default function NotFound() {
     <main id="main" tabIndex={-1}>
       <section className="sg-sec sg-lost" aria-labelledby="lost-title">
         <div className="sg-copy">
-          <Rise as="p" className="sg-label">
-            Error 404
-          </Rise>
           <Lines as="h1" id="lost-title" className="sg-h1" lines={["No signal", "here."]} delay={0.05} />
           <Rise as="p" className="sg-lede" delay={0.25}>
             The URL doesn’t match anything on gabcat.dev. The story is on the home page, and a note still works if you

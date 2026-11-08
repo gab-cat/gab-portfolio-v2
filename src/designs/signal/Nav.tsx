@@ -27,7 +27,7 @@ export function Nav() {
   return (
     <header className="sg-nav">
       <Link href="/" className="sg-mark">
-        Gabriel Catimbang
+        Gabriel<span className="sg-mark-rest">&nbsp;Catimbang</span>
       </Link>
       <nav className="sg-links" aria-label="Main">
         <Link href="/#story" className="is-extra">

@@ -1,9 +1,10 @@
 import { ArrowRight } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "../../../lib/router";
-import { ALL_WORK, CERTIFICATIONS, CIRCLES, PROJECT_KINDS, SCHOOL, WORK_KINDS, type ProjectKind } from "../content";
+import { ALL_WORK, CERTIFICATIONS, CIRCLES, PROJECT_KINDS, SCHOOL, WORK_KINDS, type ProjectKind, type Work as Project } from "../content";
+import { usePeek } from "../Peek";
 import { Lines, Rise, Stagger } from "../reveal";
-import { FIGURE, only, signal } from "../scene/stage";
+import { useWorld, worldOf } from "../world";
 
 type Filter = "all" | ProjectKind;
 
@@ -12,11 +13,11 @@ const FILTERS: Filter[] = ["all", ...WORK_KINDS];
 export default function Work() {
   const [filter, setFilter] = useState<Filter>("all");
   const shown = filter === "all" ? ALL_WORK : ALL_WORK.filter((work) => work.kind === filter);
+  const peek = usePeek(ALL_WORK);
 
-  useEffect(() => {
-    // The work chapter's dust, drifting past, held back so the list reads.
-    signal.show(only(FIGURE.field, 0, 0.55));
-  }, []);
+  // Beside the title, a world for the whole body of work; pointing at a project turns it into that project's world.
+  const [hovered, setHovered] = useState<Project | null>(null);
+  useWorld(hovered ? worldOf(hovered) : { seed: "work", bands: WORK_KINDS.length, rings: 6, moons: 3 });
 
   return (
     <main id="main" tabIndex={-1}>
@@ -48,17 +49,35 @@ export default function Work() {
             {filter === "all" ? `Showing all ${shown.length} projects` : `Showing ${shown.length} of ${ALL_WORK.length}`}
           </p>
           {/* Keyed by the filter so each change staggers the new list in. */}
-          <Stagger as="ol" key={filter} className="sg-index-list">
+          <Stagger
+            as="ol"
+            key={filter}
+            className="sg-index-list"
+            onPointerMove={peek.list.onPointerMove}
+            onPointerLeave={() => {
+              peek.list.onPointerLeave();
+              setHovered(null);
+            }}
+          >
             {shown.map((work) => (
-              <li key={work.slug}>
+              <li
+                key={work.slug}
+                onPointerEnter={(event) => {
+                  peek.row(work).onPointerEnter(event);
+                  setHovered(work);
+                }}
+              >
                 <Link href={work.path}>
                   <span className="sg-iyear">{work.year}</span>
-                  <span className="sg-iname">
+                  <span className="sg-iname" data-peek-avoid>
                     <b>{work.name}</b>
                     <span>{work.tagline}</span>
                   </span>
                   <small className="sg-ikind">{work.kindLabel}</small>
                   <ArrowRight className="sg-iarrow" size={18} weight="bold" aria-hidden />
+                  {work.thumb && (
+                    <img className="sg-thumb" src={work.thumb} width={320} height={200} alt="" loading="lazy" decoding="async" />
+                  )}
                 </Link>
               </li>
             ))}
@@ -71,6 +90,7 @@ export default function Work() {
               </button>
             </p>
           )}
+          {peek.view}
         </div>
       </section>
 

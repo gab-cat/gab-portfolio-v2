@@ -22,6 +22,11 @@ export function Frame({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
   useBootFlag();
 
+  // Without the field there is no sea for the footer to sit over.
+  useEffect(() => {
+    document.documentElement.classList.toggle("sg-no-field", flat);
+  }, [flat]);
+
   useEffect(() => {
     setMounted(true);
     let cancelled = false;
@@ -54,6 +59,7 @@ export function Frame({ children }: { children: ReactNode }) {
       <div ref={host} className={`sg-canvas${ready ? " is-ready" : ""}`} aria-hidden="true" />
       {/* Without WebGL the home page gets a still of the black hole; the stylesheet picks it per theme. */}
       {flat && route === "home" && <div className="sg-flat" aria-hidden="true" />}
+      <div className="sg-veil" aria-hidden="true" />
       <div className="sg-grain" aria-hidden="true" />
       {mounted && <Tuner ready={ready} failed={flat} />}
       <Nav />

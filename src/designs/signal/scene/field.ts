@@ -1,6 +1,6 @@
 import { isMotionPaused, onMotionChange } from "../../../lib/motion";
 import { THEME_EVENT } from "../../../lib/theme";
-import { FIGURE, FIGURES, LIGHTS, WIDE, only, type FieldController, type Scene } from "./stage";
+import { FIGURE, FIGURES, LIGHTS, MOON_FOCUS, WIDE, only, type Ending, type FieldController, type Scene, type World } from "./stage";
 import {
   GLSL_NOISE,
   breathe,
@@ -21,8 +21,9 @@ import { LAND_COLS, LAND_ROWS, landGrid } from "./land";
 /**
  * Signal: one particle system that re-forms into a different figure for each
  * part of the site. Figures, in order (see FIGURE in stage.ts):
- *   0 black hole  1 waveform  2 lattice  3 globe  4 trophy  5 field  6 hello  7 radar  8 Lissajous
- * Every particle carries all nine destinations; pages blend between them and
+ *   0 black hole  1 waveform  2 lattice  3 globe  4 trophy  5 a project's world  6 hello  7 radar
+ *   8 Lissajous  9 the sea every page ends on
+ * Every particle carries all ten destinations; pages blend between them and
  * a burst of noise hides the seams. Plain WebGL2, no 3D library: the whole
  * field is one draw call.
  */
@@ -431,14 +432,145 @@ function lissajous(count: number, tint: Float32Array) {
   return out;
 }
 
-/** Dust filling the screen, at every depth; the shader drifts it toward us. */
-function field(count: number, tint: Float32Array) {
+/**
+ * Work: a world for each project, beside its title. A banded planet in rings,
+ * lit from the title's side: a belt for each thing built, a ringlet for each
+ * tool it was built with, a moon for each thing that came of it, and a storm
+ * turning in one belt. The rings shade the planet and the planet shades the
+ * rings. Where everything sits comes from uniforms (see worldShape), so each
+ * project reshapes the same particles into its own world. Targets are
+ * (x, y, z, kind):
+ *   0-1        dust thrown off the rings (xyz in the ring plane), and brightness
+ *   SURFACE    a point on the planet (longitude, sine of latitude, a random number)
+ *   HAZE       its lit air at the edge (longitude, sine of latitude, height)
+ *   IN_RINGS   a point in the rings (how far across them, angle, thickness offset)
+ *   MOON + k   a point on moon k (where in its ball)
+ * A moon the project doesn't have rests in the rings.
+ */
+const SURFACE = 2;
+const HAZE = 3;
+const IN_RINGS = 4;
+const MOON = 10;
+const WORLD_R = 0.8;
+const RINGLETS = 8;
+const MOONS = 6;
+
+function planet(count: number, tint: Float32Array) {
   const out = new Float32Array(count * 4);
   const rand = rng(19);
-  for (let i = 0; i < count; i++) {
-    out.set([(rand() * 2 - 1) * 4.4, (rand() * 2 - 1) * 2.6, -rand() * 4 + 0.6, 0], i * 4);
-    tint[i] = rand() < 0.07 ? 1 : 0;
+  let at = 0;
+  const put = (x: number, y: number, z: number, kind: number, accent: number) => {
+    out.set([x, y, z, kind], at * 4);
+    tint[at++] = accent;
+  };
+  const upTo = (share: number) => Math.min(count, at + Math.floor(count * share));
+  for (const end = upTo(0.5); at < end; ) put(rand() * TAU, rand() * 2 - 1, rand(), SURFACE, 0);
+  for (const end = upTo(0.05); at < end; ) put(rand() * TAU, rand() * 2 - 1, Math.pow(rand(), 1.6), HAZE, 0);
+  for (const end = upTo(0.34); at < end; ) put(rand(), rand() * TAU, gauss(rand) * 0.5, IN_RINGS, 0);
+  for (let k = 0; k < MOONS; k++) {
+    for (const end = upTo(0.011); at < end; ) {
+      let x = 0;
+      let y = 0;
+      let z = 0;
+      do {
+        x = rand() * 2 - 1;
+        y = rand() * 2 - 1;
+        z = rand() * 2 - 1;
+      } while (x * x + y * y + z * z > 1);
+      put(x, y, z, MOON + k, 0);
+    }
   }
+  // Dust thrown off the outer ring, thinning out instead of stopping.
+  while (at < count) {
+    const r = WORLD_R * (2.05 + Math.pow(rand(), 1.4) * 0.95);
+    const a = rand() * TAU;
+    put(Math.cos(a) * r, gauss(rand) * 0.03, Math.sin(a) * r, 0.03 + 0.22 * Math.pow(rand(), 3), rand() < 0.12 ? 1 : 0);
+  }
+  return out;
+}
+
+/**
+ * A project's world from its seed and its numbers, as uniforms: how many belts,
+ * ringlets and moons, the axial tilt, where each ringlet sits across the rings
+ * (uneven widths, uneven gaps, one wide gap), each moon's orbit and size, and
+ * where the storm is. The same seed always makes the same world.
+ */
+function worldShape(world: World) {
+  let hash = 2166136261;
+  for (const char of world.seed) hash = Math.imul(hash ^ char.charCodeAt(0), 16777619);
+  const rand = rng(hash);
+  const rings = Math.max(1, Math.min(RINGLETS, Math.round(world.rings)));
+  const widths: number[] = [];
+  const gaps: number[] = [];
+  const wide = Math.floor(rand() * Math.max(1, rings - 1));
+  for (let i = 0; i < rings; i++) {
+    widths.push(0.45 + rand() * 1.1);
+    gaps.push(i === rings - 1 ? 0 : i === wide ? 0.45 + rand() * 0.3 : 0.04 + rand() * 0.2);
+  }
+  const total = widths.reduce((a, b) => a + b, 0) + gaps.reduce((a, b) => a + b, 0);
+  const ringlets = new Float32Array(RINGLETS * 2);
+  let start = 0;
+  for (let i = 0; i < RINGLETS; i++) {
+    if (i < rings) {
+      ringlets.set([start / total, widths[i] / total], i * 2);
+      start += widths[i] + gaps[i];
+    } else ringlets.set([ringlets[(rings - 1) * 2], ringlets[(rings - 1) * 2 + 1]], i * 2);
+  }
+  const moons = new Float32Array(MOONS * 4);
+  const first = rand() * TAU;
+  for (let k = 0; k < MOONS; k++) {
+    // Clear of the rings: further out, and tilted well off their plane, alternately up and down.
+    moons.set([WORLD_R * (2.42 + 0.1 * k + rand() * 0.06), (k % 2 ? -1 : 1) * (0.12 + rand() * 0.16), first + k * 2.4 + rand(), WORLD_R * (0.065 + rand() * 0.045)], k * 4);
+  }
+  return {
+    params: new Float32Array([
+      Math.max(1, Math.min(7, Math.round(world.bands))),
+      rings,
+      Math.max(0, Math.min(MOONS, Math.round(world.moons))),
+      (rand() < 0.5 ? -1 : 1) * (0.1 + rand() * 0.16),
+    ]),
+    ringlets,
+    moons,
+    // On the near, lit side to begin with: about a quarter turn short of facing us.
+    storm: new Float32Array([(rand() - 0.5) * 1.0, Math.PI / 2 - 0.6 - rand() * 0.8]),
+  };
+}
+
+/**
+ * The footer: the sea off Naga City and its sky at the hour it is there now,
+ * on every page. The shader lays the water out from the horizon down, crowding
+ * the far water the way distance does, and runs the sun's (or the moon's)
+ * light along it. Targets are (x, y, z, kind):
+ *   0-1     a star over the water at night (x and height, a random number), and brightness
+ *   WATER   a point on a line of swell (across, which line and where in its width, a random number)
+ *   PATH    a point in the light on the water (offset from the light, which line, a random number)
+ *   EDGE    a point on the horizon (across, a little either side, a random number)
+ *   ORB     the sun or the moon (where in its disc, inside 1; its glow, outside)
+ */
+const WATER = 2;
+const PATH = 3;
+const EDGE = 4;
+const ORB = 5;
+
+function sea(count: number, tint: Float32Array) {
+  const out = new Float32Array(count * 4);
+  const rand = rng(53);
+  let at = 0;
+  const put = (x: number, y: number, z: number, kind: number) => {
+    out.set([x, y, z, kind], at * 4);
+    tint[at++] = 0;
+  };
+  const upTo = (share: number) => Math.min(count, at + Math.floor(count * share));
+  for (const end = upTo(0.66); at < end; ) put(rand() * 2 - 1, rand(), rand(), WATER);
+  for (const end = upTo(0.14); at < end; ) put(gauss(rand), rand(), rand(), PATH);
+  for (const end = upTo(0.06); at < end; ) put(rand() * 2 - 1, gauss(rand), rand(), EDGE);
+  for (const end = upTo(0.1); at < end; ) {
+    // Two thirds make the disc, the rest its glow.
+    const r = rand() < 0.66 ? Math.sqrt(rand()) : 1 + Math.pow(rand(), 1.5) * 2.2;
+    const a = rand() * TAU;
+    put(Math.cos(a) * r, Math.sin(a) * r, rand(), ORB);
+  }
+  while (at < count) put(rand() * 2 - 1, Math.pow(rand(), 1.8), rand(), 0.15 + 0.7 * Math.pow(rand(), 2));
   return out;
 }
 
@@ -497,9 +629,35 @@ function hello(count: number, tint: Float32Array, options: Parameters<typeof sam
   return { targets: out, beacon };
 }
 
+/** A new moon to count lunations from, and the length of one, in days. */
+const NEW_MOON = Date.UTC(2000, 0, 6, 18, 14);
+const LUNATION = 29.530588853;
+
+/** On the dev server, ?hour=18.5 shows the sky at that hour in Naga City. */
+const HOUR_OVERRIDE = import.meta.env.DEV ? Number(new URLSearchParams(location.search).get("hour") ?? NaN) : NaN;
+
+/**
+ * The sky over Naga City now (UTC+8 all year), for the footer's sea: where the
+ * sun is between rising at six and setting at six, or where the moon is
+ * through the night, and the moon's phase. Rough on purpose: it only has to
+ * look like the hour it is there.
+ */
+function skyOverNaga(out: Float32Array, at = Date.now()) {
+  const date = new Date(at);
+  const hour = Number.isFinite(HOUR_OVERRIDE)
+    ? HOUR_OVERRIDE % 24
+    : ((date.getUTCHours() + 8) % 24) + date.getUTCMinutes() / 60 + date.getUTCSeconds() / 3600;
+  const day = hour >= 6 && hour < 18;
+  const along = day ? (hour - 6) / 12 : (hour - 18 + 24) % 24 / 12;
+  out[0] = along * 2 - 1;
+  out[1] = Math.sin(Math.PI * along) - 0.05;
+  out[2] = day ? 1 : 0;
+  out[3] = ((((at - NEW_MOON) / 86_400_000 / LUNATION) % 1) + 1) % 1;
+}
+
 const glslVec = (v: Vec3) => `vec3(${v.map((n) => n.toFixed(5)).join(", ")})`;
 
-const ATTRIBUTES = ["t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "aRand", "aMask"] as const;
+const ATTRIBUTES = ["t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "aRand", "aMask"] as const;
 
 const vertex = /* glsl */ `#version 300 es
 precision highp float;
@@ -508,7 +666,7 @@ ${GLSL_NOISE}
 // One target per figure (see the generators above). The fourth slot usually
 // says what a particle is; each figure's function below reads it.
 in vec4 t0; in vec4 t1; in vec4 t2; in vec4 t3;
-in vec4 t4; in vec4 t5; in vec4 t6; in vec4 t7; in vec4 t8;
+in vec4 t4; in vec4 t5; in vec4 t6; in vec4 t7; in vec4 t8; in vec4 t9;
 in vec4 aRand;   // size, phase, spare, colour threshold
 in uint aMask;   // bit k: this particle is an orange accent in figure k
 uniform float uW[${FIGURES}];
@@ -519,6 +677,14 @@ uniform float uTurn;
 uniform float uFocus;      // the light circling the trophy whose row is hovered
 uniform float uFocusAmt;
 uniform vec3 uBeacon;      // the full stop of "hello.": centre and radius
+uniform vec4 uWorld;       // a project's world: belts, ringlets, moons, axial tilt
+uniform vec2 uRinglet[${RINGLETS}];  // where each ringlet starts across the rings, and how wide it is (0 to 1)
+uniform vec4 uMoon[${MOONS}];      // each moon's orbit radius, orbit tilt, phase and size
+uniform vec2 uStorm;       // the storm's latitude and longitude
+uniform float uLift;       // how far the world's page has scrolled up, in world units
+uniform vec4 uSky;         // the sun or moon: across the horizon (-1 to 1), height (0 to 1), day (1) or night (0), the moon's phase
+uniform vec3 uSea;         // the horizon, the top of the sky and the bottom edge, in world units
+uniform float uSeaW;       // half the screen's width, in world units
 uniform float uTime;
 uniform float uChaos;
 uniform float uKick;
@@ -723,12 +889,190 @@ vec3 trophy(vec4 t, out float lit, out float grow, out float tone) {
   return p;
 }
 
-// 5. The work chapter's field: dust drifting toward us, fading in far away and out as it passes.
-vec3 drift(vec4 t, out float lit, out float grow) {
-  float z = mod(t.z + uTime * 0.06 + 3.4, 4.0) - 3.4;
-  lit = smoothstep(-3.4, -2.6, z) * smoothstep(0.6, 0.2, z);
+// 5. Work: a world for each project (see planet() and worldShape() in field.ts).
+const float WORLD_R = ${WORLD_R.toFixed(2)};
+const float RING_IN = ${(WORLD_R * 1.32).toFixed(3)};
+const float RING_OUT = ${(WORLD_R * 2.2).toFixed(3)};
+// The light comes from the upper left, the title's side.
+const vec3 WORLD_SUN = vec3(-0.55, 0.42, 0.72) / ${Math.hypot(0.55, 0.42, 0.72).toFixed(5)};
+
+// The planet's own frame to ours: its axis tilts, then the whole world leans toward us so we see the rings from above.
+vec3 worldView(vec3 p) { return tiltX(turnAbout(p, 2, uWorld.w), 0.44); }
+vec3 worldFrame(vec3 v) { return turnAbout(tiltX(v, -0.44), 2, -uWorld.w); }
+
+// A point in the rings, u of the way across them, and how bright its ringlet is there.
+vec3 ringPoint(float u, float a0, float thick, out float bright) {
+  float count = max(uWorld.y, 1.0);
+  float j = min(floor(u * count), ${(RINGLETS - 1).toFixed(1)});
+  float v = fract(u * count);
+  vec2 ringlet = uRinglet[int(j)];
+  float r = mix(RING_IN, RING_OUT, ringlet.x + ringlet.y * v);
+  // Inner ringlets go round faster.
+  float a = a0 + uTime * 0.2 * pow(r / WORLD_R, -1.5);
+  bright = (0.3 + 0.42 * hash(j * 7.13 + 1.7)) * (0.5 + 0.5 * smoothstep(0.0, 0.12, v) * smoothstep(1.0, 0.8, v));
+  return vec3(cos(a) * r, thick * 0.014, sin(a) * r);
+}
+
+// tone: 0 ink, 1 accent, 2 use the particle's own mask.
+vec3 worldAt(vec4 t, out float lit, out float grow, out float tone) {
+  float w = t.w;
+  vec3 sun = worldFrame(WORLD_SUN);
+  vec3 p;
+  bool surface = false;
+  tone = 0.0;
   grow = 1.0;
-  return vec3(t.xy, z);
+  if (w < 1.5) {
+    p = spinY(t.xyz, -uTime * 0.02);
+    lit = w;
+    grow = 0.7;
+    tone = 2.0;
+  } else if (w < ${(SURFACE + 0.5).toFixed(1)}) {
+    surface = true;
+    float sl = t.y;
+    float cl = sqrt(max(0.0, 1.0 - sl * sl));
+    // The equator turns faster than the poles, so the belts slide past each other.
+    float lon = t.x + uTime * (0.022 + 0.014 * cl * cl);
+    vec3 n = vec3(cl * cos(lon), sl, cl * sin(lon));
+    p = n * WORLD_R * (1.0 + (t.z - 0.5) * 0.014);
+    // Belts and zones: a belt for each thing built, their edges stirred by the weather.
+    float stripes = max(uWorld.x, 1.0) * 2.0 + 1.0;
+    float bp = (sl * 0.5 + 0.5) * stripes + 0.11 * snoise(vec3(n.x * 1.6, sl * 5.0, n.z * 1.6 + uTime * 0.02));
+    float j = floor(bp);
+    float f = fract(bp);
+    bool belt = mod(j, 2.0) > 0.5;
+    float edge = 1.0 - smoothstep(0.0, 0.1, min(f, 1.0 - f));
+    // The storm, an oval vortex riding with its latitude, its arms turning.
+    float drift = lon - uStorm.y - uTime * (0.022 + 0.014 * pow(cos(uStorm.x), 2.0));
+    vec2 sd = vec2(atan(sin(drift), cos(drift)) * cl / 0.3, (asin(sl) - uStorm.x) / 0.12);
+    float sr = length(sd);
+    float storm = (1.0 - smoothstep(0.7, 1.0, sr)) * (0.55 + 0.45 * sin(atan(sd.y, sd.x) * 2.0 - uTime * 0.7 + sr * 7.0));
+    // A hovered "What I built" line lights its belt.
+    float focused = belt ? uFocusAmt * step(abs(uFocus - (j - 1.0) * 0.5), 0.25) * step(uFocus, 50.0) : 0.0;
+    vec3 nv = worldView(n);
+    float day = max(dot(nv, WORLD_SUN), 0.0);
+    // The rings' shadow across the planet.
+    float s = -p.y / (abs(sun.y) > 1e-3 ? sun.y : 1e-3);
+    float hr = length((p + sun * s).xz);
+    float ringShade = s > 0.0 ? 1.0 - 0.62 * smoothstep(RING_IN * 0.98, RING_IN * 1.04, hr) * smoothstep(RING_OUT * 1.02, RING_OUT * 0.96, hr) : 1.0;
+    lit = (0.05 + 0.95 * pow(day, 0.7) * ringShade) * (belt ? 1.0 : 0.42) * (1.0 + 0.3 * edge) * (1.0 + 0.8 * storm + 1.1 * focused);
+    // Only the side facing us.
+    lit *= smoothstep(-0.04, 0.1, nv.z);
+    grow = (belt ? 1.08 : 0.85) * (1.0 + 0.3 * storm + 0.35 * focused) * mix(0.75, 1.05, day);
+    // The belts run orange, flecked with ink; the storm and a pointed-at belt burn through.
+    tone = max(belt ? step(aRand.w, 0.88) : 0.0, max(step(0.42, storm), step(0.5, focused)));
+  } else if (w < ${(HAZE + 0.5).toFixed(1)}) {
+    // Its air, seen only at the edge, and brightest on the lit side.
+    float sl = t.y;
+    float cl = sqrt(max(0.0, 1.0 - sl * sl));
+    vec3 n = vec3(cl * cos(t.x), sl, cl * sin(t.x));
+    p = n * WORLD_R * (1.015 + 0.09 * t.z);
+    vec3 nv = worldView(n);
+    lit = pow(1.0 - abs(nv.z), 3.0) * max(dot(nv, WORLD_SUN) + 0.3, 0.0) * 0.55 * (1.0 - t.z);
+    grow = 0.75;
+  } else if (w < ${(IN_RINGS + 0.5).toFixed(1)}) {
+    float bright;
+    p = ringPoint(t.x, t.y, t.z, bright);
+    // The planet's shadow falls across the rings behind it.
+    float along = dot(p, sun);
+    float shade = along < 0.0 ? 0.08 + 0.92 * smoothstep(WORLD_R * 0.9, WORLD_R * 1.06, length(p - sun * along)) : 1.0;
+    lit = bright * shade;
+    grow = 0.85;
+  } else {
+    // A moon for each thing that came of it; hovering that line makes it flare.
+    int k = int(w - ${MOON.toFixed(1)});
+    vec4 m = uMoon[k];
+    float on = clamp(uWorld.z - float(k), 0.0, 1.0);
+    float a = m.z + uTime * 0.3 * pow(m.x / WORLD_R, -1.5);
+    vec3 centre = tiltX(vec3(cos(a) * m.x, 0.0, sin(a) * m.x), m.y);
+    float bright;
+    vec3 rest = ringPoint(fract(t.x * 0.31 + t.y * 0.57 + 0.5), t.z * 3.1 + float(k), t.y, bright);
+    p = mix(rest, centre + t.xyz * m.w, on);
+    float shine = max(dot(normalize(worldView(t.xyz) + 1e-4), WORLD_SUN), 0.0);
+    float focused = uFocusAmt * step(abs(uFocus - ${MOON_FOCUS.toFixed(1)} - float(k)), 0.5);
+    lit = mix(bright, (0.06 + 1.05 * shine) * (1.0 + 0.9 * focused), on);
+    grow = mix(0.85, 1.05 + 0.6 * focused, on);
+    tone = step(0.5, focused) * on;
+  }
+  vec3 v = worldView(p);
+  // The planet hides whatever is behind it.
+  if (!surface && v.z < 0.0) lit *= smoothstep(WORLD_R * 0.96, WORLD_R * 1.01, length(v.xy));
+  return v;
+}
+
+// 9. The footer: the sea off Naga City under its sky at the hour it is there now (see sea() in field.ts).
+const float SWELLS = 54.0;
+
+vec2 skyLight() { return vec2(uSky.x * uSeaW * 0.72, uSea.x + uSky.y * (uSea.y - uSea.x) * 0.85); }
+
+vec3 seaAt(vec4 t, out float lit, out float grow, out float tone) {
+  float w = t.w;
+  float horizon = uSea.x;
+  float W = uSeaW;
+  vec2 orb = skyLight();
+  float day = uSky.z;
+  float up = smoothstep(-0.25, 0.05, uSky.y);
+  tone = 0.0;
+  grow = 1.0;
+  if (w < 1.5) {
+    // Stars, at night only, low over the water.
+    lit = w * (1.0 - day) * 0.45 * (0.65 + 0.35 * sin(uTime * 0.8 + t.z * 40.0));
+    grow = 0.6;
+    return vec3(t.x * W, horizon + 0.05 + t.y * (uSea.y - horizon), 0.0);
+  }
+  if (w < ${(PATH + 0.5).toFixed(1)}) {
+    // Lines of swell rolling in from the horizon, evenly spaced out there and so crowding together
+    // toward it, each broken where it catches the light; and the light itself, a path of glints
+    // under the sun or the moon, wider when it is low.
+    bool path = w > ${(PATH - 0.5).toFixed(1)};
+    float line = floor(t.y * SWELLS);
+    float within = fract(t.y * SWELLS) - 0.5;
+    // Unevenly spaced, so the water never reads as ruled lines.
+    float out_ = 1.0 - fract((line + uTime * 0.28 + (hash(line * 3.7 + 1.3) - 0.5) * 0.7) / SWELLS);
+    float depth = mix(1.0, 16.0, out_);
+    float below = (1.0 / depth - 1.0 / 16.0) / (1.0 - 1.0 / 16.0);
+    float pathW = W * mix(0.035, 0.26, below) * (1.0 + 1.3 * (1.0 - clamp(uSky.y, 0.0, 1.0)));
+    float x = path ? orb.x + t.x * pathW * 0.55 : t.x * W * 1.06;
+    float y = mix(horizon, uSea.z, below) + within * 0.04 * below + sin(x * 1.3 / (0.4 + below) + line * 1.7 + uTime * 0.4) * 0.018 * below;
+    float caught = smoothstep(0.05, 0.75, 0.5 + 0.5 * snoise(vec3(x * mix(2.4, 0.9, below), line * 0.61, uTime * 0.07)));
+    float onPath = exp(-pow((x - orb.x) / pathW, 2.0)) * up;
+    float glint = pow(max(0.0, sin(uTime * (1.3 + t.z * 2.4) + t.z * 80.0 + x * 4.0)), 10.0);
+    // A full moon lays a bright path; a thin one, a faint one.
+    float shine = mix(0.25 + 0.75 * (0.5 - 0.5 * cos(${TAU.toFixed(5)} * uSky.w)), 1.0, day);
+    lit = (0.05 + 0.62 * caught) * mix(0.55, 1.0, sqrt(below)) + onPath * shine * (0.2 + 1.3 * glint);
+    // Each line fades in at the horizon and out at the bottom edge, and the water thins out at both sides.
+    lit *= smoothstep(0.0, 0.1, out_) * smoothstep(1.0, 0.94, out_) * smoothstep(W * 1.08, W * 0.7, abs(x));
+    grow = mix(0.55, 1.45, below) * (1.0 + 0.5 * onPath * glint);
+    tone = day * step(0.35, onPath * glint);
+    return vec3(x, y, 0.0);
+  }
+  if (w < ${(EDGE + 0.5).toFixed(1)}) {
+    // The horizon: a thin line, brightest under the light.
+    float x = t.x * W * 1.05;
+    float under = exp(-pow((x - orb.x) / (W * 0.28), 2.0)) * up;
+    lit = (0.26 + 0.9 * under) * smoothstep(W * 1.05, W * 0.65, abs(x));
+    grow = 0.7;
+    tone = day * step(0.55, under) * step(0.45, t.z);
+    return vec3(x, horizon + t.y * 0.004, 0.0);
+  }
+  // The sun, or the moon in tonight's phase, with its glow. Low, it sinks into the sea.
+  float r = length(t.xy);
+  vec3 p = vec3(orb + t.xy * mix(0.07, 0.1, day), 0.0);
+  if (r < 1.0) {
+    float shown = 1.0;
+    if (day < 0.5) {
+      // Lit from the right as it waxes, from the left as it wanes.
+      float edge = cos(${TAU.toFixed(5)} * uSky.w) * sqrt(max(0.0, 1.0 - t.y * t.y));
+      shown = mix(0.1, 1.0, uSky.w < 0.5 ? step(edge, t.x) : step(t.x, -edge));
+    }
+    lit = 0.95 * shown;
+    grow = 1.1;
+  } else {
+    lit = 0.22 * exp(-(r - 1.0) * 1.6);
+    grow = 0.8;
+  }
+  lit *= smoothstep(horizon - 0.004, horizon + 0.008, p.y);
+  tone = day;
+  return p;
 }
 
 // 6. "hello." (see hello() in field.ts). The word holds still; its full stop is a beacon
@@ -932,13 +1276,15 @@ void main() {
     grow += uW[3] * g;
   }
   float tone = 2.0;
+  float worldTone = 2.0;
+  float seaTone = 2.0;
   if (uW[4] > 0.0005) {
     P += uW[4] * place(trophy(t4, l, g, tone), 4);
     lit += uW[4] * l;
     grow += uW[4] * g;
   }
   if (uW[5] > 0.0005) {
-    P += uW[5] * place(drift(t5, l, g), 5);
+    P += uW[5] * (place(worldAt(t5, l, g, worldTone), 5) + vec3(0.0, uLift, 0.0));
     lit += uW[5] * l;
     grow += uW[5] * g;
   }
@@ -956,6 +1302,12 @@ void main() {
     P += uW[8] * place(lissajousAt(t8, l, g), 8);
     lit += uW[8] * l;
     grow += uW[8] * g;
+  }
+  if (uW[9] > 0.0005) {
+    // Laid out on the screen itself, under the footer.
+    P += uW[9] * seaAt(t9, l, g, seaTone);
+    lit += uW[9] * l;
+    grow += uW[9] * g;
   }
   float total = 0.0;
   for (int k = 0; k < ${FIGURES}; k++) total += uW[k];
@@ -983,7 +1335,8 @@ void main() {
   float accent = uW[0] * step(aRand.w, hot);
   for (int k = 1; k < ${FIGURES}; k++) {
     float own = float((aMask >> uint(k)) & 1u);
-    accent += uW[k] * (k == 4 && tone < 1.5 ? tone : own);
+    float figureTone = k == 4 ? tone : k == 5 ? worldTone : k == 9 ? seaTone : 2.0;
+    accent += uW[k] * (figureTone < 1.5 ? figureTone : own);
   }
   vAccent = accent;
   vAlpha = lit * (0.35 + 0.65 * uIntro);
@@ -1052,7 +1405,7 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
   await breathe();
   targets[4] = trophy(COUNT, scratch);
   mark(4);
-  targets[5] = field(COUNT, scratch);
+  targets[5] = planet(COUNT, scratch);
   mark(5);
   await breathe();
   const word = hello(COUNT, scratch, { font: `600 150px ${DISPLAY}`, height: 1.25, seed: 37 });
@@ -1063,6 +1416,8 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
   mark(7);
   targets[8] = lissajous(COUNT, scratch);
   mark(8);
+  targets[9] = sea(COUNT, scratch);
+  mark(9);
   await breathe();
 
   // GPU side: one vertex array, one buffer per attribute. Rebuilt if the context is lost and restored.
@@ -1138,13 +1493,16 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
   const wide = window.matchMedia(WIDE);
   let room: Scene["layout"] = "home";
   let aspect = 1;
+  let visH = 1;
+  let visW = 1;
+  const worldScale = (visW: number) => Math.min(0.64, Math.max(0.4, visW * 0.11));
   const layout = (snap: boolean) => {
     const w = stage.width;
     const h = stage.height;
     aspect = w / h;
     perspective(proj, FOV, aspect, 0.1, 50);
-    const visH = 2 * 5 * Math.tan(FOV / 2);
-    const visW = visH * aspect;
+    visH = 2 * 5 * Math.tan(FOV / 2);
+    visW = visH * aspect;
     const narrow = w < 820;
     const side = narrow ? 0 : Math.min(visW * 0.24, 1.6);
     const up = narrow ? visH * 0.18 : 0;
@@ -1164,11 +1522,16 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
       spread ? { x: visW * 0.049, y: -0.5, s: 0.85 } : { x: side, y: up, s: fit * (narrow ? 0.8 : 1.15) },
       { x: side, y: up - (narrow ? 0 : 0.08), s: fit * (narrow ? 0.8 : 0.95) },
       { x: -side, y: up, s: fit * (narrow ? 0.6 : 1) },
-      { x: 0, y: 0, s: Math.max(1, visW / 7) },
+      // Work: the project's world beside its title; above the title on phones and portrait tablets.
+      narrow || tall
+        ? { x: 0, y: visH * 0.31, s: Math.min(narrow ? 0.42 : 0.5, (visW * 0.42) / (2.2 * WORLD_R)) }
+        : { x: visW * 0.5 - 2.55 * worldScale(visW), y: visH * 0.25, s: worldScale(visW) },
       { x: 0, y: narrow ? up : 0.62, s: fit * (narrow ? 0.9 : 1.45) },
       { x: narrow ? 0 : side * 0.95, y: narrow ? up * 1.1 : 0.05, s: fit * (narrow ? 0.75 : 0.9) },
       // Contact: the Lissajous curve beside the form.
       { x: narrow ? 0 : side * 1.1, y: narrow ? up : -0.1, s: fit * (narrow ? 0.65 : 0.95) },
+      // The sea places itself on the screen, under the footer.
+      { x: 0, y: 0, s: 1 },
     ];
     p.forEach((pl, i) => {
       goal.offsets.set([pl.x, pl.y, 0], i * 3);
@@ -1213,12 +1576,28 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
   let target: Scene = only(FIGURE.horizon);
   const weights = new Float32Array(FIGURES);
   weights[FIGURE.horizon] = 1;
-  const spins = new Float32Array([0, 0, 0.12, 0, 0, 0, 0, 0, 0]);
+  const spins = new Float32Array([0, 0, 0.12, 0, 0, 0, 0, 0, 0, 0]);
   // The globe starts each visit with the Philippines turning in from the left, so
   // the arcs' meeting point is the first thing in view. Held still, it faces us.
   let turn = NAGA_FRONT;
   let focus = -1;
   let focusAmt = 0;
+  // The work planet's shape, eased from one project's world to the next, and how far its page has scrolled.
+  let worldKey = "";
+  const worldGoal = worldShape({ seed: "", bands: 4, rings: 5, moons: 2 });
+  const worldNow = {
+    params: worldGoal.params.slice(),
+    ringlets: worldGoal.ringlets.slice(),
+    moons: worldGoal.moons.slice(),
+    storm: worldGoal.storm.slice(),
+  };
+  let lift = 0;
+  // The footer: how far the page has given way to the sea, and where the sea sits.
+  let endingGoal: Ending = { amount: 0, horizon: 0, sky: 0, bottom: 0 };
+  let ending = 0;
+  const drawn = new Float32Array(FIGURES);
+  const sky = new Float32Array(4);
+  const seaPlace = new Float32Array(3);
   let focusTarget = 0;
   let chaos = 0;
   let kick = 0;
@@ -1239,7 +1618,7 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
   stage.start((_t, dt) => {
     if (lost || !gpu) return;
     const signature = () =>
-      weights.reduce((sum, w, i) => sum + w * (i + 1), 0) + chaos + dim + zoom + shift + amp + focusAmt + pointerAmt + camX + camY + pointerNow[0] + pointerNow[1];
+      weights.reduce((sum, w, i) => sum + w * (i + 1), 0) + chaos + dim + zoom + shift + lift + ending + endingGoal.horizon + amp + focusAmt + pointerAmt + camX + camY + pointerNow[0] + pointerNow[1];
     const before = signature();
     if (!still) clock += dt;
     if (weights[3] < 0.02) turn = NAGA_FRONT - (still ? 0.3 : 0.8);
@@ -1254,6 +1633,8 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
     dim = damp(dim, target.dim, 5, dt);
     zoom = damp(zoom, target.zoom ?? 1, 4, dt);
     shift = damp(shift, target.shift ?? 0, 4, dt);
+    // The lift trails the page by a frame or two, so the planet floats rather than sticks.
+    lift = damp(lift, ((target.lift ?? 0) * visH) / Math.max(1, stage.height), still ? 60 : 22, dt);
     const ease = 1 - Math.exp(-10 * dt);
     for (let i = 0; i < 3; i++) pointerNow[i] += (pointer[i] - pointerNow[i]) * ease;
     pointerAmt = damp(pointerAmt, pointerActive, 4, dt);
@@ -1269,6 +1650,27 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
     };
     glide(offsets, goal.offsets);
     glide(scales, goal.scales);
+    // A new project's world grows out of the last one: belts, ringlets and moons slide into place.
+    // Arriving from another figure, it is already whole.
+    const reshape = weights[FIGURE.world] > 0.02 && !still ? 2.2 : 1e3;
+    for (const key of ["params", "ringlets", "moons", "storm"] as const) {
+      const now = worldNow[key];
+      const to = worldGoal[key];
+      for (let i = 0; i < now.length; i++) {
+        now[i] = damp(now[i], to[i], reshape, dt);
+        if (Math.abs(now[i] - to[i]) > 1e-4) moving = true;
+      }
+    }
+    // As the footer comes up, whatever the page shows settles into the sea.
+    ending = damp(ending, endingGoal.amount, still ? 30 : 6, dt);
+    if (Math.abs(ending - endingGoal.amount) > 1e-4) moving = true;
+    for (let i = 0; i < FIGURES; i++) drawn[i] = weights[i] * (1 - ending);
+    drawn[FIGURE.sea] += ending;
+    const toWorld = (px: number) => ((stage.height / 2 - px) * visH) / Math.max(1, stage.height);
+    seaPlace[0] = toWorld(endingGoal.horizon);
+    seaPlace[1] = toWorld(endingGoal.sky);
+    seaPlace[2] = toWorld(endingGoal.bottom);
+    if (ending > 0.001) skyOverNaga(sky);
 
     // Held still with nothing changing: skip the frame and let the GPU rest.
     if (still && !redraw && !moving && Math.abs(signature() - before) < 1e-5) return;
@@ -1284,16 +1686,24 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
     if (dark) gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     else gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.useProgram(gpu.shader);
-    gl.uniform1fv(at("uW"), weights);
+    gl.uniform1fv(at("uW"), drawn);
     gl.uniform3fv(at("uOff"), offsets);
     gl.uniform1fv(at("uScale"), scales);
     gl.uniform1fv(at("uSpin"), spins);
     gl.uniform1f(at("uTurn"), turn);
     gl.uniform3fv(at("uBeacon"), word.beacon);
+    gl.uniform4fv(at("uWorld"), worldNow.params);
+    gl.uniform2fv(at("uRinglet"), worldNow.ringlets);
+    gl.uniform4fv(at("uMoon"), worldNow.moons);
+    gl.uniform2fv(at("uStorm"), worldNow.storm);
+    gl.uniform1f(at("uLift"), lift);
+    gl.uniform4fv(at("uSky"), sky);
+    gl.uniform3fv(at("uSea"), seaPlace);
+    gl.uniform1f(at("uSeaW"), visW / 2);
     gl.uniform1f(at("uFocus"), focus);
     gl.uniform1f(at("uFocusAmt"), focusAmt);
     gl.uniform1f(at("uTime"), clock);
-    gl.uniform1f(at("uChaos"), chaos);
+    gl.uniform1f(at("uChaos"), chaos * (1 - ending) + Math.sin(Math.PI * ending) * 0.45);
     gl.uniform1f(at("uKick"), kick);
     gl.uniform1f(at("uIntro"), intro);
     gl.uniform1f(at("uAmp"), amp);
@@ -1302,13 +1712,13 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
     gl.uniform1f(at("uPointerAmt"), pointerAmt);
     gl.uniform1f(at("uSize"), mobile ? 2.3 : 1.75);
     gl.uniform1f(at("uPixelRatio"), stage.dpr);
-    gl.uniform1f(at("uZoom"), zoom);
-    gl.uniform1f(at("uShift"), shift);
+    gl.uniform1f(at("uZoom"), zoom + (1 - zoom) * ending);
+    gl.uniform1f(at("uShift"), shift * (1 - ending));
     gl.uniformMatrix4fv(at("uView"), false, view);
     gl.uniformMatrix4fv(at("uProj"), false, proj);
     gl.uniform3fv(at("uInk"), theme.ink);
     gl.uniform3fv(at("uAccent"), theme.accent);
-    gl.uniform1f(at("uOpacity"), theme.opacity * dim);
+    gl.uniform1f(at("uOpacity"), theme.opacity * (dim + (1 - dim) * ending));
     gl.bindVertexArray(gpu.vao);
     gl.drawArrays(gl.POINTS, 0, COUNT);
     gl.bindVertexArray(null);
@@ -1322,6 +1732,17 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
   return {
     set: (next) => {
       target = next;
+      const world = next.world;
+      const key = world ? `${world.seed}:${world.bands}:${world.rings}:${world.moons}` : worldKey;
+      if (world && key !== worldKey) {
+        worldKey = key;
+        const shape = worldShape(world);
+        worldGoal.params.set(shape.params);
+        worldGoal.ringlets.set(shape.ringlets);
+        worldGoal.moons.set(shape.moons);
+        worldGoal.storm.set(shape.storm);
+        redraw = true;
+      }
       const want = next.layout ?? "home";
       if (want !== room) {
         room = want;
@@ -1340,6 +1761,10 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
     },
     beat: (amount) => {
       beat = Math.min(1, beat + amount);
+    },
+    ending: (next) => {
+      endingGoal = next;
+      redraw = true;
     },
     dispose: () => {
       stopWatching();
