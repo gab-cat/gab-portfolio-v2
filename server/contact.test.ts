@@ -116,8 +116,19 @@ describe("contact server boundary", () => {
     const f = fixture(); for (let i = 0; i < 30; i++) expect((await f.get()).headers.get("cache-control")).toBe("no-store"); expect((await f.get()).status).toBe(429);
     f.advance(901_000); expect((await f.get()).status).toBe(200);
   });
-  test("fails closed with missing credentials, trusted IP, or unavailable protection", async () => {
-    const f = fixture(); const body = await f.valid(); f.redisOff(); expect((await f.post(body)).status).toBe(503); expect(f.sends).toHaveLength(0);
+  test("keeps sending with in-memory limits when the shared store is down", async () => {
+    const f = fixture(); f.redisOff();
+    const body = await f.valid();
+    expect((await f.post(body)).status).toBe(200);
+    expect(f.sends).toHaveLength(1);
+    // The nonce still binds the session to one message, and the per-sender cap still holds.
+    expect((await f.post({ ...body, message: body.message + " Changed." })).status).toBe(409);
+    for (let i = 0; i < 2; i++) expect((await f.post(await f.valid())).status).toBe(200);
+    expect((await f.post(await f.valid())).status).toBe(429);
+    expect(f.sends).toHaveLength(3);
+  });
+  test("fails closed with missing credentials or trusted IP", async () => {
+    const f = fixture();
     expect((await f.handle(new Request("https://gabcat.dev/api/contact"), null)).status).toBe(503);
     const handle = createContactHandler({ env: {} }); expect((await handle(new Request("https://gabcat.dev/api/contact"), "x")).status).toBe(503);
   });

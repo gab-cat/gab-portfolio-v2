@@ -89,8 +89,10 @@ Set these **server-side** environment variables in Vercel, then redeploy:
 
 The handler also accepts `UPSTASH_REDIS_REST_URL`/`_TOKEN` or `KV_REST_API_URL`/`_TOKEN`,
 and falls back to a TCP `CONTACT_REDIS_URL` or `REDIS_URL`. REST is checked first. If the
-store is missing or unreachable the form fails closed and the function logs
-`contact form unavailable: <cause>`, so check the function logs when the form returns 503.
+store is missing or unreachable, the form keeps working on per-instance, in-memory limits
+(same caps, but not shared across function instances), logs
+`contact rate-limit store unavailable, using in-memory limits: <cause>`, and retries the
+store a minute later. Other failures log `contact form unavailable: <cause>`.
 
 Verify `generalsonline.app` in Resend and publish the required DNS records. The
 sender is fixed to `Gabcat Portfolio <contact@generalsonline.app>`. Messages are
@@ -125,8 +127,9 @@ hosted functions; the local Vite adapter instead uses the socket address.
   data remains subject to Resend and inbox retention.
 - A form nonce is bound to one message, and Resend idempotency keys make exact
   retries safe. Changed messages require a refreshed form session.
-- Missing Redis, missing API key, unknown trusted IP, and provider errors fail
-  closed. Generic errors never reveal credentials, provider payloads or PII.
+- Missing API key, unknown trusted IP, and provider errors fail closed. A missing
+  or unreachable Redis falls back to in-memory limits (see above) rather than taking
+  the form down. Generic errors never reveal credentials, provider payloads or PII.
 
 These controls bound sending rather than promising an abuse-proof public URL.
 Enable Vercel Firewall/Bot Protection and platform spend alerts to curb large

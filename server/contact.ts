@@ -27,6 +27,30 @@ async function redisUrlCommand(url: string, args: (string | number)[]) {
   return asNumber(await redis.sendCommand(args.map(String)));
 }
 
+// Per-instance stand-in for Redis, used only while the shared store is missing or unreachable.
+// It runs the three commands this file sends, with the same semantics, so the limits still apply
+// within each warm function instance. A lost free database must not take the form down with it.
+type Memory = Map<string, { value: string | number; expires: number }>;
+function memoryCommand(memory: Memory, args: (string | number)[], at: number) {
+  for (const [key, entry] of memory) if (entry.expires <= at) memory.delete(key);
+  if (args[0] === "EVAL") {
+    const key = String(args[3]);
+    const old = memory.get(key);
+    const value = Number(old?.value ?? 0) + 1;
+    memory.set(key, { value, expires: old?.expires ?? at + Number(args[4]) * 1000 });
+    return value;
+  }
+  if (args[0] === "SET") {
+    const key = String(args[1]);
+    if (memory.has(key)) return null;
+    memory.set(key, { value: String(args[2]), expires: at + Number(args[4]) * 1000 });
+    return "OK";
+  }
+  if (args[0] === "GET") return memory.get(String(args[1]))?.value ?? null;
+  throw new Error(`Unsupported command ${args[0]}`);
+}
+const STORE_RETRY_MS = 60_000;
+
 // The first name set wins. Covers the names Upstash and Redis use on Vercel, with and without our CONTACT_ prefix.
 function pick(env: ContactEnv, ...names: string[]) {
   for (const name of names) if (env[name]) return env[name];
@@ -80,7 +104,7 @@ export function createContactHandler(deps: Dependencies) {
   const requestFetch = deps.fetch ?? fetch;
   const now = deps.now ?? Date.now;
   const sign = (value: string) => createHmac("sha256", env.RESEND_API_KEY!).update(`portfolio-contact:${value}`).digest("base64url");
-  const command: Command = deps.command ?? (async (args) => {
+  const remote: Command = deps.command ?? (async (args) => {
     const endpoint = pick(env, "UPSTASH_REDIS_REST_URL", "CONTACT_KV_REST_API_URL", "KV_REST_API_URL");
     const token = pick(env, "UPSTASH_REDIS_REST_TOKEN", "CONTACT_KV_REST_API_TOKEN", "KV_REST_API_TOKEN");
     if (endpoint?.startsWith("https://") && token) {
@@ -94,6 +118,19 @@ export function createContactHandler(deps: Dependencies) {
     if (url?.startsWith("redis")) return redisUrlCommand(url, args);
     throw new Error("Rate-limit store not configured");
   });
+  // Use the shared store when it answers. If it fails, log why, use in-memory limits, and try it
+  // again after a minute so a dead host doesn't cost every request a connection attempt.
+  let storeDownUntil = 0;
+  const memory: Memory = new Map();
+  const command: Command = async (args) => {
+    if (now() >= storeDownUntil) {
+      try { return await remote(args); } catch (error) {
+        storeDownUntil = now() + STORE_RETRY_MS;
+        console.error("contact rate-limit store unavailable, using in-memory limits:", error instanceof Error ? error.message : "unknown error");
+      }
+    }
+    return memoryCommand(memory, args, now());
+  };
   async function limit(key: string, max: number, seconds: number) {
     const count = await command(["EVAL", LIMIT_SCRIPT, 1, `contact:${key}`, seconds]);
     if (typeof count !== "number" || !Number.isInteger(count) || count < 1) throw new Error("Invalid limit response");
