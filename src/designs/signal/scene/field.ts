@@ -1,6 +1,6 @@
 import { isMotionPaused, onMotionChange } from "../../../lib/motion";
 import { THEME_EVENT } from "../../../lib/theme";
-import { FIGURE, FIGURES, WIDE, only, type FieldController, type Scene } from "./stage";
+import { FIGURE, FIGURES, LIGHTS, WIDE, only, type FieldController, type Scene } from "./stage";
 import {
   GLSL_NOISE,
   breathe,
@@ -288,14 +288,14 @@ function globe(count: number, tint: Float32Array) {
 
 /**
  * Wins: a trophy turning slowly under a light, its body a loose scatter of dots. The shader turns it and lights it: gold where the light is
- * soft, white-hot where it catches. Seven small lights circle it, one per
- * podium; hovering a trophy in the list lights its own. Targets are
+ * soft, white-hot where it catches. Small lights circle it, one per award
+ * in src/data.ts, spaced a little unevenly; hovering a row lights its own. Targets are
  * (x, y, z, kind):
  *   0-1               glitter drifting up around it (x, phase, z), and brightness
  *   CUP + 0.5 + 0.45n  a dot on the turned body (angle, height, radius); n is the
  *                     upward part of the surface's normal there
  *   HANDLE            a dot on a handle (x, y, z in the trophy's own space)
- *   ORBIT + k + trail podium k's light (trail 0 at its head)
+ *   ORBIT + k + trail award k's light (trail 0 at its head)
  */
 const CUP = 10;
 const HANDLE = 20;
@@ -347,9 +347,10 @@ function trophy(count: number, tint: Float32Array) {
     put(side * x, y, tube * Math.sin(psi), HANDLE, 1);
   }
 
-  // The seven lights, each with a fading tail.
-  for (let k = 0; k < 7; k++) {
-    for (const end = upTo(0.012); at < end; ) put(gauss(rand) * 0.008, gauss(rand) * 0.008, gauss(rand) * 0.008, ORBIT + k + Math.pow(rand(), 1.8) * 0.99, 0);
+  // One light per award, each with a fading tail. They share a fixed slice of the
+  // particles, so more awards make thinner lights rather than less glitter.
+  for (let k = 0; k < LIGHTS; k++) {
+    for (const end = upTo(0.084 / LIGHTS); at < end; ) put(gauss(rand) * 0.008, gauss(rand) * 0.008, gauss(rand) * 0.008, ORBIT + k + Math.pow(rand(), 1.8) * 0.99, 0);
   }
 
   // Glitter.
@@ -705,10 +706,13 @@ vec3 trophy(vec4 t, out float lit, out float grow, out float tone) {
     tone = 1.0 - step(aRand.w, glint * 1.6);
     return p;
   }
-  // The seven lights, on a tilted orbit, dimmed as they pass behind the cup.
+  // The lights, on a tilted orbit, dimmed as they pass behind the cup. Each sits a
+  // little off its even spacing, and tails shorten as lights crowd in, so many awards
+  // read as loose sparks rather than a ring.
   int k = int(w - ${ORBIT.toFixed(1)});
   float trail = w - ${ORBIT.toFixed(1)} - float(k);
-  float a = uTime * 0.42 + float(k) * ${(TAU / 7).toFixed(4)} - trail * 0.8;
+  float jitter = (fract(sin(float(k) * 12.9898) * 43758.5453) - 0.5) * ${((TAU / LIGHTS) * 0.55).toFixed(4)};
+  float a = uTime * 0.42 + float(k) * ${(TAU / LIGHTS).toFixed(4)} + jitter - trail * ${Math.min(0.8, (0.8 * 7) / LIGHTS).toFixed(4)};
   vec3 p = tiltX(vec3(cos(a) * 0.92, 0.0, sin(a) * 0.92), -0.32);
   p = vec3(p.x * 0.98 - p.y * 0.2, p.x * 0.2 + p.y * 0.98 + 0.12, p.z) + t.xyz;
   float on = step(abs(uFocus - float(k)), 0.5);

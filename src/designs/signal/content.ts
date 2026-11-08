@@ -3,9 +3,25 @@
  * newest roles first, one line per craft, and no em-dashes (the shared copy
  * still uses them; this design doesn't).
  */
-import { CRAFT, EMAIL, JOURNEY, PROJECTS, SOCIALS, TOOLBOX, TROPHIES as RAW_TROPHIES } from "../../data";
+import {
+  CERTIFICATIONS,
+  COMMUNITY,
+  CRAFT,
+  EDUCATION,
+  EMAIL,
+  FEATURED_PROJECTS,
+  JOURNEY,
+  PROJECT_KINDS,
+  PROJECTS,
+  SOCIALS,
+  TOOLBOX,
+  TROPHIES as RAW_TROPHIES,
+  type Project,
+  type ProjectKind,
+} from "../../data";
+import { projectPath } from "../../seo";
 
-export { EMAIL, SOCIALS };
+export { EMAIL, SOCIALS, PROJECT_KINDS, type ProjectKind };
 
 /** "Vue, Nuxt, Express — learned fast" reads as two sentences once the dash goes. */
 export function clean(text: string) {
@@ -38,13 +54,92 @@ export const CRAFTS = CRAFT.map((craft, i) => ({
 
 export const TROPHIES = RAW_TROPHIES.map((trophy) => ({ ...trophy, detail: trophy.detail.replace(/\s*—\s*/g, ", ") }));
 
-export const WORK = PROJECTS.map((project) => ({
-  name: project.name,
-  tagline: project.tagline,
-  story: clean(project.story),
-  tech: project.tech,
-  href: project.href,
-  live: !project.href.includes("github.com"),
-}));
+const NUMBERS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen", "Twenty"];
+
+/** "Thirteen" for 13, the digits past twenty. */
+export const spell = (n: number) => NUMBERS[n] ?? String(n);
+
+const trophyYears = RAW_TROPHIES.map((trophy) => Number(trophy.year));
+/** "2024 – 2025": the span the wins cover. */
+export const WIN_YEARS =
+  Math.min(...trophyYears) === Math.max(...trophyYears)
+    ? String(Math.max(...trophyYears))
+    : `${Math.min(...trophyYears)} – ${Math.max(...trophyYears)}`;
+
+/** One project's kind, for its row and its page. */
+export const KIND_ONE: Record<ProjectKind, string> = {
+  client: "Client work",
+  product: "Product",
+  hackathon: "Hackathon",
+  game: "Game",
+  tool: "Tool",
+  school: "School project",
+};
+
+export type Work = {
+  slug: string;
+  path: string;
+  name: string;
+  year: string;
+  kind: ProjectKind;
+  kindLabel: string;
+  role: string;
+  tagline: string;
+  story: string;
+  built: string[];
+  results: string[];
+  tech: readonly string[];
+  links: { label: string; href: string; host: string }[];
+  status?: string;
+  /** What kind of client, for codenamed work. */
+  confidential?: string;
+  image?: string;
+};
 
 export const hostOf = (href: string) => new URL(href).host.replace(/^www\./, "");
+
+function toWork(project: Project): Work {
+  const links = [
+    project.links.live && { label: hostOf(project.links.live) === "facebook.com" ? "Messenger" : "Live", href: project.links.live },
+    project.links.repo && { label: "Code", href: project.links.repo },
+    project.links.post && { label: "Post", href: project.links.post },
+  ]
+    .filter((link): link is { label: string; href: string } => Boolean(link))
+    .map((link) => ({ ...link, host: hostOf(link.href) }));
+  return {
+    slug: project.slug,
+    path: projectPath(project),
+    name: project.name,
+    year: range(project.year),
+    kind: project.kind,
+    kindLabel: KIND_ONE[project.kind],
+    role: clean(project.role),
+    tagline: clean(project.tagline),
+    story: clean(project.story),
+    built: project.built.map(clean),
+    results: (project.results ?? []).map(clean),
+    tech: project.tech,
+    links,
+    status: project.status && clean(project.status),
+    confidential: project.confidential,
+    image: project.image,
+  };
+}
+
+/** "2025 – 2026" sorts by the year it ran to. */
+const until = (project: Project) => Number(project.year.slice(-4));
+const newestFirst = (list: readonly Project[]) => [...list].sort((a, b) => until(b) - until(a));
+
+/** Every project, newest first (ties keep the data's order). */
+export const ALL_WORK = newestFirst(PROJECTS).map(toWork);
+/** The home page's Work chapter. */
+export const WORK = newestFirst(FEATURED_PROJECTS).map(toWork);
+
+/** Kinds that have at least one project, in the order PROJECT_KINDS lists them. */
+export const WORK_KINDS = (Object.keys(PROJECT_KINDS) as ProjectKind[]).filter((kind) =>
+  ALL_WORK.some((work) => work.kind === kind),
+);
+
+export const SCHOOL = EDUCATION.map((school) => ({ ...school, period: range(school.period) }));
+export const CIRCLES = COMMUNITY.map((item) => ({ ...item, period: range(item.period) }));
+export { CERTIFICATIONS };

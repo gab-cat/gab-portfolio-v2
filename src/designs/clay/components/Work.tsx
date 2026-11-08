@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { PROJECTS } from "../../../data";
+import { PROJECTS, primaryLink } from "../../../data";
 import { Sculpture, type SculptureChapter } from "./Sculpture";
 import { Reveal } from "./Reveal";
 
@@ -19,6 +19,11 @@ const COVERS: { chapter: SculptureChapter; kind: string; tone: string }[] = [
 ];
 
 const PROJECT_TINTS = ["var(--sage)", "var(--lilac)", "var(--sky)", "var(--blush)"];
+
+/** Clay has a hand-made cover for these four, in this order. */
+const CLAY_PICKS = ["merchtrack", "cs-guild", "games-of-the-generals", "your-daily-tarot"].map(
+  (slug) => PROJECTS.find((project) => project.slug === slug)!,
+);
 
 export function Work() {
   return (
@@ -41,7 +46,7 @@ export function Work() {
           <Sculpture chapter="possibility" className="work-globe" />
         </div>
         <div className="projects-grid">
-          {PROJECTS.map((project, i) => (
+          {CLAY_PICKS.map((project, i) => (
             <Reveal
               key={project.name}
               className={`project project-${i}`}
@@ -50,11 +55,11 @@ export function Work() {
               <p className="project-question">{PROJECT_QUESTIONS[i]}</p>
               <a
                 className="project-link"
-                href={project.href}
+                href={primaryLink(project) ?? "https://github.com/gab-cat"}
                 target="_blank"
                 rel="noreferrer noopener"
                 style={{ "--tint": PROJECT_TINTS[i] } as CSSProperties}
-                aria-label={`${project.name} — ${i === 1 ? "visit website" : "explore on GitHub"} (opens in a new tab)`}
+                aria-label={`${project.name} — ${project.links.live ? "visit the live site" : "explore the code"} (opens in a new tab)`}
               >
                 <div className={`project-art project-art-${COVERS[i].tone}`}>
                   <Sculpture chapter={COVERS[i].chapter} />
@@ -66,7 +71,7 @@ export function Work() {
                   )}
                 </div>
                 <div className="project-heading">
-                  <span className="project-index">{project.index}</span>
+                  <span className="project-index">{String(i + 1).padStart(2, "0")}</span>
                   <h3>{project.name}</h3>
                   <span className="project-arrow" aria-hidden="true">↗</span>
                 </div>
@@ -79,7 +84,7 @@ export function Work() {
                     <li key={tech}>{tech}</li>
                   ))}
                 </ul>
-                <span>{i === 1 ? "Live website" : "GitHub"} ↗</span>
+                <span>{project.links.live ? "Live site" : "GitHub"} ↗</span>
               </div>
             </Reveal>
           ))}

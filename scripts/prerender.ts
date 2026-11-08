@@ -1,20 +1,21 @@
 /**
  * Post-build prerender: injects unique heads, JSON-LD, and static HTML for
- * `/`, `/contact`, and `404`, plus crawler discovery files. Fonts, colours and
+ * every page in PAGE_PATHS (home, work, each project, contact) and the 404,
+ * plus crawler discovery files. Fonts, colours and
  * icons come from whichever design the SSR bundle was built with.
  */
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { execSync } from "node:child_process";
 import {
-  INDEXABLE_ROUTES,
   LOGO_PATH,
-  ROUTES,
+  PAGE_PATHS,
   headMarkup,
   llmsFullTxt,
   llmsTxt,
   robotsTxt,
   sitemapXml,
+  routeFromPath,
   webManifest,
   type RouteId,
 } from "../src/seo.ts";
@@ -72,10 +73,10 @@ function modulePreloads(route: RouteId): string {
 
 const modified = lastmod();
 
-function pageHtml(route: RouteId): string {
-  const path = ROUTES[route].path;
+function pageHtml(path: string): string {
+  const route = routeFromPath(path);
   return inlined
-    .replace("<!--app-head-->", `${headMarkup(route, head, { modified })}\n    ${modulePreloads(route)}`)
+    .replace("<!--app-head-->", `${headMarkup(path, head, { modified })}\n    ${modulePreloads(route)}`)
     .replace('<div id="root"></div>', `<div id="root">${render(path)}</div>`);
 }
 
@@ -85,9 +86,11 @@ function writePage(file: string, html: string, label: string) {
   console.log(`prerendered ${label} (${(html.length / 1024).toFixed(1)} kB)`);
 }
 
-writePage(dist, pageHtml("home"), "dist/index.html");
-writePage(resolve(distDir, "contact/index.html"), pageHtml("contact"), "dist/contact/index.html");
-writePage(resolve(distDir, "404.html"), pageHtml("notFound"), "dist/404.html");
+for (const path of PAGE_PATHS) {
+  const file = path === "/" ? "index.html" : `${path.slice(1)}/index.html`;
+  writePage(resolve(distDir, file), pageHtml(path), `dist/${file}`);
+}
+writePage(resolve(distDir, "404.html"), pageHtml("/404"), "dist/404.html");
 
 writeFileSync(resolve(distDir, "robots.txt"), robotsTxt());
 writeFileSync(resolve(distDir, "sitemap.xml"), sitemapXml(modified));
@@ -98,4 +101,4 @@ writeFileSync(resolve(distDir, "site.webmanifest"), webManifest(head));
 copyFileSync(resolve(distDir, `.${head.brand}/favicon.ico`), resolve(distDir, "favicon.ico"));
 // The Organization logo in the JSON-LD points at one stable URL whatever the design.
 copyFileSync(resolve(distDir, `.${head.brand}/icon-512.png`), resolve(distDir, LOGO_PATH.slice(1)));
-console.log(`wrote discovery files for ${INDEXABLE_ROUTES.join(", ")}`);
+console.log(`wrote discovery files for ${PAGE_PATHS.length} pages`);

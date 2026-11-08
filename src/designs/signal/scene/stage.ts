@@ -1,3 +1,5 @@
+import { TROPHIES } from "../../../data";
+
 /**
  * The bridge between pages and the particle field. Pages say which figure
  * they want; the field (loaded later, in its own chunk) picks up
@@ -18,6 +20,9 @@ export const FIGURE = {
 } as const;
 
 export const FIGURES = 9;
+
+/** One light circles the wins trophy per award in src/data.ts. */
+export const LIGHTS = TROPHIES.length;
 
 export type Scene = {
   /** How much of each figure to show; the field eases toward it. */
@@ -47,7 +52,7 @@ export type FieldController = {
   level: (value: number) => void;
   /** A ripple along the waveform and the Lissajous curve, like a keystroke landing. */
   beat: (amount: number) => void;
-  /** Light up one of the seven lights circling the wins trophy (its row is hovered), or none. */
+  /** Light up one of the lights circling the wins trophy (its row is hovered), or none. */
   focus: (index: number | null) => void;
   dispose: () => void;
 };

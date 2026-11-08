@@ -5,6 +5,8 @@ export const head: DesignHead = {
   fontPreloads: ["/fonts/PowerGroteskTrial-Bold.woff2", "/fonts/instrument-sans-latin-wght-normal.woff2"],
   routeModules: {
     home: ["pages/HomeApp.tsx"],
+    work: ["pages/HomeApp.tsx"],
+    project: ["pages/HomeApp.tsx"],
     contact: ["pages/ContactApp.tsx"],
     notFound: ["pages/NotFoundApp.tsx"],
   },

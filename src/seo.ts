@@ -1,11 +1,17 @@
 import {
+  CERTIFICATIONS,
+  COMMUNITY,
   CRAFT,
+  EDUCATION,
   EMAIL,
+  FEATURED_PROJECTS,
   JOURNEY,
+  PROJECT_KINDS,
   PROJECTS,
   SOCIALS,
   TOOLBOX,
   TROPHIES,
+  type Project,
 } from "./data";
 import type { DesignHead } from "./designs/types";
 
@@ -18,7 +24,7 @@ export const PERSON_IMAGE_PATH = "/portraits/gab-editorial.webp";
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
 
-export type RouteId = "home" | "contact" | "notFound";
+export type RouteId = "home" | "work" | "project" | "contact" | "notFound";
 
 export type RouteSeo = {
   id: RouteId;
@@ -30,7 +36,8 @@ export type RouteSeo = {
   index: boolean;
 };
 
-export const ROUTES: Record<RouteId, RouteSeo> = {
+/** Every route but "project", whose head depends on which project it shows (see pageSeo). */
+export const ROUTES: Record<Exclude<RouteId, "project">, RouteSeo> = {
   home: {
     id: "home",
     path: "/",
@@ -39,6 +46,16 @@ export const ROUTES: Record<RouteId, RouteSeo> = {
     description:
       "Gabriel 'Gab' Catimbang — developer & DevOps engineer from Naga City, Philippines. I build websites people actually use, keep them alive, and win hackathons for fun.",
     ogType: "profile",
+    index: true,
+  },
+  work: {
+    id: "work",
+    path: "/work",
+    canonical: `${SITE_ORIGIN}/work`,
+    title: "Projects by Gabriel Catimbang — products, hackathons and tools",
+    description:
+      "Every project Gabriel Catimbang can show: products, hackathon builds, games, school projects and small tools, with the stack, the role and what came of each.",
+    ogType: "website",
     index: true,
   },
   contact: {
@@ -62,7 +79,37 @@ export const ROUTES: Record<RouteId, RouteSeo> = {
   },
 };
 
-export const INDEXABLE_ROUTES: RouteId[] = ["home", "contact"];
+export const projectPath = (project: Project) => `/work/${project.slug}`;
+
+/** The project a /work/<slug> path shows, if any. */
+export function projectFromPath(path: string): Project | undefined {
+  const match = /^\/work\/([a-z0-9-]+)$/.exec(normalizePath(path));
+  return match ? PROJECTS.find((project) => project.slug === match[1]) : undefined;
+}
+
+/** Signal strips em dashes from shared copy; machine-readable copy gets the same treatment. */
+const plain = (text: string) => text.replace(/\s*—\s*/g, ". ").replace(/\. ([a-z])/g, (_, c: string) => `. ${c.toUpperCase()}`);
+
+/** The head for any path: a fixed route, or a project page. */
+export function pageSeo(path: string): RouteSeo {
+  const route = routeFromPath(path);
+  if (route !== "project") return ROUTES[route];
+  const project = projectFromPath(path)!;
+  const canonical = `${SITE_ORIGIN}${projectPath(project)}`;
+  return {
+    id: "project",
+    path: projectPath(project),
+    canonical,
+    title: `${project.name} — a project by Gabriel Catimbang`,
+    description: plain(project.story),
+    ogType: "website",
+    index: true,
+  };
+}
+
+/** Every page the prerender writes, in sitemap order. */
+export const PAGE_PATHS: string[] = ["/", "/work", ...PROJECTS.map(projectPath), "/contact"];
+export const INDEXABLE_PATHS: string[] = PAGE_PATHS;
 
 export function normalizePath(path: string): string {
   if (!path || path === "/") return "/";
@@ -74,6 +121,8 @@ export function routeFromPath(path: string): RouteId {
   const clean = normalizePath(path);
   if (clean === "/") return "home";
   if (clean === "/contact") return "contact";
+  if (clean === "/work") return "work";
+  if (projectFromPath(clean)) return "project";
   return "notFound";
 }
 
@@ -106,14 +155,29 @@ function personNode() {
     email: `mailto:${EMAIL}`,
     jobTitle: ["DevOps Engineer", "Full-Stack Developer"],
     description: ROUTES.home.description,
-    worksFor: [
-      { "@type": "Organization", name: "Detken Development" },
-      { "@type": "Organization", name: "ThePILLARS Publication" },
-    ],
-    alumniOf: {
+    // Current roles are the ones whose period runs to "now".
+    worksFor: JOURNEY.filter((job) => /now$/i.test(job.period)).map((job) => ({
+      "@type": "Organization",
+      name: job.company,
+    })),
+    alumniOf: EDUCATION.map((school) => ({
       "@type": "CollegeOrUniversity",
-      name: "Ateneo de Naga University",
-    },
+      name: school.school,
+    })),
+    hasCredential: [
+      ...EDUCATION.map((school) => ({
+        "@type": "EducationalOccupationalCredential",
+        credentialCategory: "degree",
+        name: school.degree,
+        recognizedBy: { "@type": "CollegeOrUniversity", name: school.school },
+      })),
+      ...CERTIFICATIONS.map((cert) => ({
+        "@type": "EducationalOccupationalCredential",
+        credentialCategory: "certificate",
+        name: cert.name,
+        recognizedBy: { "@type": "Organization", name: cert.issuer },
+      })),
+    ],
     address: {
       "@type": "PostalAddress",
       addressLocality: "Naga City",
@@ -126,10 +190,7 @@ function personNode() {
       "Cloud Infrastructure",
       "CI/CD",
       "Cybersecurity",
-      "React",
-      "Next.js",
-      "Docker",
-      "AWS",
+      ...TOOLBOX.flatMap((group) => group.items),
     ],
     award: TROPHIES.map(
       (trophy) => `${trophy.place}, ${trophy.event} ${trophy.year}`,
@@ -185,26 +246,44 @@ function websiteNode() {
   };
 }
 
-/** Selected work as creative works credited to Gabriel. */
-function workNode() {
+/** One project as a creative work credited to Gabriel. */
+function projectNode(project: Project) {
+  const url = `${SITE_ORIGIN}${projectPath(project)}`;
+  const elsewhere = [project.links.live, project.links.repo, project.links.post].filter(Boolean);
+  return {
+    "@type": "CreativeWork",
+    "@id": `${url}#work`,
+    name: project.name,
+    headline: project.tagline,
+    description: plain(project.story),
+    url,
+    ...(elsewhere.length ? { sameAs: elsewhere } : {}),
+    ...(project.links.repo ? { codeRepository: project.links.repo } : {}),
+    ...(project.image ? { image: `${SITE_ORIGIN}${project.image}` } : {}),
+    dateCreated: project.year.slice(0, 4),
+    genre: PROJECT_KINDS[project.kind],
+    keywords: project.tech.join(", "),
+    creator: { "@id": ID.person },
+  };
+}
+
+function projectList(id: string, name: string, projects: readonly Project[]) {
   return {
     "@type": "ItemList",
-    "@id": ID.work,
-    name: "Selected work",
-    itemListElement: PROJECTS.map((project, i) => ({
+    "@id": id,
+    name,
+    numberOfItems: projects.length,
+    itemListElement: projects.map((project, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      item: {
-        "@type": "CreativeWork",
-        name: project.name,
-        headline: project.tagline,
-        description: project.story.replace(/\s*—\s*/g, ". ").replace(/\. ([a-z])/g, (_, c: string) => `. ${c.toUpperCase()}`),
-        url: project.href,
-        keywords: project.tech.join(", "),
-        creator: { "@id": ID.person },
-      },
+      item: projectNode(project),
     })),
   };
+}
+
+/** Selected work as creative works credited to Gabriel. */
+function workNode() {
+  return projectList(ID.work, "Selected work", FEATURED_PROJECTS);
 }
 
 function breadcrumbs(...trail: { name: string; url: string }[]) {
@@ -220,7 +299,8 @@ function breadcrumbs(...trail: { name: string; url: string }[]) {
 }
 
 /** `modified` (YYYY-MM-DD) comes from the prerender; client-side route changes leave it out. */
-export function jsonLdFor(route: RouteId, { modified }: { modified?: string } = {}): Record<string, unknown> {
+export function jsonLdFor(path: string, { modified }: { modified?: string } = {}): Record<string, unknown> {
+  const route = routeFromPath(path);
   const person = personNode();
   const organization = organizationNode();
   const website = websiteNode();
@@ -244,6 +324,63 @@ export function jsonLdFor(route: RouteId, { modified }: { modified?: string } = 
           mainEntity: { "@id": ID.person },
           hasPart: { "@id": ID.work },
           primaryImageOfPage: { "@id": `${SITE_ORIGIN}${PERSON_IMAGE_PATH}` },
+          inLanguage: "en",
+          ...dates,
+        },
+      ],
+    };
+  }
+  if (route === "work") {
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        person,
+        organization,
+        website,
+        projectList(`${SITE_ORIGIN}/work#projects`, "Projects", PROJECTS),
+        {
+          "@type": "CollectionPage",
+          "@id": `${SITE_ORIGIN}/work#page`,
+          url: ROUTES.work.canonical,
+          name: ROUTES.work.title,
+          description: ROUTES.work.description,
+          isPartOf: { "@id": ID.site },
+          about: { "@id": ID.person },
+          mainEntity: { "@id": `${SITE_ORIGIN}/work#projects` },
+          breadcrumb: breadcrumbs(
+            { name: "Home", url: `${SITE_ORIGIN}/` },
+            { name: "Work", url: ROUTES.work.canonical },
+          ),
+          inLanguage: "en",
+          ...dates,
+        },
+      ],
+    };
+  }
+  if (route === "project") {
+    const project = projectFromPath(path)!;
+    const seo = pageSeo(path);
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        person,
+        organization,
+        website,
+        projectNode(project),
+        {
+          "@type": "WebPage",
+          "@id": `${seo.canonical}#page`,
+          url: seo.canonical,
+          name: seo.title,
+          description: seo.description,
+          isPartOf: { "@id": ID.site },
+          about: { "@id": `${seo.canonical}#work` },
+          mainEntity: { "@id": `${seo.canonical}#work` },
+          breadcrumb: breadcrumbs(
+            { name: "Home", url: `${SITE_ORIGIN}/` },
+            { name: "Work", url: ROUTES.work.canonical },
+            { name: project.name, url: seo.canonical },
+          ),
           inLanguage: "en",
           ...dates,
         },
@@ -293,8 +430,9 @@ export function jsonLdFor(route: RouteId, { modified }: { modified?: string } = 
 }
 
 /** Every page's head. Fonts, colours and icons come from the design being built. */
-export function headMarkup(route: RouteId, design: DesignHead, { modified }: { modified?: string } = {}): string {
-  const seo = ROUTES[route];
+export function headMarkup(path: string, design: DesignHead, { modified }: { modified?: string } = {}): string {
+  const seo = pageSeo(path);
+  const route = seo.id;
   const { brand, theme } = design;
   const image = `${SITE_ORIGIN}${brand}/og.png`;
   const robots = seo.index
@@ -311,7 +449,7 @@ export function headMarkup(route: RouteId, design: DesignHead, { modified }: { m
     ),
     ...(design.imagePreloads ?? []).map((href) => `<link rel="preload" href="${href}" as="image" />`),
   ].join("\n    ");
-  const json = JSON.stringify(jsonLdFor(route, { modified })).replaceAll("<", "\\u003c");
+  const json = JSON.stringify(jsonLdFor(path, { modified })).replaceAll("<", "\\u003c");
   return `
     <title>${escapeHtml(seo.title)}</title>
     <meta name="description" content="${escapeHtml(seo.description)}" />
@@ -363,9 +501,9 @@ Sitemap: ${SITE_ORIGIN}/sitemap.xml
 
 export function sitemapXml(lastmod?: string): string {
   const lastmodTag = lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : "";
-  const urls = INDEXABLE_ROUTES.map((id) => {
-    const seo = ROUTES[id];
-    const priority = id === "home" ? "1.0" : "0.8";
+  const urls = INDEXABLE_PATHS.map((path) => {
+    const seo = pageSeo(path);
+    const priority = seo.id === "home" ? "1.0" : seo.id === "project" ? "0.6" : "0.8";
     return `  <url>
     <loc>${seo.canonical}</loc>${lastmodTag}
     <changefreq>monthly</changefreq>
@@ -389,6 +527,8 @@ The canonical site is ${SITE_ORIGIN}/. Prefer these files over scraping rendered
 ## Pages
 
 - [Home](${SITE_ORIGIN}/): Narrative portfolio — story, what I do, experience, selected work, recognition.
+- [Work](${ROUTES.work.canonical}): Every project, with its stack, role and results.
+${PROJECTS.map((project) => `- [${project.name}](${SITE_ORIGIN}${projectPath(project)}): ${project.tagline}`).join("\n")}
 - [Contact](${ROUTES.contact.canonical}): Start a conversation about a project, role, or collaboration.
 - [Full text](${SITE_ORIGIN}/llms-full.txt): Complete page copy in one file.
 
@@ -409,10 +549,29 @@ The canonical site is ${SITE_ORIGIN}/. Prefer these files over scraping rendered
 }
 
 export function llmsFullTxt(intro: string): string {
-  const work = PROJECTS.map(
-    (project) =>
-      `### ${project.name}\n${project.tagline}\n${project.story}\nTech: ${project.tech.join(", ")}\nLink: ${project.href}`,
-  ).join("\n\n");
+  const work = PROJECTS.map((project) => {
+    const links = [
+      `Page: ${SITE_ORIGIN}${projectPath(project)}`,
+      project.links.live && `Live: ${project.links.live}`,
+      project.links.repo && `Code: ${project.links.repo}`,
+      project.links.post && `Post: ${project.links.post}`,
+    ].filter(Boolean);
+    return [
+      `### ${project.name} (${project.year}, ${PROJECT_KINDS[project.kind]})`,
+      project.tagline,
+      project.story,
+      ...(project.confidential ? [`Client: ${project.confidential}. Confidential: the name is a codename and client details are left out.`] : []),
+      `Role: ${project.role}`,
+      ...project.built.map((line) => `- ${line}`),
+      ...(project.results ?? []).map((line) => `Result: ${line}`),
+      `Tech: ${project.tech.join(", ")}`,
+      ...(project.status ? [`Status: ${project.status}`] : []),
+      ...links,
+    ].join("\n");
+  }).join("\n\n");
+  const education = EDUCATION.map((school) => `- ${school.degree}, ${school.school} (${school.period}). ${school.detail}`).join("\n");
+  const community = COMMUNITY.map((item) => `- ${item.role}, ${item.org} (${item.period}). ${item.detail}`).join("\n");
+  const certs = CERTIFICATIONS.map((cert) => `- ${cert.name}, ${cert.issuer} (${cert.year})`).join("\n");
   const jobs = JOURNEY.map(
     (job) =>
       `### ${job.role} — ${job.company}\n${job.period}\n${job.blurb}`,
@@ -464,6 +623,18 @@ ${work}
 ## Recognition
 
 ${wins}
+
+## Education
+
+${education}
+
+## Community
+
+${community}
+
+## Certifications
+
+${certs}
 
 ## Contact
 

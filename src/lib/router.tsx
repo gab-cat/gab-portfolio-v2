@@ -10,7 +10,7 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
-import { ROUTES, jsonLdFor, normalizePath, routeFromPath, type RouteId } from "../seo";
+import { jsonLdFor, normalizePath, pageSeo, routeFromPath, type RouteId } from "../seo";
 import { scrollToId, scrollToTop } from "./scroll";
 
 type Location = { path: string; hash: string };
@@ -42,8 +42,8 @@ function setMeta(selector: string, attr: "content" | "href", value: string) {
 }
 
 /** Mirror the prerendered head so titles, canonicals and JSON-LD follow the route. */
-function syncHead(route: RouteId) {
-  const seo = ROUTES[route];
+function syncHead(path: string) {
+  const seo = pageSeo(path);
   document.title = seo.title;
   setMeta('meta[name="description"]', "content", seo.description);
   setMeta('meta[name="robots"]', "content", seo.index ? "index, follow, max-image-preview:large" : "noindex, nofollow");
@@ -55,7 +55,7 @@ function syncHead(route: RouteId) {
   setMeta('meta[name="twitter:title"]', "content", seo.title);
   setMeta('meta[name="twitter:description"]', "content", seo.description);
   const ld = document.head.querySelector('script[type="application/ld+json"]');
-  if (ld) ld.textContent = JSON.stringify(jsonLdFor(route));
+  if (ld) ld.textContent = JSON.stringify(jsonLdFor(path));
 }
 
 /** Park focus at the top of the new page so screen readers start from the content. */
@@ -119,7 +119,7 @@ export function RouterProvider({
 
   useIsoLayoutEffect(() => {
     if (!landing.current) return;
-    syncHead(route);
+    syncHead(path);
     land();
   }, [path, land, route]);
 

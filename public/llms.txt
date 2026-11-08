@@ -7,6 +7,34 @@ The canonical site is https://gabcat.dev/. Prefer these files over scraping rend
 ## Pages
 
 - [Home](https://gabcat.dev/): Narrative portfolio — story, what I do, experience, selected work, recognition.
+- [Work](https://gabcat.dev/work): Every project, with its stack, role and results.
+- [Project Relay](https://gabcat.dev/work/project-relay): An applicant tracking system that screens every applicant.
+- [Project Pulse](https://gabcat.dev/work/project-pulse): Async standups in thirty seconds.
+- [Project Meridian](https://gabcat.dev/work/project-meridian): Property disclosure data for California real estate.
+- [Project Lineup](https://gabcat.dev/work/project-lineup): A marketplace of pre-vetted remote candidates.
+- [Project Outreach](https://gabcat.dev/work/project-outreach): An AI agent that finds employers and books interviews.
+- [Project Beacon](https://gabcat.dev/work/project-beacon): A marketing site for a remote-hiring agency.
+- [Project Thread](https://gabcat.dev/work/project-thread): A Shopify store for a children's clothing brand.
+- [Project Tollgate](https://gabcat.dev/work/project-tollgate): A self-service payment kiosk for a college.
+- [Project Bulletin](https://gabcat.dev/work/project-bulletin): A real-time news app with AI summaries.
+- [Project Keystone](https://gabcat.dev/work/project-keystone): Production moved off Vercel, for up to 70% less.
+- [MerchTrack](https://gabcat.dev/work/merchtrack): University merch, minus the chaos.
+- [Games of the Generals](https://gabcat.dev/work/games-of-the-generals): The classic Filipino strategy game, now online.
+- [Stormwatch](https://gabcat.dev/work/stormwatch): Flood warnings for Naga City, before the water rises.
+- [Project Bedrock](https://gabcat.dev/work/project-bedrock): Property due diligence for Naga City in 30 seconds.
+- [CS Guild](https://gabcat.dev/work/cs-guild): A digital home for computer studies students.
+- [Your Daily Tarot](https://gabcat.dev/work/your-daily-tarot): Your cards, read before your coffee.
+- [Neon District](https://gabcat.dev/work/neon-district): Run a nightclub in your browser.
+- [Voice Notes](https://gabcat.dev/work/voice-notes): WhatsApp voice notes, read instead of played.
+- [Focus Timer](https://gabcat.dev/work/focus-timer): Keeps your Mac awake while you work.
+- [FrontierAnalytics](https://gabcat.dev/work/frontier-analytics): Climate risk and property data for the Philippines.
+- [Margin](https://gabcat.dev/work/margin): Turn your readings into flashcards and quizzes.
+- [Zenith](https://gabcat.dev/work/zenith): A fitness tracker that kids and parents share.
+- [VeriPHI](https://gabcat.dev/work/veriphi): An API that checks a business is real.
+- [Lendr API](https://gabcat.dev/work/lendr-api): Smart-contract lending behind a plain API.
+- [Smart property manager](https://gabcat.dev/work/smart-property): Property management on smart contracts.
+- [PRITS](https://gabcat.dev/work/prits): Nursing charts written while the nurse talks.
+- [gabcat.dev](https://gabcat.dev/work/gabcat-dev): This site.
 - [Contact](https://gabcat.dev/contact): Start a conversation about a project, role, or collaboration.
 - [Full text](https://gabcat.dev/llms-full.txt): Complete page copy in one file.
 

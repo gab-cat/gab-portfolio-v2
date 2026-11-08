@@ -6,6 +6,8 @@ export const head: DesignHead = {
   fontPreloads: ["/fonts/mona-sans-latin-wdth-normal.woff2"],
   routeModules: {
     home: ["pages/Home.tsx", "scene/field.ts"],
+    work: ["pages/Work.tsx", "scene/field.ts"],
+    project: ["pages/Project.tsx", "scene/field.ts"],
     contact: ["pages/Contact.tsx", "scene/field.ts"],
     notFound: ["pages/NotFound.tsx", "scene/field.ts"],
   },
