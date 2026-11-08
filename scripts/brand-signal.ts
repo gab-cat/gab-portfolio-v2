@@ -79,15 +79,15 @@ const card = `<!doctype html><html><head><style>
 html,body{width:1200px;height:630px;overflow:hidden;background:#060607;color:#efebe4}
 .hole{position:absolute;inset:0;width:1200px;height:630px}
 .copy{position:absolute;left:72px;top:64px;bottom:60px;display:flex;flex-direction:column;justify-content:space-between}
-.label,.foot{font-family:"Geist Mono";font-size:17px;letter-spacing:.08em;text-transform:uppercase;color:#8e8b85}
-h1{margin-top:auto;margin-bottom:44px;font-family:"Mona Sans";font-weight:250;font-stretch:125%;font-size:104px;line-height:.95;letter-spacing:-.045em}
+.label,.foot{font-family:"Geist Mono";font-size:19px;color:#9e9b95}
+h1{margin-top:auto;margin-bottom:44px;font-family:"Mona Sans";font-weight:250;font-stretch:125%;font-size:84px;line-height:.98;letter-spacing:-.045em}
 .foot{display:flex;align-items:center;gap:12px;color:#efebe4}
 .foot i{width:12px;height:12px;border-radius:50%;background:#ff6a3d}
 </style></head><body>
 <img class="hole" src="data:image/png;base64,${hole.toString("base64")}" alt="">
 <div class="copy">
-  <p class="label">Gabriel Catimbang · Developer &amp; DevOps engineer</p>
-  <h1>From noise<br>to signal.</h1>
+  <p class="label">Gabriel Catimbang · Developer and DevOps engineer, Naga City</p>
+  <h1>I build web apps<br>and run them.</h1>
   <p class="foot"><i></i>gabcat.dev</p>
 </div>
 </body></html>`;

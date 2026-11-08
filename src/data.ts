@@ -831,27 +831,27 @@ export const TOOLBOX = [
 export const CRAFT = [
   {
     tag: "Build",
-    title: ["It starts on a screen.", "It has to feel right."],
-    copy: "I build the part people actually touch, front to back. Fast pages, calm interfaces, and code the next person can read without calling me.",
-    proof: ["MerchTrack", "had 2,750+ students in week one. The servers held, and so did I."],
+    title: ["Web apps,", "end to end."],
+    copy: "TypeScript front to back: React, Next.js or TanStack Start on screen, NestJS or Convex behind it. Code the next developer can read without a walkthrough.",
+    proof: ["MerchTrack", "had about 2,750 people in its first week, on servers I set up."],
   },
   {
     tag: "Ship",
-    title: ["Launch day should feel", "like any other day."],
-    copy: "I like my deploys boring. So I wire up pipelines that test, build and ship on their own, on servers I can still reason about at 3 a.m.",
+    title: ["Pipelines that", "deploy on their own."],
+    copy: "Docker on Linux servers, GitHub Actions to test, build and deploy every change, and Sentry to say when something breaks.",
     proof: ["Detken", "moved production off Vercel onto servers we control, for up to 70% less."],
   },
   {
     tag: "Store",
-    title: ["Every app is", "a memory, really."],
-    copy: "Somewhere, it has to remember who you are and what you did. I pick the right place to keep it, and shape it so it still makes sense a year from now.",
+    title: ["The database", "under the app."],
+    copy: "PostgreSQL with PostGIS for anything on a map, Convex for live data, Redis for the hot path. I pick the store for how the app reads it.",
     proof: ["Games of the Generals", "keeps every move in sync, for every player."],
   },
   {
     tag: "Play",
-    title: ["And sometimes,", "I just play."],
-    copy: "Game engines, AI, capture-the-flag forensics. The weekend detours are where most of my favourite what ifs come from.",
-    proof: ["Hack4Gov", "2nd highest scorer at the 2025 national finals. Yes, it counts."],
+    title: ["Hackathons, CTFs", "and games."],
+    copy: "Weekend builds: game engines, AI and capture-the-flag forensics. Stormwatch, flood warnings for Naga City, won AI.DEAS for Impact in 2025.",
+    proof: ["Hack4Gov", "2nd highest scorer at the 2025 national finals."],
   },
 ] as const;
 

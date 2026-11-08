@@ -2,7 +2,7 @@ import { ArrowRight, GithubLogo, LinkedinLogo } from "@phosphor-icons/react";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { Link } from "../../../lib/router";
 import { dial, Dial } from "../Dial";
-import { ALL_WORK, CRAFTS, EMAIL, ROLES, SOCIALS, TROPHIES, WORK, spell, type Work } from "../content";
+import { ALL_WORK, AWARD_YEARS, CRAFTS, EMAIL, ROLES, SOCIALS, TROPHIES, WORK, spell, type Work } from "../content";
 import { Magnetic } from "../Magnetic";
 import { usePeek } from "../Peek";
 import { Lines, Rise, Stagger } from "../reveal";
@@ -136,10 +136,10 @@ export default function Home() {
       <main id="main" tabIndex={-1}>
         <section id="top" className="sg-sec sg-hero" aria-labelledby="hero-title">
           <div className="sg-copy">
-            <Lines as="h1" id="hero-title" className="sg-h1" lines={["From noise", "to signal."]} delay={0.1} />
+            <Lines as="h1" id="hero-title" className="sg-h1" lines={["I build web apps", "and run them."]} delay={0.1} />
             <Rise as="p" className="sg-lede" delay={0.35}>
-              I’m Gabriel Catimbang, a developer and DevOps engineer in Naga City, PH. I turn{" "}
-              <span className="sg-nowrap">half-formed</span> ideas into software people use, then keep it running.
+              I’m Gabriel Catimbang, a developer in Naga City, Philippines. I write the app, set up the Linux servers it
+              runs on and wire the pipeline that ships it.
             </Rise>
             <Rise className="sg-actions" delay={0.5}>
               <Magnetic>
@@ -149,7 +149,7 @@ export default function Home() {
               </Magnetic>
               <Magnetic>
                 <Link className="sg-btn" href="/contact">
-                  Get in touch
+                  Contact me
                 </Link>
               </Magnetic>
             </Rise>
@@ -160,13 +160,12 @@ export default function Home() {
         <section id="story" className="sg-sec sg-listen" aria-labelledby="story-title">
           <div className="sg-copy">
             <div className="sg-listen-head">
-              <Lines id="story-title" className="sg-h2" lines={["First, I learned", "to listen."]} />
+              <Lines id="story-title" className="sg-h2" lines={["Three years on", "support chat."]} />
             </div>
             <div className="sg-listen-story">
               <Rise as="p" className="sg-body">
-                Before writing code, I spent three years on the other side of a support chat, solving strangers’
-                problems in real time. Every conversation started with someone who needed something to work, and the
-                answer always began with listening.
+                From 2022 to 2025 I answered Bell Canada customers on live chat, one problem at a time, and finished
+                four review periods in the top 10%. It taught me to pin down the problem before I write the fix.
               </Rise>
               <Rise as="p" className="sg-meta" delay={0.1}>
                 Bell Canada, through Quantrics · 2022 – 2025
@@ -183,10 +182,10 @@ export default function Home() {
         <section id="craft" className="sg-sec sg-build" aria-labelledby="craft-title">
           <div className="sg-copy">
             <div className="sg-build-head">
-              <Lines id="craft-title" className="sg-h2" lines={["Then I built", "the fix."]} />
+              <Lines id="craft-title" className="sg-h2" lines={["Front end", "to production."]} />
             </div>
             <Rise as="p" className="sg-body">
-              Four parts of the job, one habit behind all of them: listen first, then make it work.
+              I take a project from the first screen to the server it runs on, and stay for what breaks after launch.
             </Rise>
             <Stagger as="ol" className="sg-crafts">
               {CRAFTS.map((craft, i) => (
@@ -205,10 +204,10 @@ export default function Home() {
 
         <section id="journey" className="sg-sec" aria-labelledby="journey-title">
           <div className="sg-copy">
-            <Lines id="journey-title" className="sg-h2" lines={["Now I keep it", "running."]} />
+            <Lines id="journey-title" className="sg-h2" lines={["Where I’ve", "worked."]} />
             <Rise as="p" className="sg-body">
-              Production moved off Vercel onto servers we control. Pipelines test, build and deploy on their own, so
-              launch day feels like any other day.
+              Now I’m the DevOps engineer at Detken Development. I moved production off Vercel onto Linux servers we
+              run, cut hosting costs by up to 70% and set up pipelines that test and deploy every change.
             </Rise>
             <Stagger as="ol" className="sg-roles">
               {ROLES.map((role) => (
@@ -219,15 +218,12 @@ export default function Home() {
                 </li>
               ))}
             </Stagger>
-            <Rise as="p" className="sg-note">
-              Every orange arc on the globe starts in Naga City. One of them ends in Toronto.
-            </Rise>
           </div>
         </section>
 
         <section id="wins" className="sg-sec sg-right" aria-labelledby="wins-title">
           <div className="sg-copy">
-            <Lines id="wins-title" className="sg-h2" lines={[`${spell(TROPHIES.length)} awards,`, "so far."]} />
+            <Lines id="wins-title" className="sg-h2" lines={[`${spell(TROPHIES.length)} awards`, `in ${AWARD_YEARS}.`]} />
             <Stagger as="ol" className="sg-wins">
               {TROPHIES.map((trophy, i) => (
                 <li key={trophy.event} onPointerEnter={() => signal.focus(i)} onPointerLeave={() => signal.focus(null)}>
@@ -243,7 +239,7 @@ export default function Home() {
 
         <section id="work" className="sg-sec sg-work" aria-labelledby="work-title">
           <div className="sg-wide">
-            <Lines id="work-title" className="sg-h2" lines={["Things people", "actually use."]} />
+            <Lines id="work-title" className="sg-h2" lines={["Recent", "projects."]} />
             <Stagger
               as="ul"
               className="sg-projects"
@@ -293,14 +289,14 @@ export default function Home() {
         <section id="hello" className="sg-sec sg-hello" aria-labelledby="hello-title">
           <div className="sg-center">
             <h2 id="hello-title" className="sg-sr">
-              Say hello
+              Open to roles and projects
             </h2>
             <Rise as="p" className="sg-hello-line">
-              A project, a role, or a what if you can’t shake. Tell me about it.
+              Hiring for a role, or need an app built and run? Send me the details.
             </Rise>
             <Rise className="sg-actions is-center" delay={0.1}>
               <Link className="sg-btn is-solid is-big" href="/contact">
-                Get in touch
+                Contact me
               </Link>
             </Rise>
             <p className="sg-contact-meta">

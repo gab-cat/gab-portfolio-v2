@@ -168,9 +168,9 @@ export default function Contact() {
     <main id="main" tabIndex={-1}>
       <section className="sg-sec sg-contact" aria-labelledby="contact-title">
         <div className="sg-copy" ref={copy}>
-          <Lines as="h1" id="contact-title" className="sg-h1" lines={["Send a", "signal."]} delay={0.05} />
+          <Lines as="h1" id="contact-title" className="sg-h1" lines={["A note", "to Gabriel."]} delay={0.05} />
           <Rise as="p" className="sg-lede" delay={0.25}>
-            A rough idea is a perfectly good place to start.
+            Send the project you need built or run, or the role you’re hiring for. A few sentences is enough.
           </Rise>
 
           <Rise delay={0.35}>
@@ -275,7 +275,7 @@ export default function Contact() {
                     </fieldset>
                     <div className={problems.message ? "sg-cell is-full is-invalid" : "sg-cell is-full"}>
                       <label className="sg-field" htmlFor="contact-message">
-                        <span>Tell me a little about it</span>
+                        <span>What you need</span>
                         <textarea
                           id="contact-message"
                           name="message"
@@ -296,7 +296,7 @@ export default function Contact() {
                       {problem("message")}
                     </div>
                     <p id="contact-hint" className="sg-sr">
-                      A few sentences is plenty. At least {MIN_MESSAGE} characters.
+                      A few sentences is enough. At least {MIN_MESSAGE} characters.
                     </p>
                     <div className="sg-trap" aria-hidden="true">
                       <label htmlFor="contact-website">

@@ -42,9 +42,9 @@ export const ROUTES: Record<Exclude<RouteId, "project">, RouteSeo> = {
     id: "home",
     path: "/",
     canonical: `${SITE_ORIGIN}/`,
-    title: "Gabriel Catimbang — I build things for the internet",
+    title: "Gabriel Catimbang, developer and DevOps engineer in Naga City",
     description:
-      "Gabriel 'Gab' Catimbang — developer & DevOps engineer from Naga City, Philippines. I build websites people actually use, keep them alive, and win hackathons for fun.",
+      "Gabriel 'Gab' Catimbang builds web apps and runs the servers under them, from Naga City, Philippines. DevOps engineer at Detken Development, with hackathon and CTF awards since 2024.",
     ogType: "profile",
     index: true,
   },
@@ -52,7 +52,7 @@ export const ROUTES: Record<Exclude<RouteId, "project">, RouteSeo> = {
     id: "work",
     path: "/work",
     canonical: `${SITE_ORIGIN}/work`,
-    title: "Projects by Gabriel Catimbang — products, hackathons and tools",
+    title: "Projects by Gabriel Catimbang: products, client work, hackathons and tools",
     description:
       "Every project Gabriel Catimbang can show: products, hackathon builds, games, school projects and small tools, with the stack, the role and what came of each.",
     ogType: "website",
@@ -62,9 +62,9 @@ export const ROUTES: Record<Exclude<RouteId, "project">, RouteSeo> = {
     id: "contact",
     path: "/contact",
     canonical: `${SITE_ORIGIN}/contact`,
-    title: "Contact Gabriel Catimbang — Start a conversation",
+    title: "Contact Gabriel Catimbang about a role or a project",
     description:
-      "Have a project, role, or idea in mind? Send Gabriel Catimbang a note. Developer and DevOps engineer based in Naga City, Philippines.",
+      "Send Gabriel Catimbang a note about a role or a project. Developer and DevOps engineer in Naga City, Philippines.",
     ogType: "website",
     index: true,
   },
@@ -72,8 +72,8 @@ export const ROUTES: Record<Exclude<RouteId, "project">, RouteSeo> = {
     id: "notFound",
     path: "/404",
     canonical: `${SITE_ORIGIN}/404`,
-    title: "Page not found — gabcat.dev",
-    description: "That page isn’t on gabcat.dev. Head home or send a note instead.",
+    title: "Page not found on gabcat.dev",
+    description: "Nothing on gabcat.dev lives at this address. Head home or send a note instead.",
     ogType: "website",
     index: false,
   },
@@ -100,7 +100,7 @@ export function pageSeo(path: string): RouteSeo {
     id: "project",
     path: projectPath(project),
     canonical,
-    title: `${project.name} — a project by Gabriel Catimbang`,
+    title: `${project.name}, a project by Gabriel Catimbang`,
     description: plain(project.story),
     ogType: "website",
     index: true,
@@ -520,13 +520,13 @@ ${urls}
 export function llmsTxt(): string {
   return `# ${PERSON_SHORT}
 
-> Developer and DevOps engineer from Naga City, Philippines. I build websites people actually use, keep them alive, and win hackathons for fun.
+> Developer and DevOps engineer in Naga City, Philippines. I build web apps and run the servers under them.
 
 The canonical site is ${SITE_ORIGIN}/. Prefer these files over scraping rendered chrome.
 
 ## Pages
 
-- [Home](${SITE_ORIGIN}/): Narrative portfolio — story, what I do, experience, selected work, recognition.
+- [Home](${SITE_ORIGIN}/): The portfolio: where I started, what I build, roles, selected work and awards.
 - [Work](${ROUTES.work.canonical}): Every project, with its stack, role and results.
 ${PROJECTS.map((project) => `- [${project.name}](${SITE_ORIGIN}${projectPath(project)}): ${project.tagline}`).join("\n")}
 - [Contact](${ROUTES.contact.canonical}): Start a conversation about a project, role, or collaboration.

@@ -1,12 +1,12 @@
 # Gabriel Catimbang
 
-> Developer and DevOps engineer from Naga City, Philippines. I build websites people actually use, keep them alive, and win hackathons for fun.
+> Developer and DevOps engineer in Naga City, Philippines. I build web apps and run the servers under them.
 
 The canonical site is https://gabcat.dev/. Prefer these files over scraping rendered chrome.
 
 ## Pages
 
-- [Home](https://gabcat.dev/): Narrative portfolio — story, what I do, experience, selected work, recognition.
+- [Home](https://gabcat.dev/): The portfolio: where I started, what I build, roles, selected work and awards.
 - [Work](https://gabcat.dev/work): Every project, with its stack, role and results.
 - [Project Relay](https://gabcat.dev/work/project-relay): An applicant tracking system that screens every applicant.
 - [Project Pulse](https://gabcat.dev/work/project-pulse): Async standups in thirty seconds.

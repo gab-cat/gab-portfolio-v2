@@ -1,6 +1,6 @@
 # Gabriel Catimbang
 
-Gabriel 'Gab' Catimbang — developer & DevOps engineer from Naga City, Philippines. I build websites people actually use, keep them alive, and win hackathons for fun.
+Gabriel 'Gab' Catimbang builds web apps and runs the servers under them, from Naga City, Philippines. DevOps engineer at Detken Development, with hackathon and CTF awards since 2024.
 
 Canonical: https://gabcat.dev/
 Contact: https://gabcat.dev/contact
@@ -8,7 +8,7 @@ Email: catimbanggabriel@gmail.com
 
 ## Intro
 
-From noise to signal. I'm Gabriel Catimbang. I take half-formed ideas and turn them into software people use, then keep it running.
+I build web apps and run them. I'm Gabriel Catimbang, a developer in Naga City, Philippines: I write the app, set up the Linux servers it runs on and wire the pipeline that ships it.
 
 ## About
 
@@ -18,25 +18,25 @@ Before writing code, Gabriel spent three years on the other side of a support ch
 
 These days, I build it. And keep it alive. Four parts of the job, one habit behind all of them: listen first, then make it work.
 
-### Build — It starts on a screen. It has to feel right.
-I build the part people actually touch, front to back. Fast pages, calm interfaces, and code the next person can read without calling me.
+### Build — Web apps, end to end.
+TypeScript front to back: React, Next.js or TanStack Start on screen, NestJS or Convex behind it. Code the next developer can read without a walkthrough.
 Tools: TypeScript, React, Next.js, TanStack Start, Vue & Nuxt, NestJS, Expo & React Native, Shopify storefronts, macOS apps (Electrobun)
-MerchTrack had 2,750+ students in week one. The servers held, and so did I.
+MerchTrack had about 2,750 people in its first week, on servers I set up.
 
-### Ship — Launch day should feel like any other day.
-I like my deploys boring. So I wire up pipelines that test, build and ship on their own, on servers I can still reason about at 3 a.m.
+### Ship — Pipelines that deploy on their own.
+Docker on Linux servers, GitHub Actions to test, build and deploy every change, and Sentry to say when something breaks.
 Tools: Docker, Linux & Nginx, AWS, Cloudflare, Vercel, GitHub Actions, Sentry, Security testing
 Detken moved production off Vercel onto servers we control, for up to 70% less.
 
-### Store — Every app is a memory, really.
-Somewhere, it has to remember who you are and what you did. I pick the right place to keep it, and shape it so it still makes sense a year from now.
+### Store — The database under the app.
+PostgreSQL with PostGIS for anything on a map, Convex for live data, Redis for the hot path. I pick the store for how the app reads it.
 Tools: PostgreSQL & PostGIS, Convex, Prisma, MongoDB, Redis, S3
 Games of the Generals keeps every move in sync, for every player.
 
-### Play — And sometimes, I just play.
-Game engines, AI, capture-the-flag forensics. The weekend detours are where most of my favourite what ifs come from.
+### Play — Hackathons, CTFs and games.
+Weekend builds: game engines, AI and capture-the-flag forensics. Stormwatch, flood warnings for Naga City, won AI.DEAS for Impact in 2025.
 Tools: AI (OpenAI, Gemini, Claude), Maps & GIS, Payments (Stripe, PayMongo), Unreal Engine & C++, CTF forensics
-Hack4Gov 2nd highest scorer at the 2025 national finals. Yes, it counts.
+Hack4Gov 2nd highest scorer at the 2025 national finals.
 
 ## Toolbox
 
@@ -467,4 +467,4 @@ Code: https://github.com/gab-cat/gab-portfolio-v2
 
 ## Contact
 
-Have a project, role, or idea in mind? Send Gabriel Catimbang a note. Developer and DevOps engineer based in Naga City, Philippines.
+Send Gabriel Catimbang a note about a role or a project. Developer and DevOps engineer in Naga City, Philippines.

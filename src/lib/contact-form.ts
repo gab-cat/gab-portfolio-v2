@@ -142,7 +142,7 @@ export function checkField(field: NoteField, raw: string): string {
     return EMAIL_RULE.test(value) && !value.includes("..") ? "" : "Write a full email address, with an @ and a domain after it.";
   }
   const short = LIMITS.message[0] - value.length;
-  if (!value) return "Tell me a little about it. A few sentences is plenty.";
+  if (!value) return "Write what you need. A few sentences is enough.";
   return short > 0 ? `A little more, please: ${short} more character${short === 1 ? "" : "s"}.` : "";
 }
 

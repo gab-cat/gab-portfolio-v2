@@ -516,9 +516,13 @@ main:focus {
   padding-bottom: 72px;
 }
 
-/* Wide enough for "From noise" at the headline's largest size, so it never breaks early. */
+/* Wide enough for "I build web apps" at the headline's largest size, so it never breaks early. */
 .sg-hero .sg-copy {
-  max-width: 840px;
+  max-width: 980px;
+}
+
+.sg-hero .sg-h1 {
+  font-size: clamp(44px, 6.4vw, 116px);
 }
 
 .sg-meta {
@@ -572,15 +576,6 @@ main:focus {
   font-stretch: 105%;
   line-height: 1.55;
   text-wrap: pretty;
-}
-
-.sg-note {
-  max-width: 42ch;
-  margin-top: 28px;
-  font-family: var(--mono);
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--accent);
 }
 
 .sg-stat {

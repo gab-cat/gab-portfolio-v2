@@ -23,10 +23,10 @@ export default function Work() {
     <main id="main" tabIndex={-1}>
       <section className="sg-sec sg-page" aria-labelledby="index-title">
         <div className="sg-wide">
-          <Lines as="h1" id="index-title" className="sg-h1" lines={["Things", "I’ve built."]} delay={0.05} />
+          <Lines as="h1" id="index-title" className="sg-h1" lines={[`${ALL_WORK.length} projects,`, "newest first."]} delay={0.05} />
           <Rise as="p" className="sg-lede is-wide" delay={0.25}>
-            Products, client work, hackathon builds, games, school projects and small tools, newest first. Client work
-            appears under a codename, with what I built and owned but none of the client’s details.
+            Products, client work, hackathon builds, games, school projects and tools. Client projects go by codenames
+            and show what I built and owned, with the client’s details left out.
           </Rise>
           <Rise delay={0.35}>
             <fieldset className="sg-topics sg-filter">

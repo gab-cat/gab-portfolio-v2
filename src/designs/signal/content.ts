@@ -60,6 +60,9 @@ const NUMBERS = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", 
 /** "Thirteen" for 13, the digits past twenty. */
 export const spell = (n: number) => NUMBERS[n] ?? String(n);
 
+/** "2024 and 2025", "2023, 2024 and 2025". */
+const and = (items: readonly string[]) => (items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`);
+
 /** One project's kind, for its row and its page. */
 export const KIND_ONE: Record<ProjectKind, string> = {
   client: "Client work",
@@ -131,6 +134,9 @@ const newestFirst = (list: readonly Project[]) => [...list].sort((a, b) => until
 export const ALL_WORK = newestFirst(PROJECTS).map(toWork);
 /** The home page's Work chapter. */
 export const WORK = newestFirst(FEATURED_PROJECTS).map(toWork);
+
+/** The years the awards came in, read from the data so the heading stays true: "2024 and 2025". */
+export const AWARD_YEARS = and([...new Set(TROPHIES.map((trophy) => trophy.year))].sort());
 
 /** Kinds that have at least one project, in the order PROJECT_KINDS lists them. */
 export const WORK_KINDS = (Object.keys(PROJECT_KINDS) as ProjectKind[]).filter((kind) =>

@@ -12,7 +12,7 @@ export const head: DesignHead = {
     notFound: ["pages/NotFound.tsx", "scene/field.ts"],
   },
   intro:
-    "From noise to signal. I'm Gabriel Catimbang. I take half-formed ideas and turn them into software people use, then keep it running.",
+    "I build web apps and run them. I'm Gabriel Catimbang, a developer in Naga City, Philippines: I write the app, set up the Linux servers it runs on and wire the pipeline that ships it.",
   theme: { light: "#efeee9", dark: "#060607", accent: "#e2480f" },
   brand: "/brand/signal",
 };

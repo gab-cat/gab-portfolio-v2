@@ -55,7 +55,7 @@ export function Footer() {
     <footer className="sg-foot" ref={foot}>
       <div className="sg-foot-top" ref={top}>
         <div>
-          <p className="sg-foot-line">From Naga City, open to your next what if.</p>
+          <p className="sg-foot-line">Open to roles and projects.</p>
           <LocalTime />
         </div>
         <nav className="sg-foot-links" aria-label="Elsewhere">
