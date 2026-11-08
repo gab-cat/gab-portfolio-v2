@@ -7,6 +7,8 @@ import { ScrollProgress } from "./ScrollProgress";
 
 const SKIP: Record<RouteId, string> = {
   home: "#work",
+  work: "#work",
+  project: "#work",
   contact: "#contact-title",
   notFound: "#missing-title",
 };

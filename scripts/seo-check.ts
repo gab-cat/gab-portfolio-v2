@@ -5,7 +5,8 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { resolve } from "node:path";
-import { ROUTES, SITE_ORIGIN, type RouteId } from "../src/seo.ts";
+import { PAGE_PATHS, SITE_ORIGIN, pageSeo, routeFromPath } from "../src/seo.ts";
+import { PROJECTS, SOCIALS } from "../src/data.ts";
 import { pickDesign } from "../src/designs/live.ts";
 import type { DesignHead } from "../src/designs/types.ts";
 
@@ -34,10 +35,11 @@ function count(html: string, tag: string) {
   return [...html.matchAll(new RegExp(`<${tag}\\b`, "gi"))].length;
 }
 
-function checkPage(file: string, route: RouteId) {
+function checkPage(file: string, path: string) {
   const html = read(file);
   if (!html) return;
-  const seo = ROUTES[route];
+  const seo = pageSeo(path);
+  const route = routeFromPath(path);
   if (!html.includes(`<title>${seo.title}</title>`)) fail(`${file}: title mismatch`);
   if (!html.includes(`rel="canonical" href="${seo.canonical}"`)) fail(`${file}: canonical mismatch`);
   if (count(html, "h1") !== 1) fail(`${file}: expected one h1, found ${count(html, "h1")}`);
@@ -54,7 +56,9 @@ function checkPage(file: string, route: RouteId) {
   if (route === "home" && !html.includes('"@type":"ItemList"')) fail(`${file}: missing the selected-work ItemList`);
   if (route !== "notFound" && !html.includes('"@type":"Organization","@id"')) fail(`${file}: missing the Organization node`);
   if (route !== "notFound" && !html.includes(`"url":"${SITE_ORIGIN}/logo.png"`)) fail(`${file}: Organization logo should be ${SITE_ORIGIN}/logo.png`);
-  if (route === "contact" && !html.includes('"@type":"BreadcrumbList"')) fail(`${file}: missing BreadcrumbList`);
+  if (["contact", "work", "project"].includes(route) && !html.includes('"@type":"BreadcrumbList"')) fail(`${file}: missing BreadcrumbList`);
+  if (route === "work" && !html.includes('"@type":"CollectionPage"')) fail(`${file}: missing CollectionPage`);
+  if (route === "project" && !html.includes('"@type":"CreativeWork"')) fail(`${file}: missing the project's CreativeWork`);
   for (const module of head.routeModules[route]) {
     const stem = module.split("/").pop()!.replace(/\.tsx?$/, "");
     if (!new RegExp(`rel="modulepreload"[^>]*/assets/${stem}-`).test(html)) fail(`${file}: ${module} is not modulepreloaded`);
@@ -70,9 +74,23 @@ function checkPage(file: string, route: RouteId) {
   }
 }
 
-checkPage("index.html", "home");
-checkPage("contact/index.html", "contact");
-checkPage("404.html", "notFound");
+for (const path of PAGE_PATHS) checkPage(path === "/" ? "index.html" : `${path.slice(1)}/index.html`, path);
+checkPage("404.html", "/404");
+
+// Each project link must go where its label says: never the bare GitHub profile, always https.
+const profile = SOCIALS[0].href.replace(/\/$/, "");
+const slugs = new Set<string>();
+for (const project of PROJECTS) {
+  if (slugs.has(project.slug)) fail(`data.ts: duplicate project slug ${project.slug}`);
+  slugs.add(project.slug);
+  for (const [kind, href] of Object.entries(project.links)) {
+    if (!href) continue;
+    if (!href.startsWith("https://")) fail(`data.ts: ${project.name} ${kind} link is not https: ${href}`);
+    if (href.replace(/\/$/, "") === profile) fail(`data.ts: ${project.name} ${kind} link is the GitHub profile, not the project`);
+    if (kind === "repo" && !href.startsWith(`${profile}/`)) fail(`data.ts: ${project.name} repo link is not under ${profile}`);
+  }
+  if (project.built.length === 0) fail(`data.ts: ${project.name} has nothing under built`);
+}
 
 // The CSP in vercel.json allows the inline theme script by hash; any edit to it must update the hash.
 const inlineScript = read("index.html").match(/<script>([\s\S]*?)<\/script>/)?.[1];
@@ -89,14 +107,16 @@ if (!robots.includes("Allow: /")) fail("robots.txt should allow crawlers");
 
 const sitemap = read("sitemap.xml");
 if (!sitemap.includes(`<loc>${SITE_ORIGIN}/</loc>`)) fail("sitemap missing home URL");
-if (!sitemap.includes(`${SITE_ORIGIN}/contact`)) fail("sitemap missing contact URL");
+for (const path of PAGE_PATHS) {
+  if (!sitemap.includes(`<loc>${SITE_ORIGIN}${path}</loc>`)) fail(`sitemap missing ${path}`);
+}
 if (sitemap.includes("/404")) fail("sitemap should not list 404");
 
 const llms = read("llms.txt");
 if (!llms.startsWith("# ")) fail("llms.txt must start with an H1");
 if (!llms.includes("/llms-full.txt")) fail("llms.txt should point at llms-full.txt");
 const llmsFull = read("llms-full.txt");
-for (const section of ["## Intro", "## What I do", "## Experience", "## Selected work", "## Recognition"]) {
+for (const section of ["## Intro", "## What I do", "## Experience", "## Selected work", "## Recognition", "## Education", "## Community", "## Certifications"]) {
   if (!llmsFull.includes(section)) fail(`llms-full.txt missing ${section}`);
 }
 const manifest = read("site.webmanifest");

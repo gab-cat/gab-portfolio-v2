@@ -4,13 +4,15 @@ import { JOURNEY } from "../../../data";
 import { Reveal } from "./Reveal";
 import { Sculpture } from "./Sculpture";
 
-/* Each role is a clay block; the card and its block in the tower share a colour. */
+/* Each role is a clay block; the card and its block in the tower share a colour. One entry per JOURNEY role, in the same order. */
 const CHAPTERS = [
   { verb: "Listen.", lesson: "People before pixels.", detail: "The human side of the screen", color: "#bcd3a2", ink: "#23331c" },
   { verb: "Learn.", lesson: "From apprentice to shipping.", detail: "The first leap into code", color: "#cfc0f4", ink: "#2d2150" },
+  { verb: "Build.", lesson: "A store for a whole campus.", detail: "From idea to 2,750 people", color: "#f2c6de", ink: "#43162f" },
   { verb: "Play.", lesson: "Make the idea move.", detail: "A different kind of engine", color: "#f5b7a8", ink: "#4a1d14" },
   { verb: "Own.", lesson: "The launch is just the start.", detail: "Taking care of what we build", color: "#f6cf5f", ink: "#3d2c05" },
   { verb: "Scale.", lesson: "Build what holds it all up.", detail: "Behind the scenes. Under the hood.", color: "#a3c7ea", ink: "#132a42" },
+  { verb: "Lead.", lesson: "Choose for the long run.", detail: "Owning the architecture", color: "#c6e3dd", ink: "#14352f" },
   { verb: "Ship.", lesson: "Better, together.", detail: "Finding rhythm with a team", color: "#dbe98a", ink: "#2c330b" },
 ];
 

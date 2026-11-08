@@ -16,10 +16,12 @@ function staticStatusPages() {
       server.middlewares.use((req, res, next) => {
         const url = req.url?.split("?")[0] ?? "";
         const dist = resolve(process.cwd(), "dist");
-        if (url === "/contact" || url === "/contact/") {
+        // Any prerendered page (/contact, /work, /work/<slug>), as Vercel's cleanUrls serves it.
+        const page = url !== "/" && !extname(url) ? resolve(dist, `.${url.replace(/\/$/, "")}/index.html`) : "";
+        if (page && existsSync(page)) {
           res.statusCode = 200;
           res.setHeader("Content-Type", "text/html; charset=utf-8");
-          res.end(readFileSync(resolve(dist, "contact/index.html")));
+          res.end(readFileSync(page));
           return;
         }
         if (

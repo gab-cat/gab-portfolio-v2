@@ -20,30 +20,30 @@ These days, I build it. And keep it alive. Four parts of the job, one habit behi
 
 ### Build — It starts on a screen. It has to feel right.
 I build the part people actually touch, front to back. Fast pages, calm interfaces, and code the next person can read without calling me.
-Tools: Next.js, React, Vue & Nuxt, NestJS, TypeScript
+Tools: TypeScript, React, Next.js, TanStack Start, Vue & Nuxt, NestJS, Expo & React Native, Shopify storefronts, macOS apps (Electrobun)
 MerchTrack had 2,750+ students in week one. The servers held, and so did I.
 
 ### Ship — Launch day should feel like any other day.
 I like my deploys boring. So I wire up pipelines that test, build and ship on their own, on servers I can still reason about at 3 a.m.
-Tools: Docker, AWS, GitHub Actions, Nginx, Linux
-Detken moved production off Vercel onto servers we control.
+Tools: Docker, Linux & Nginx, AWS, Cloudflare, Vercel, GitHub Actions, Sentry, Security testing
+Detken moved production off Vercel onto servers we control, for up to 70% less.
 
 ### Store — Every app is a memory, really.
 Somewhere, it has to remember who you are and what you did. I pick the right place to keep it, and shape it so it still makes sense a year from now.
-Tools: PostgreSQL, MongoDB, Redis, Convex
+Tools: PostgreSQL & PostGIS, Convex, Prisma, MongoDB, Redis, S3
 Games of the Generals keeps every move in sync, for every player.
 
 ### Play — And sometimes, I just play.
 Game engines, AI, capture-the-flag forensics. The weekend detours are where most of my favourite what ifs come from.
-Tools: Unreal Engine, C++, Gemini AI, CTF forensics
-Hack4Gov regional CTF champion, 2024. Yes, it counts.
+Tools: AI (OpenAI, Gemini, Claude), Maps & GIS, Payments (Stripe, PayMongo), Unreal Engine & C++, CTF forensics
+Hack4Gov 2nd highest scorer at the 2025 national finals. Yes, it counts.
 
 ## Toolbox
 
-- Building: Next.js, React, Vue & Nuxt, NestJS, TypeScript
-- Keeping it alive: Docker, AWS, GitHub Actions, Nginx, Linux
-- Remembering things: PostgreSQL, MongoDB, Redis, Convex
-- Curveballs: Unreal Engine, C++, Gemini AI, CTF forensics
+- Building: TypeScript, React, Next.js, TanStack Start, Vue & Nuxt, NestJS, Expo & React Native, Shopify storefronts, macOS apps (Electrobun)
+- Keeping it alive: Docker, Linux & Nginx, AWS, Cloudflare, Vercel, GitHub Actions, Sentry, Security testing
+- Remembering things: PostgreSQL & PostGIS, Convex, Prisma, MongoDB, Redis, S3
+- Curveballs: AI (OpenAI, Gemini, Claude), Maps & GIS, Payments (Stripe, PayMongo), Unreal Engine & C++, CTF forensics
 
 ## Experience
 
@@ -55,57 +55,415 @@ Three years solving strangers' problems in real time. The best empathy training 
 Jan — Jul 2024
 Started as an apprentice, shipped full-stack within six months. Vue, Nuxt, Express — learned fast, built faster.
 
+### Solutions Architect — Merchkins
+Apr 2024 — Mar 2026
+Designed and ran the platform behind MerchTrack, later Merchkins: 2,750 people in its first week, Docker on AWS Lightsail behind CloudFront, and pipelines that ship on their own.
+
 ### Lead Game Programmer (Intern) — ADNU Digital Illustration & Animation
 Jun — Jul 2024
 Built core gameplay mechanics in Unreal Engine 4 with C++. Yes, games count as software.
 
 ### Webmaster — ThePILLARS Publication
-Aug 2024 — now
+Aug 2024 — Jun 2025
 The person they call so the site never goes down. Deployments, security, and automating the boring parts.
 
 ### DevOps Engineer — Detken Development
 Apr 2025 — now
-Moved production off Vercel onto servers we control, wired up pipelines that deploy themselves, and locked the doors properly.
+Moved production off Vercel onto servers we control and cut hosting costs by up to 70%. Hardened the Linux boxes, added monitoring, and wired up pipelines that test and deploy themselves.
+
+### Senior Webmaster — ThePILLARS Publication
+Jun 2025 — Jun 2026
+Owned the publication's web architecture and infrastructure decisions, and picked the stack for the long run.
 
 ### Software Developer Intern — Old.St Labs
 Jun — Sep 2025
-Built digital products with a team that ships fast — Next.js in front, NestJS in back.
+Built an internal app for the company with Next.js and Convex.
 
 ## Selected work
 
-### MerchTrack
+### Project Relay (2026, Client work)
+An applicant tracking system that screens every applicant.
+A recruiting platform for a remote-staffing agency: public apply links, AI screening of every applicant, a live pipeline board and a portal for the agency's own clients. I was the only engineer, end to end.
+Client: A remote-staffing agency. Confidential: the name is a codename and client details are left out.
+Role: Sole engineer, from the first commit to production
+- Public apply links, with AI screening of every applicant's resume and intro video against a score bar, using OpenAI and Gemini.
+- A live, multiplayer pipeline board from applied to placed, with interviews, assessments and offers.
+- A client portal where the agency's customers review shortlists and give feedback.
+- A data model of 145 tables on Convex, with background workflows, migrations and transactional email.
+- A backfill and sync of the agency's history from its old tools, and a talent-pool search rebuilt so filters stay fast at that size.
+- An in-app assistant that answers questions about the pipeline.
+- Media on AWS S3 and CloudFront, error tracking in Sentry, analytics in PostHog, and end-to-end tests in Playwright.
+Result: About 280,000 applications in the system
+Result: 1,201 commits from April to November 2026, all mine
+Tech: React, Vite, Convex, OpenAI, Gemini, AWS, Sentry, Playwright
+Page: https://gabcat.dev/work/project-relay
+
+### Project Pulse (2026, Client work)
+Async standups in thirty seconds.
+A team app that replaces the daily standup: everyone posts what they did, what's next and what's blocking them, and managers read it before their first coffee. I led product development and shipped it end to end.
+Client: A SaaS startup. Confidential: the name is a codename and client details are left out.
+Role: Led product development and shipped features end to end
+- Updates, a team feed, goals and blockers, with reports over any date range.
+- A daily AI briefing for managers, written with OpenAI.
+- Voice-note asks, presence, and a live demo anyone can try without signing up.
+- Billing and trials on Stripe, sign-in on WorkOS, and an operations console for the team.
+- Deploys on Cloudflare Workers with files on R2, and product analytics in PostHog.
+Result: 221 commits from March to November 2026
+Tech: TanStack Start, Convex, Cloudflare Workers, Stripe, WorkOS, OpenAI, PostHog
+Page: https://gabcat.dev/work/project-pulse
+
+### Project Meridian (2026, Client work)
+Property disclosure data for California real estate.
+A geocoding and property-disclosure platform for California homes. I built tax-data scrapers, worked on the customer site and portals, validated the cost and property models, and ran security testing on the infrastructure.
+Client: A US property-data company. Confidential: the name is a codename and client details are left out.
+Role: Engineer on data pipelines, portals and security testing
+- Special-tax and county tax-bill scrapers across California counties, synced into the production database on AWS RDS.
+- Parts of the public site and customer portal: report ordering, Stripe checkout, a shared-report viewer and QR-coded public reports.
+- Order emails and a public report API in the FastAPI admin console.
+- A validation of the construction-cost engine against 5,466 Southern California homes.
+- A machine-learning model that predicts a property's size and stories, tested on 168 held-out counties.
+- Vulnerability assessments, penetration testing and automated infrastructure checks.
+- An EPA site layer and residential filtering on the hazard-analysis map.
+Tech: Python, FastAPI, Docker, AWS, PostGIS, React, Next.js, Stripe
+Page: https://gabcat.dev/work/project-meridian
+
+### Project Lineup (2026, Client work)
+A marketplace of pre-vetted remote candidates.
+A public marketplace where companies browse pre-vetted remote candidates, watch a short intro video and request an interview. Candidates arrive from Project Relay through a signed API.
+Client: A remote-staffing agency. Confidential: the name is a codename and client details are left out.
+Role: Sole engineer
+- Privacy-safe public profiles with shareable links and generated social images.
+- Resume parsing with OCR and structured AI output.
+- AI checks on the quality of each intro video's photo and framing, with ffmpeg.
+- Private spaces for individual clients, each with its own shortlist and links.
+- Lead capture and a sales portal for the agency's team.
+Tech: TanStack Start, Cloudflare, Convex, Clerk, AWS S3, ffmpeg
+Page: https://gabcat.dev/work/project-lineup
+
+### Project Outreach (2026, Client work)
+An AI agent that finds employers and books interviews.
+An outbound engine that finds companies hiring for roles the agency can fill, emails each one a single vetted candidate, then lets an AI agent answer the replies and book the interview.
+Client: A remote-staffing agency. Confidential: the name is a codename and client details are left out.
+Role: Sole engineer
+- A daily job search, with company enrichment and email verification.
+- Matching against the candidate pool in Project Relay, with a person approving each send.
+- Paced sending through the Gmail API across rotating mailboxes.
+- One model classifies each reply, another drafts the answer with calendar tools, and a guard checks it before it goes.
+- Google Calendar invites with Meet links, and a follow-up after each interview.
+Tech: TanStack Start, Convex, Clerk, AI SDK, Gmail API, Google Calendar
+Page: https://gabcat.dev/work/project-outreach
+
+### Project Beacon (2026, Client work)
+A marketing site for a remote-hiring agency.
+The agency's public site, redesigned and rebuilt from the ground up, then deployed and cut over to the live domain.
+Client: A remote-staffing agency. Confidential: the name is a codename and client details are left out.
+Role: Redesign and rebuild
+- A new design and build in TanStack Start, with a Three.js scene.
+- Pages for clients and for candidates, each leading to its own sign-up.
+- The deployment and the switch-over to the agency's live domain.
+Tech: TanStack Start, Three.js, Supabase
+Page: https://gabcat.dev/work/project-beacon
+
+### Project Thread (2026, Client work)
+A Shopify store for a children's clothing brand.
+A Shopify store built from the brand's price sheet: the full catalogue, sizes and stock, policies and launch content, ready to open.
+Client: An international children's clothing brand. Confidential: the name is a codename and client details are left out.
+Role: Store build and launch
+- A catalogue import from the brand's price sheet: 84 products and 356 size variants.
+- Stock levels applied across every product and size.
+- Theme setup, store policies and product copy.
+- Short launch videos for social.
+Tech: Shopify, CSV imports, Theme customization
+Page: https://gabcat.dev/work/project-thread
+
+### Project Tollgate (2026, Client work)
+A self-service payment kiosk for a college.
+A kiosk where students tap their ID, see what they owe and pay tuition, fees and bookstore items by QR, or print a cash slip the cashier scans.
+Client: A Philippine college. Confidential: the name is a codename and client details are left out.
+Role: Sole engineer, prototype
+- Student sign-in by RFID card or student number, with server-side lockout.
+- QR Ph payments through PayMongo, and cash slips the cashier scans to confirm.
+- A thermal-printer service on a Raspberry Pi for receipts.
+- A staff portal, print views, and a unit-tested ledger for installments and limits.
+- End-to-end tests in Playwright.
+Tech: TanStack Start, Convex, Clerk, PayMongo, Raspberry Pi, Playwright
+Status: A working prototype.
+Page: https://gabcat.dev/work/project-tollgate
+
+### Project Bulletin (2026, Client work)
+A real-time news app with AI summaries.
+A news app for a regional outlet: stories arrive in real time, each with a short AI summary, on a mobile app readers install.
+Client: A regional news outlet. Confidential: the name is a codename and client details are left out.
+Role: Back end and mobile app
+- A FastAPI back end with layered services and media storage in GridFS.
+- Story summaries written by Gemini.
+- The Expo and React Native app readers use.
+Tech: FastAPI, MongoDB, Gemini, Expo, React Native
+Page: https://gabcat.dev/work/project-bulletin
+
+### Project Keystone (2025 – 2026, Client work)
+Production moved off Vercel, for up to 70% less.
+The production infrastructure for a creator-content platform: moved from Vercel to servers we control, hardened, monitored, and deployed by pipelines with a way back.
+Client: A creator-content platform. Confidential: the name is a codename and client details are left out.
+Role: DevOps engineer
+- The migration from Vercel to a self-hosted VPS, with testing and rollback plans so the switch had almost no downtime.
+- GitHub Actions workflows for production deploys and one-step rollbacks.
+- Linux hardening, access controls, package updates and uptime monitoring.
+- Logging for first loads and errors in production.
+Result: Hosting costs cut by up to 70%
+Tech: Linux, Nginx, Docker, GitHub Actions, Monitoring
+Page: https://gabcat.dev/work/project-keystone
+
+### MerchTrack (2025, Products)
 University merch, minus the chaos.
-An e-commerce platform for campus merchandise. 2,750+ students used it in the first week — the servers held, and so did I.
-Tech: Next.js, PostgreSQL, Redis
-Link: https://github.com/gab-cat
+An online store where student organizations sell their merch, take payments and hand out orders. It launched on March 25, 2025 and had about 2,750 people in its first week. The servers held, and so did I.
+Role: Solutions architect, led a team of five
+- The storefront, checkout and order tracking in Next.js, with Prisma on PostgreSQL and Redis.
+- Tools for organizations to track orders, payments and fulfillment in one place.
+- Docker on AWS Lightsail behind CloudFront, with GitHub Actions pipelines that test and deploy every change.
+- Sentry error tracking that caught checkout validation errors in production.
+- A companion mobile app in Expo and React Native.
+- The multi-tenant rebuild, Merchkins, on Next.js 16, Convex and Clerk, so any organization can open its own store.
+Result: About 2,750 unique users in the first week
+Result: 202 commits across the main repo
+Tech: Next.js, PostgreSQL, Prisma, Redis, Docker, AWS, Sentry, Expo
+Status: The store is offline while it moves to the Merchkins name. The code is public.
+Page: https://gabcat.dev/work/merchtrack
+Code: https://github.com/gab-cat/merchtrack
 
-### CS Guild
-A digital home for computer studies students.
-The hub where AdNU's computer studies community gathers — events, projects, and people. I lead the tech behind it as CTO.
-Tech: Next.js, NestJS
-Link: https://csguild.tech
-
-### Games of the Generals
+### Games of the Generals (2025 – 2026, Games)
 The classic Filipino strategy game, now online.
-Real-time multiplayer for the board game every Filipino household argues over. Play your friends from anywhere.
-Tech: Convex, Vite, Realtime
-Link: https://github.com/gab-cat
+Real-time multiplayer for the board game every Filipino household argues over. Play friends from anywhere, or a computer opponent when nobody is around.
+Role: Solo
+- Real-time matches on Convex, so every move lands on both boards at once.
+- Computer opponents, spectating, tournaments, achievements and in-game chat.
+- Sign-in with Convex Auth and email through Resend.
+- An installable app (PWA) built with React 19, Vite and TanStack Router.
+Result: Top 6 finalist, DOST Esports Game Dev Challenge 2.0
+Result: 205 commits, all solo
+Tech: React, Vite, TanStack Router, Convex, Resend, PWA
+Status: The live game is paused because hosting costs more than it earns. The code is open source.
+Page: https://gabcat.dev/work/games-of-the-generals
+Live: https://www.generalsonline.app
+Code: https://github.com/gab-cat/games-of-the-generals
 
-### Your Daily Tarot
+### Stormwatch (2025, Hackathons)
+Flood warnings for Naga City, before the water rises.
+A flood monitoring and prediction dashboard for Naga City, built for severe weather. It won AI.DEAS for Impact 2025 and a ₱100,000 seed grant.
+Role: Led cloud architecture and system development, team project
+- The flood monitoring dashboard in React and Vite, with live data on Convex.
+- City maps on Leaflet, with Clerk sign-in.
+- The cloud architecture behind the prototype that went through every judging round.
+Result: Champion, AI.DEAS for Impact 2025, representing Bicol at the national Philippine Startup Challenge
+Result: 1st runner-up, Idea2Startup+ Bloomberg Challenge, with a ₱100,000 seed grant
+Result: 3rd runner-up, Philippine Startup Challenge X, Region V
+Tech: React, Vite, Convex, Clerk, Leaflet
+Page: https://gabcat.dev/work/stormwatch
+Live: https://stormwatch.app
+Code: https://github.com/gab-cat/stormwatch-dashboard
+
+### Project Bedrock (2026, Products)
+Property due diligence for Naga City in 30 seconds.
+Drop a pin anywhere in Naga City and get a property report: flood, earthquake and landslide risk, terrain, access and an AI-written summary, ready as a PDF.
+Role: Solo
+- A spatial database on PostgreSQL and PostGIS, hosted on AWS Lightsail and queried through Prisma.
+- Data pipelines that pull UP NOAH 10 m LiDAR flood depths, PHIVOLCS fault lines, USGS earthquakes since 1970 and OpenStreetMap.
+- A map on MapLibre where the pin and the report stay in step.
+- A summary written by Gemini 2.5 Flash, and a downloadable PDF report.
+- A free snapshot for everyone, with the full report behind Clerk sign-in.
+Tech: TanStack Start, PostGIS, Prisma, AWS Lightsail, MapLibre, Gemini, Clerk
+Status: The code is private.
+Page: https://gabcat.dev/work/project-bedrock
+Live: https://project-bedrock-wheat.vercel.app
+
+### CS Guild (2025, School)
+A digital home for computer studies students.
+The hub where Ateneo de Naga's computer studies community gathers: events, projects, articles and an apprenticeship program. I led the tech behind it as CTO.
+Role: Chief technology officer, built the platform
+- The web app in Next.js 15 with Tailwind, TanStack Query and Zustand.
+- A NestJS API on PostgreSQL with Prisma, CQRS, Socket.IO and Google sign-in.
+- Event sign-ups, project sharing, a publishing space for student articles and an apprenticeship application portal.
+- RFID check-in for the guild's facility.
+Tech: Next.js, NestJS, PostgreSQL, Prisma, Socket.IO, Docker
+Status: csguild.tech is offline since the term ended. The code is public.
+Page: https://gabcat.dev/work/cs-guild
+Code: https://github.com/gab-cat/csguild-client
+
+### Your Daily Tarot (2025, Products)
 Your cards, read before your coffee.
-A Messenger bot that deals you a daily tarot reading, written by AI with suspiciously good intuition.
-Tech: Convex, Gemini, Messenger API
-Link: https://github.com/gab-cat
+A Messenger bot that deals you a daily tarot reading. Friends kept asking me for readings, so I built one that answers at any hour.
+Role: Solo, built in a day
+- A Facebook page with a Messenger bot that deals cards and answers questions.
+- Readings written by Gemini, with the conversation kept on Convex.
+- Mock payments through Xendit to try out paid readings.
+Tech: Convex, Gemini, Messenger API, Xendit, Bun
+Page: https://gabcat.dev/work/your-daily-tarot
+Live: https://www.facebook.com/profile.php?id=61581609587748
+Code: https://github.com/gab-cat/tarot-bot
+
+### Neon District (2026, Games)
+Run a nightclub in your browser.
+An isometric club-management game: build the floor, spin DJ sets, keep the bar stocked and the crowd dancing. It runs offline with original art and a soundtrack.
+Role: Solo
+- An isometric builder on PixiJS 8 with 108 items that rotate, move and sell back.
+- Guests who pay, drink, dance, book tables and start fights, plus staff you hire.
+- 70 levels, 22 achievement families and a city map with 18 plots.
+- A music system on Tone.js that mixes 28 recorded tracks across 7 genres.
+Tech: PixiJS, React, Zustand, Tone.js, Vitest, Playwright
+Status: Private for now.
+Page: https://gabcat.dev/work/neon-district
+
+### Voice Notes (2026, Tools)
+WhatsApp voice notes, read instead of played.
+A small floating macOS window that transcribes a WhatsApp voice note within two seconds of downloading it, then gives you a summary, a to-do list and a reply draft.
+Role: Solo
+- A menu-bar app on Electrobun and Bun that watches Downloads for new voice notes.
+- Transcripts with an English translation when the note isn't in English.
+- A summary, a to-do list and a chat about the note, with one-click reply drafts.
+Tech: Electrobun, Bun, React, Vite, Tailwind
+Page: https://gabcat.dev/work/voice-notes
+Live: https://gab-cat.github.io/voice-notes/
+Code: https://github.com/gab-cat/voice-notes
+
+### Focus Timer (2026, Tools)
+Keeps your Mac awake while you work.
+A compact macOS app that keeps the computer awake during focused work, long tasks, calls and presentations, and shows where the hours went.
+Role: Solo
+- A desktop window on Electrobun with a session timer and activity status.
+- Keep-awake through caffeinate, with an option to block sleep even with the lid closed and a safe restore after a crash.
+- An insights view with a heatmap of focus sessions.
+Tech: Electrobun, Bun, React, Vite, Tailwind
+Page: https://gabcat.dev/work/focus-timer
+Live: https://gab-cat.github.io/focus-timer/
+Code: https://github.com/gab-cat/focus-timer
+
+### FrontierAnalytics (2026, Products)
+Climate risk and property data for the Philippines.
+The home for my climate and property work in the Philippines, starting with Naga City. The landing page is a procedural 3D world drawn in the browser, with no downloaded models.
+Role: Solo
+- A procedural 3D landing world in React Three Fiber.
+- TanStack Start for the site, prerendered for speed.
+Tech: TanStack Start, React Three Fiber, Three.js
+Status: The code is private.
+Page: https://gabcat.dev/work/frontier-analytics
+Live: https://frontieranalytics.dev
+
+### Margin (2026, Tools)
+Turn your readings into flashcards and quizzes.
+A study tool that takes your PDFs, breaks them into knowledge cards and writes quizzes from them, then shows what you still miss.
+Role: Solo
+- Notebooks of source PDFs, preprocessed into knowledge cards.
+- Quiz generation with the Anthropic SDK, tuned to spend as few tokens as possible.
+- Results and analytics per notebook.
+Tech: TanStack Start, Convex, Clerk, Anthropic
+Status: Private while I rework it.
+Page: https://gabcat.dev/work/margin
+
+### Zenith (2025, Hackathons)
+A fitness tracker that kids and parents share.
+An AI fitness tracker where you log meals and activity by chat or photo. When the hackathon's twist asked us to design for kids, we made the parent log the data, so tracking becomes a conversation.
+Role: Team project
+- A mobile app in Expo and React Native with Clerk sign-in and Convex.
+- Meal and activity logging from chat and photos, read by Gemini.
+- A daily activity timeline for parent and child.
+Result: Most Adaptive Award, Cold Start Hackathon 2025 by Old.St Labs
+Tech: Expo, React Native, Convex, Clerk, Gemini
+Page: https://gabcat.dev/work/zenith
+Code: https://github.com/gab-cat/cold-start
+
+### VeriPHI (2025, Hackathons)
+An API that checks a business is real.
+An API that checks whether a business is who it says it is, using what the web knows about it. It took 2nd place at the SparkLabs Hackathon.
+Role: Team of three
+- The verification flow on Convex, with Gemini reading the evidence.
+- Web research through Browserbase and Firecrawl.
+- A React and Vite front end to run and review checks.
+Result: 2nd place, SparkLabs Hackathon Challenge 2025
+Tech: Convex, Gemini, Browserbase, Firecrawl, React, Vite
+Status: The code is private.
+Page: https://gabcat.dev/work/veriphi
+Live: https://veriphi.vercel.app
+
+### Lendr API (2025, Hackathons)
+Smart-contract lending behind a plain API.
+An API that hides smart contracts and wallets behind ordinary endpoints, so business systems can use them without blockchain code. It reached the Top 5 at Concati API Build Labs in Cebu.
+Role: Team project, API design
+- The API design that wraps wallet and smart-contract calls in plain requests, for use inside existing business systems.
+Result: Top 5 finalist, Concati API Build Labs 2025 (917 Ventures)
+Tech: REST API, Smart contracts, Wallets
+Page: https://gabcat.dev/work/lendr-api
+
+### Smart property manager (2025, Hackathons)
+Property management on smart contracts.
+A property management system driven by smart contracts, built for a smarter-cities theme. It placed 3rd of 54 teams at the Inventi Asia Hackathon.
+Role: Team of two
+- A Next.js and Convex web app with Clerk sign-in.
+- The smart-contract design behind the property records.
+- Native mobile clients with push notifications.
+Result: 3rd place of 54 teams, Inventi Asia Hackathon Challenge 2025
+Tech: Next.js, Convex, Clerk, Smart contracts, Kotlin, Swift
+Status: The code is private.
+Page: https://gabcat.dev/work/smart-property
+Live: https://inventi-hackathon.vercel.app
+
+### PRITS (2024, School)
+Nursing charts written while the nurse talks.
+The Patient Rounds Innovation and Transcription System: a mobile app that turns a nurse's speech and handwriting into typed charts during patient rounds.
+Role: Back end and mobile app, team project
+- An Express API on MongoDB with Mongoose, Socket.IO for live updates and email through Nodemailer.
+- The Expo and React Native app that nurses use on rounds.
+- Speech-to-text and handwriting-to-text in the charting flow.
+Tech: Express, MongoDB, Socket.IO, Expo, React Native
+Status: A school project; the code is private.
+Page: https://gabcat.dev/work/prits
+
+### gabcat.dev (2026, Products)
+This site.
+A portfolio drawn by one particle field that re-forms for every chapter. Raw WebGL2, prerendered pages and a contact form that survives its own database going down.
+Role: Solo
+- A WebGL2 particle field with nine figures, from a black hole to a radar sweep, in about 8 kB of drawing code.
+- Prerendered pages with structured data and llms.txt, scoring 97 or more on mobile Lighthouse.
+- A contact function on Vercel with rate limits that fall back to memory when Redis is away.
+Tech: React, Vite, WebGL2, Vercel, Redis
+Page: https://gabcat.dev/work/gabcat-dev
+Live: https://gabcat.dev
+Code: https://github.com/gab-cat/gab-portfolio-v2
 
 ## Recognition
 
-- 2025 · Champion · AI.DEAS for Impact — Represented Bicol on the national stage
-- 2025 · 2nd Place · SparkLabs Hackathon — VeriPHI — identity verification API
-- 2025 · 3rd Place · Inventi Asia Hackathon — Blockchain-powered property management
-- 2025 · Top 5 · Concati API Build Labs — Lendr API
-- 2024 · Champion · Regional Hack4Gov CTF — Cybersecurity capture-the-flag
-- 2024 · 2nd Highest Scorer · Hack4Gov National Finals — Nationwide cybersecurity finals
-- 2024 · 4× All-Star · Bell Canada · Quantrics — Top 10% performer, four times over
+- 2025 · 2nd highest scorer · Hack4Gov National Finals — Nationwide cybersecurity finals, DICT CERT-PH
+- 2025 · 1st runner-up · Hack4Gov CTF, Region V — Team OJO Gang; 2nd runner-up individually
+- 2025 · 3rd runner-up · Philippine Startup Challenge X, Region V — Stormwatch, flood warnings for Naga City
+- 2025 · Most Adaptive · Cold Start Hackathon — Zenith, a fitness tracker for parents and kids
+- 2025 · Top 6 · DOST Esports Game Dev Challenge 2.0 — Games of the Generals, national finals
+- 2025 · 2nd place · SparkLabs Hackathon — VeriPHI, a business verification API
+- 2025 · Top 5 · Concati API Build Labs — Lendr API, smart contracts behind plain endpoints
+- 2025 · 3rd place · Inventi Asia Hackathon — Smart-contract property management, of 54 teams
+- 2025 · Champion · AI.DEAS for Impact — Stormwatch; represented Bicol on the national stage
+- 2025 · 1st runner-up · Idea2Startup+ Bloomberg Challenge — Stormwatch; a ₱100,000 seed grant
+- 2025 · 5th place · SEEN 2025 CTF — Of 30+ teams, GDG on Campus PUP
+- 2025 · 17th place · University Capture The Flag 2025 — Nationwide university CTF, Trend Micro Philippines
+- 2024 · 5th highest scorer · 3rd National HackForGov CTF — Nationwide cybersecurity finals, DICT CERT-PH
+- 2024 · Champion · Regional HackForGov CTF — Region V cybersecurity capture-the-flag
+- 2024 · 4× All-Star · Bell Canada · Quantrics — Top 10% performer, four periods running (2022 – 2024)
+
+## Education
+
+- BS Computer Science, cum laude, Ateneo de Naga University (Aug 2022 — May 2026). Bronze Achievement Award. Metrobank Foundation ACCESS 4 scholar for all four years.
+
+## Community
+
+- Speaker, NICE Talks, Episode 1 (2026). On opening the terminal before you feel ready.
+- Chief Technology Officer, CS Guild, Ateneo de Naga (Jun — Dec 2025). Ran the guild's tech and its apprenticeship program, and built its platform.
+- Organizing committee, BYTE 2025, Ateneo ICT Center (Aug — Oct 2025). One of Bicol's largest tech expos, with 450+ attendees.
+
+## Certifications
+
+- GitHub Foundations, GitHub (2024)
+- MongoDB Node.js Developer Path, MongoDB (2024)
+- Master Nuxt 3, Full-Stack Complete Guide, Udemy (2024)
+- Unreal Engine 5: Soulslike Melee Combat System, Udemy (2024)
+- Docker for the Absolute Beginner, Udemy (2024)
 
 ## Contact
 

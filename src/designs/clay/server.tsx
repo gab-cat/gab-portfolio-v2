@@ -7,6 +7,7 @@ import NotFoundApp from "./pages/NotFoundApp";
 
 export const design: ServerDesign = {
   Frame,
-  pages: { home: HomeApp, contact: ContactApp, notFound: NotFoundApp },
+  // Clay predates /work; it shows its home page (with its Work chapter) there.
+  pages: { home: HomeApp, work: HomeApp, project: HomeApp, contact: ContactApp, notFound: NotFoundApp },
   head,
 };

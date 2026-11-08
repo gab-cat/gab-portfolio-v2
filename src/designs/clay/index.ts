@@ -11,6 +11,7 @@ const clay: Design = {
   async load(route) {
     if (route === "contact") return (await import("./pages/ContactApp")).default;
     if (route === "notFound") return (await import("./pages/NotFoundApp")).default;
+    // Clay predates /work; it shows its home page (with its Work chapter) there.
     return (await import("./pages/HomeApp")).default;
   },
 };

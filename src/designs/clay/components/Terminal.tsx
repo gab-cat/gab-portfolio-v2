@@ -57,10 +57,10 @@ function respond(raw: string): { lines: Line[]; clear?: boolean } {
       scrollLater("work");
       return {
         lines: [
-          ...PROJECTS.map(
-            (p): Line => ({
+          ...PROJECTS.filter((p) => p.featured).map(
+            (p, i): Line => ({
               kind: "accent",
-              text: `  ${p.index}. ${p.name} — ${p.tagline}`,
+              text: `  ${String(i + 1).padStart(2, "0")}. ${p.name} — ${p.tagline}`,
             }),
           ),
           { kind: "out", text: "scrolling you there…" },

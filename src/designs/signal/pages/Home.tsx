@@ -1,8 +1,8 @@
-import { ArrowUpRight, GithubLogo, LinkedinLogo } from "@phosphor-icons/react";
+import { ArrowRight, GithubLogo, LinkedinLogo } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { Link } from "../../../lib/router";
 import { dial, Dial } from "../Dial";
-import { CRAFTS, EMAIL, ROLES, SOCIALS, TROPHIES, WORK, hostOf } from "../content";
+import { ALL_WORK, CRAFTS, EMAIL, ROLES, SOCIALS, TROPHIES, WIN_YEARS, WORK, spell } from "../content";
 import { Magnetic } from "../Magnetic";
 import { Lines, Rise, Stagger } from "../reveal";
 import { FIGURE, FIGURES, WIDE, signal, smoothstep } from "../scene/stage";
@@ -211,8 +211,8 @@ export default function Home() {
 
         <section id="wins" className="sg-sec sg-right" aria-labelledby="wins-title">
           <div className="sg-copy">
-            <p className="sg-label">2024 – 2025 · Hackathons and CTFs</p>
-            <Lines id="wins-title" className="sg-h2" lines={["Seven podiums,", "so far."]} />
+            <p className="sg-label">{WIN_YEARS} · Hackathons, CTFs and awards</p>
+            <Lines id="wins-title" className="sg-h2" lines={[`${spell(TROPHIES.length)} awards,`, "so far."]} />
             <Stagger as="ol" className="sg-wins">
               {TROPHIES.map((trophy, i) => (
                 <li key={trophy.event} onPointerEnter={() => signal.focus(i)} onPointerLeave={() => signal.focus(null)}>
@@ -232,20 +232,27 @@ export default function Home() {
             <Lines id="work-title" className="sg-h2" lines={["Things people", "actually use."]} />
             <Stagger as="ul" className="sg-projects">
               {WORK.map((work) => (
-                <li key={work.name}>
-                  <a href={work.href} target="_blank" rel="noreferrer noopener">
+                <li key={work.slug}>
+                  <Link href={work.path}>
                     <span className="sg-pname">{work.name}</span>
                     <span className="sg-pmeta">
                       <span>{work.tagline}</span>
-                      <small>{work.tech.join(" / ")}</small>
+                      <small>{work.tech.slice(0, 4).join(" / ")}</small>
                     </span>
                     <span className="sg-plink">
-                      {work.live ? hostOf(work.href) : "GitHub"} <ArrowUpRight size={16} weight="bold" aria-hidden />
+                      {work.year} <ArrowRight size={16} weight="bold" aria-hidden />
                     </span>
-                  </a>
+                  </Link>
                 </li>
               ))}
             </Stagger>
+            <Rise className="sg-actions">
+              <Magnetic>
+                <Link className="sg-btn" href="/work">
+                  See all {ALL_WORK.length} projects <ArrowRight size={16} weight="bold" aria-hidden />
+                </Link>
+              </Magnetic>
+            </Rise>
           </div>
         </section>
 

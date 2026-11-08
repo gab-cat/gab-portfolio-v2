@@ -7,13 +7,13 @@ Light mode and dark mode are both first-class citizens (there's a toggle in the 
 
 ## Designs
 
-The same three routes (`/`, `/contact`, `404`) and the same facts (`src/data.ts`)
+The same routes (`/`, `/work`, `/work/<slug>`, `/contact`, `404`) and the same facts (`src/data.ts`)
 render through one design at a time. Each lives in `src/designs/<id>` and the build
 imports only the live one through the `@design` alias, so the others never ship.
 
 | Design | What it is | Status |
 | --- | --- | --- |
-| `signal` | One GPU particle field (36,000 points on desktop, custom GLSL) that re-forms for each chapter. The hero is a black hole: the disk orbits (inner edge fastest), its far side bends up over the shadow, and stars bend around it as they drift past. Then a travelling waveform, a lattice that twists like a puzzle, a dotted globe whose arcs carry light out of the Philippines to the countries the work has reached, a trophy with seven lights circling it, one per podium (hover a row to light its own), drifting dust, and a still "hello." whose full stop sends out rings that light the word as they pass. The contact page has a Lissajous curve that tunes in from noise to a crisp knot as you fill in the form; the 404 is a radar sweeping an empty sky. Every figure keeps moving and is complete the moment it appears. | **Live** |
+| `signal` | One GPU particle field (36,000 points on desktop, custom GLSL) that re-forms for each chapter. The hero is a black hole: the disk orbits (inner edge fastest), its far side bends up over the shadow, and stars bend around it as they drift past. Then a travelling waveform, a lattice that twists like a puzzle, a dotted globe whose arcs carry light out of the Philippines to the countries the work has reached, a trophy with a light circling it for every award in `src/data.ts` (hover a row to light its own), drifting dust, and a still "hello." whose full stop sends out rings that light the word as they pass. The contact page has a Lissajous curve that tunes in from noise to a crisp knot as you fill in the form; the 404 is a radar sweeping an empty sky. Every figure keeps moving and is complete the moment it appears. | **Live** |
 | `clay` | The hand-made clay world: procedural 3D machine hero, clay chapters, a postbox contact page, and the hero terminal (`help`, `coffee`, `sudo hire-me`). | Archived, still builds |
 
 - **Ship a different design:** change `LIVE_DESIGN` in `src/designs/live.ts`.
@@ -31,7 +31,7 @@ imports only the live one through the `@design` alias, so the others never ship.
 - [Tailwind CSS v4](https://tailwindcss.com), used by the clay design only
 - [Bun](https://bun.sh) for package management
 
-Production HTML is prerendered for `/` and `/contact`, with a `noindex` `404.html`.
+Production HTML is prerendered for `/`, `/work`, every project page at `/work/<slug>` and `/contact`, with a `noindex` `404.html`.
 Crawler files live at `/robots.txt`, `/sitemap.xml`, `/llms.txt`, and `/llms-full.txt`.
 Run `bun run check` to typecheck, test the contact API, build, and validate SEO artifacts.
 
@@ -70,7 +70,7 @@ If you edit it, update the hash; `bun run seo:check` fails until you do.
 
 ## Contact form and Vercel deployment
 
-The site now has two prerendered pages: `/` and `/contact`. Import this repository
+The site prerenders every page in `PAGE_PATHS` (`src/seo.ts`): home, the work index, one page per project, and contact. Import this repository
 into Vercel using the Vite preset. `vercel.json` builds the static pages and deploys
 `api/contact.ts` as a Node server function. The GitHub workflow validates tests and
 builds; it no longer publishes to GitHub Pages, which cannot run the endpoint.
@@ -145,3 +145,19 @@ Primary implementation references:
 [Vercel trusted IP headers](https://vercel.com/docs/headers/request-headers),
 [Resend send API](https://resend.com/docs/api-reference/emails/send-email),
 [Upstash REST commands](https://upstash.com/docs/redis/features/restapi).
+
+## Projects and client work
+
+Every project lives in `PROJECTS` in `src/data.ts` and gets its own page at
+`/work/<slug>`, listed on `/work` and in the sitemap, JSON-LD and llms files.
+Set `featured` to show one in the home page's Work chapter.
+
+Client and employer work appears under a codename (`Project Relay`,
+`Project Meridian`, …) with `confidential` describing the kind of client, never
+who. These entries carry no links. Their screenshots in `public/work/` were taken
+from public pages with brand names replaced, and logos, photos, people's names
+and floating widgets blurred or removed. Never add a client screenshot that
+shows candidate, customer or company data.
+
+`bun run seo:check` fails if a project links to the bare GitHub profile, uses a
+non-https link, repeats a slug, or has nothing under `built`.
