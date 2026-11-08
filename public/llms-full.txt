@@ -442,6 +442,8 @@ Code: https://github.com/gab-cat/gab-portfolio-v2
 - 2025 · Champion · AI.DEAS for Impact — Stormwatch; represented Bicol on the national stage
 - 2025 · 1st runner-up · Idea2Startup+ Bloomberg Challenge — Stormwatch; a ₱100,000 seed grant
 - 2025 · 5th place · SEEN 2025 CTF — Of 30+ teams, GDG on Campus PUP
+- 2025 · 17th place · University Capture The Flag 2025 — Nationwide university CTF, Trend Micro Philippines
+- 2024 · 5th highest scorer · 3rd National HackForGov CTF — Nationwide cybersecurity finals, DICT CERT-PH
 - 2024 · Champion · Regional HackForGov CTF — Region V cybersecurity capture-the-flag
 - 2024 · 4× All-Star · Bell Canada · Quantrics — Top 10% performer, four periods running (2022 – 2024)
 

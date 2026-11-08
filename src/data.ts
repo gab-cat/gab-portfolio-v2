@@ -754,6 +754,18 @@ export const TROPHIES = [
     detail: "Of 30+ teams, GDG on Campus PUP",
   },
   {
+    year: "2025",
+    place: "17th place",
+    event: "University Capture The Flag 2025",
+    detail: "Nationwide university CTF, Trend Micro Philippines",
+  },
+  {
+    year: "2024",
+    place: "5th highest scorer",
+    event: "3rd National HackForGov CTF",
+    detail: "Nationwide cybersecurity finals, DICT CERT-PH",
+  },
+  {
     year: "2024",
     place: "Champion",
     event: "Regional HackForGov CTF",
