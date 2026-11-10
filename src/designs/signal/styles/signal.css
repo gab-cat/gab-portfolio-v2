@@ -2098,6 +2098,29 @@ main:focus {
   .sg-build .sg-crafts li:nth-child(n + 3)::after {
     right: calc(100% + 5vw);
   }
+
+  /* Work: the list keeps left of 58vw, each project's line under its name, and the project's
+     world holds the room to its right while the list scrolls by (field.ts places it there). */
+  .sg-work .sg-wide {
+    max-width: calc(58vw - max(var(--gutter), 12vw));
+  }
+
+  .sg-work .sg-projects a {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 14px 32px;
+  }
+
+  .sg-work .sg-pname {
+    grid-area: 1 / 1;
+  }
+
+  .sg-work .sg-pmeta {
+    grid-area: 2 / 1;
+  }
+
+  .sg-work .sg-plink {
+    grid-area: 1 / 2;
+  }
 }
 
 @media (max-width: 820px) {

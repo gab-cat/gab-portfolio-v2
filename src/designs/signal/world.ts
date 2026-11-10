@@ -12,7 +12,7 @@ export function useWorld(world: World) {
     let raf = 0;
     const show = () => {
       raf = 0;
-      signal.show({ ...only(FIGURE.world), world: { seed, bands, rings, moons }, lift: window.scrollY });
+      signal.show({ ...only(FIGURE.world), world: { seed, bands, rings, moons }, lift: window.scrollY, layout: "page" });
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(show);

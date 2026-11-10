@@ -51,18 +51,31 @@ function useCalmWave() {
   }, []);
 }
 
-/** Blend the figure between chapters as the middle of the screen travels between them. */
+/** How far, in loops of the dust, the spread from the work planet to "hello." flies you through it. */
+const TRAVEL = 0.5;
+
+/**
+ * Blend the figure between chapters as the middle of the screen travels between
+ * them. The work chapter is choreographed by hand: on wide screens its planet
+ * rises with the heading, then holds the right of the screen while the list
+ * scrolls past, so pointing at any project shows that project's world. Once
+ * the list runs out, the planet spreads into dust that fills the screen and
+ * flies at you, and the dust gathers into "hello." as the call to action comes up.
+ */
 function useChapters(pointed: RefObject<Work | null>) {
   const [active, setActive] = useState(0);
   useEffect(() => {
     let raf = 0;
     const weights = new Array(FIGURES).fill(0);
     const sections = CHAPTERS.map((chapter) => document.getElementById(chapter.id)!);
+    const wide = window.matchMedia(WIDE);
     // Page positions are measured only when the layout changes, so each frame just reads scrollY.
     const middles: number[] = [];
     const copyTops: number[] = [];
     const workTitle = document.getElementById("work-title");
+    const workLast = document.querySelector("#work .sg-actions");
     let workMiddle = 0;
+    let workEnd = 0;
     let end = 1;
     const measure = () => {
       const y = window.scrollY;
@@ -74,7 +87,13 @@ function useChapters(pointed: RefObject<Work | null>) {
         copyTops[i] = (el.firstElementChild?.getBoundingClientRect().top ?? box.top) + y;
       });
       const title = workTitle?.getBoundingClientRect();
-      workMiddle = title ? title.top + y + title.height / 2 : 0;
+      workMiddle = title ? title.top + y + title.height / 2 : middles[WORK_CHAPTER];
+      // On wide screens the work chapter's planet holds beside its long list, so the chapter locks on when
+      // the heading reaches the top third, not when the list's middle passes. Elsewhere the planet sits
+      // above the heading and would land on the last chapter's copy that early.
+      if (wide.matches) middles[WORK_CHAPTER] = workMiddle + vh * 0.2;
+      const last = workLast?.getBoundingClientRect();
+      workEnd = last ? last.bottom + y : middles[WORK_CHAPTER];
       // Each chapter's station on the dial is where the page locks onto it.
       dial.stations = middles.map((middle) => Math.min(1, Math.max(0, (middle - vh / 2) / end)));
     };
@@ -92,21 +111,46 @@ function useChapters(pointed: RefObject<Work | null>) {
       const a = centres[i];
       const b = centres[Math.min(i + 1, centres.length - 1)];
       const raw = i >= centres.length - 1 || b === a ? 0 : Math.min(1, Math.max(0, -a / (b - a)));
-      const t = smoothstep(0.3, 0.7, raw);
-      const now = t > 0.5 ? i + 1 : i;
+      let t = smoothstep(0.3, 0.7, raw);
+      let chaos = Math.sin(Math.PI * t);
+      let travel = i > WORK_CHAPTER ? TRAVEL : 0;
       weights.fill(0);
-      weights[CHAPTERS[i].figure] += 1 - t;
-      if (i < CHAPTERS.length - 1) weights[CHAPTERS[i + 1].figure] += t;
+      if (i === WORK_CHAPTER) {
+        // From the list's last row leaving the bottom of the screen to "hello." locking on:
+        // the planet spreads into the dust first, then the dust gathers into the word.
+        const to = middles[i + 1] - vh / 2;
+        const from = Math.min(to - 1, Math.max(workEnd - vh * 0.85, middles[i] - vh / 2));
+        const p = Math.min(1, Math.max(0, (y - from) / Math.max(1, to - from)));
+        const spread = smoothstep(0, 0.35, p);
+        t = Math.min(spread, smoothstep(0.6, 1, p));
+        weights[FIGURE.world] = 1 - spread;
+        weights[FIGURE.drift] = spread - t;
+        weights[FIGURE.hello] = t;
+        chaos = 0.35 * Math.sin(Math.PI * spread) + Math.sin(Math.PI * t);
+        travel = p * TRAVEL;
+      } else {
+        weights[CHAPTERS[i].figure] += 1 - t;
+        if (i < CHAPTERS.length - 1) weights[CHAPTERS[i + 1].figure] += t;
+      }
+      const now = t > 0.5 ? i + 1 : i;
       const narrow = window.innerWidth < 820;
       // On phones the figure sits above the copy; fade it back as long copy scrolls up into it.
       // The work planet needs no fading: it rides along with its heading, so it never meets the list.
       const dim = narrow && now !== WORK_CHAPTER ? 0.1 + 0.9 * smoothstep(vh * 0.14, vh * 0.5, copyTops[now] - y) : 1;
-      const chaos = Math.sin(Math.PI * t);
-      // Where the planet rests: level with the heading on wide screens, just above it on phones.
-      const rest = narrow || window.innerWidth / vh < 1.1 ? vh * 0.19 + 150 : vh * 0.3;
+      const heading = workMiddle - y;
+      let lift: number;
+      if (wide.matches) {
+        // Wide screens: the planet rises with its heading to the middle of the screen, then holds there beside the list.
+        lift = Math.min(0, vh / 2 - heading);
+      } else {
+        // Elsewhere it rests level with the heading (just above it on phones) and scrolls away with it,
+        // no further than a screen above, so the dust it spreads into comes in from just off the top.
+        const rest = narrow || window.innerWidth / vh < 1.1 ? vh * 0.19 + 150 : vh * 0.3;
+        lift = Math.min(rest - heading, vh * 1.2);
+      }
       // Pointing at a project turns the planet into that project's world.
       const world = pointed.current ? worldOf(pointed.current) : HOME_WORLD;
-      signal.show({ weights: [...weights], chaos, dim, world, lift: rest - (workMiddle - y) });
+      signal.show({ weights: [...weights], chaos, dim, world, lift, travel });
       dial.progress = Math.min(1, Math.max(0, y / end));
       dial.noise = Math.max(chaos, Math.min(1, Math.abs(y - lastY) / 50));
       lastY = y;

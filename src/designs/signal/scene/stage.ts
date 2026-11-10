@@ -18,9 +18,10 @@ export const FIGURE = {
   lost: 7,
   lissajous: 8,
   sea: 9,
+  drift: 10,
 } as const;
 
-export const FIGURES = 10;
+export const FIGURES = 11;
 
 /** One light circles the wins trophy per award in src/data.ts. */
 export const LIGHTS = TROPHIES.length;
@@ -37,9 +38,10 @@ export type Scene = {
   shift?: number;
   /**
    * Which page's placements to use. The home page spreads its chapters out
-   * on wide screens; the contact page keeps its figures beside the form.
+   * on wide screens; the contact page keeps its figures beside the form; a
+   * project's page keeps its world beside the title.
    */
-  layout?: "home" | "contact";
+  layout?: "home" | "contact" | "page";
   /**
    * The world a project gets: a band on the planet for each thing built, a
    * ringlet for each tool it was built with, a moon for each result. The seed
@@ -49,6 +51,8 @@ export type Scene = {
   world?: World;
   /** How far the world's page has scrolled past its resting place, in CSS pixels; the planet goes up with it. */
   lift?: number;
+  /** How far the drifting dust has flown toward us beyond its own slow drift, in loops of the field (scroll-driven). */
+  travel?: number;
 };
 
 export type World = { seed: string; bands: number; rings: number; moons: number };

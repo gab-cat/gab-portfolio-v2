@@ -22,8 +22,8 @@ import { LAND_COLS, LAND_ROWS, landGrid } from "./land";
  * Signal: one particle system that re-forms into a different figure for each
  * part of the site. Figures, in order (see FIGURE in stage.ts):
  *   0 black hole  1 waveform  2 lattice  3 globe  4 trophy  5 a project's world  6 hello  7 radar
- *   8 Lissajous  9 the sea every page ends on
- * Every particle carries all ten destinations; pages blend between them and
+ *   8 Lissajous  9 the sea every page ends on  10 dust drifting toward us
+ * Every particle carries all eleven destinations; pages blend between them and
  * a burst of noise hides the seams. Plain WebGL2, no 3D library: the whole
  * field is one draw call.
  */
@@ -575,6 +575,21 @@ function sea(count: number, tint: Float32Array) {
 }
 
 /**
+ * Dust filling the screen at every depth, for the home page's spread from the
+ * work planet to "hello.". Targets are (across, up, depth, unused), each from
+ * -1 to 1 or 0 to 1; the shader stretches them to the screen and flies them at us.
+ */
+function dust(count: number, tint: Float32Array) {
+  const out = new Float32Array(count * 4);
+  const rand = rng(23);
+  for (let i = 0; i < count; i++) {
+    out.set([rand() * 2 - 1, rand() * 2 - 1, rand(), 0], i * 4);
+    tint[i] = rand() < 0.07 ? 1 : 0;
+  }
+  return out;
+}
+
+/**
  * "hello.", held still. Its full stop is a beacon: it breathes, sends rings of
  * signal out across the word, and the letters light up as each ring passes.
  * Targets are (x, y, z, kind):
@@ -657,7 +672,7 @@ function skyOverNaga(out: Float32Array, at = Date.now()) {
 
 const glslVec = (v: Vec3) => `vec3(${v.map((n) => n.toFixed(5)).join(", ")})`;
 
-const ATTRIBUTES = ["t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "aRand", "aMask"] as const;
+const ATTRIBUTES = ["t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "aRand", "aMask"] as const;
 
 const vertex = /* glsl */ `#version 300 es
 precision highp float;
@@ -666,7 +681,7 @@ ${GLSL_NOISE}
 // One target per figure (see the generators above). The fourth slot usually
 // says what a particle is; each figure's function below reads it.
 in vec4 t0; in vec4 t1; in vec4 t2; in vec4 t3;
-in vec4 t4; in vec4 t5; in vec4 t6; in vec4 t7; in vec4 t8; in vec4 t9;
+in vec4 t4; in vec4 t5; in vec4 t6; in vec4 t7; in vec4 t8; in vec4 t9; in vec4 t10;
 in vec4 aRand;   // size, phase, spare, colour threshold
 in uint aMask;   // bit k: this particle is an orange accent in figure k
 uniform float uW[${FIGURES}];
@@ -685,6 +700,7 @@ uniform float uLift;       // how far the world's page has scrolled up, in world
 uniform vec4 uSky;         // the sun or moon: across the horizon (-1 to 1), height (0 to 1), day (1) or night (0), the moon's phase
 uniform vec3 uSea;         // the horizon, the top of the sky and the bottom edge, in world units
 uniform float uSeaW;       // half the screen's width, in world units
+uniform float uTravel;     // how far the drifting dust has been flown toward us by scrolling, in loops
 uniform float uTime;
 uniform float uChaos;
 uniform float uKick;
@@ -1075,6 +1091,16 @@ vec3 seaAt(vec4 t, out float lit, out float grow, out float tone) {
   return p;
 }
 
+// 10. Dust filling the screen at every depth (see dust() in field.ts), drifting toward us and
+// flown faster as the page scrolls (uTravel). It fades in far away and out as it passes, so the
+// loop never shows. Wide enough for any screen: it stretches with the screen's width.
+vec3 drift(vec4 t, out float lit, out float grow) {
+  float z = mod(t.z * 4.0 + uTime * 0.06 + uTravel * 4.0 + 3.4, 4.0) - 3.4;
+  lit = smoothstep(-3.4, -2.6, z) * smoothstep(0.6, 0.2, z);
+  grow = 1.0;
+  return vec3(t.x * uSeaW * 1.75, t.y * 2.6, z);
+}
+
 // 6. "hello." (see hello() in field.ts). The word holds still; its full stop is a beacon
 // (uBeacon: centre and radius) sending out a ring every few seconds, and the letters light
 // up as each ring washes over them.
@@ -1309,6 +1335,12 @@ void main() {
     lit += uW[9] * l;
     grow += uW[9] * g;
   }
+  if (uW[10] > 0.0005) {
+    // Filling the whole screen, so it has no placement.
+    P += uW[10] * drift(t10, l, g);
+    lit += uW[10] * l;
+    grow += uW[10] * g;
+  }
   float total = 0.0;
   for (int k = 0; k < ${FIGURES}; k++) total += uW[k];
   total = max(total, 1e-3);
@@ -1418,6 +1450,8 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
   mark(8);
   targets[9] = sea(COUNT, scratch);
   mark(9);
+  targets[10] = dust(COUNT, scratch);
+  mark(10);
   await breathe();
 
   // GPU side: one vertex array, one buffer per attribute. Rebuilt if the context is lost and restored.
@@ -1523,14 +1557,20 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
       { x: side, y: up - (narrow ? 0 : 0.08), s: fit * (narrow ? 0.8 : 0.95) },
       { x: -side, y: up, s: fit * (narrow ? 0.6 : 1) },
       // Work: the project's world beside its title; above the title on phones and portrait tablets.
-      narrow || tall
-        ? { x: 0, y: visH * 0.31, s: Math.min(narrow ? 0.42 : 0.5, (visW * 0.42) / (2.2 * WORLD_R)) }
-        : { x: visW * 0.5 - 2.55 * worldScale(visW), y: visH * 0.25, s: worldScale(visW) },
+      // The home page's wide layout gives it the room right of the project list (which ends at 58vw,
+      // see .sg-work in signal.css): centred there, small enough that its moons clear the list.
+      spread
+        ? { x: visW * 0.29, y: 0, s: Math.min(0.62, visW * 0.088) }
+        : narrow || tall
+          ? { x: 0, y: visH * 0.31, s: Math.min(narrow ? 0.42 : 0.5, (visW * 0.42) / (2.2 * WORLD_R)) }
+          : { x: visW * 0.5 - 2.55 * worldScale(visW), y: visH * 0.25, s: worldScale(visW) },
       { x: 0, y: narrow ? up : 0.62, s: fit * (narrow ? 0.9 : 1.45) },
       { x: narrow ? 0 : side * 0.95, y: narrow ? up * 1.1 : 0.05, s: fit * (narrow ? 0.75 : 0.9) },
       // Contact: the Lissajous curve beside the form.
       { x: narrow ? 0 : side * 1.1, y: narrow ? up : -0.1, s: fit * (narrow ? 0.65 : 0.95) },
       // The sea places itself on the screen, under the footer.
+      { x: 0, y: 0, s: 1 },
+      // The dust fills the screen.
       { x: 0, y: 0, s: 1 },
     ];
     p.forEach((pl, i) => {
@@ -1576,7 +1616,8 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
   let target: Scene = only(FIGURE.horizon);
   const weights = new Float32Array(FIGURES);
   weights[FIGURE.horizon] = 1;
-  const spins = new Float32Array([0, 0, 0.12, 0, 0, 0, 0, 0, 0, 0]);
+  const spins = new Float32Array(FIGURES);
+  spins[FIGURE.lattice] = 0.12;
   // The globe starts each visit with the Philippines turning in from the left, so
   // the arcs' meeting point is the first thing in view. Held still, it faces us.
   let turn = NAGA_FRONT;
@@ -1592,6 +1633,8 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
     storm: worldGoal.storm.slice(),
   };
   let lift = 0;
+  // How far scrolling has flown the drifting dust toward us.
+  let travel = 0;
   // The footer: how far the page has given way to the sea, and where the sea sits.
   let endingGoal: Ending = { amount: 0, horizon: 0, sky: 0, bottom: 0 };
   let ending = 0;
@@ -1618,7 +1661,7 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
   stage.start((_t, dt) => {
     if (lost || !gpu) return;
     const signature = () =>
-      weights.reduce((sum, w, i) => sum + w * (i + 1), 0) + chaos + dim + zoom + shift + lift + ending + endingGoal.horizon + amp + focusAmt + pointerAmt + camX + camY + pointerNow[0] + pointerNow[1];
+      weights.reduce((sum, w, i) => sum + w * (i + 1), 0) + chaos + dim + zoom + shift + lift + travel + ending + endingGoal.horizon + amp + focusAmt + pointerAmt + camX + camY + pointerNow[0] + pointerNow[1];
     const before = signature();
     if (!still) clock += dt;
     if (weights[3] < 0.02) turn = NAGA_FRONT - (still ? 0.3 : 0.8);
@@ -1635,6 +1678,8 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
     shift = damp(shift, target.shift ?? 0, 4, dt);
     // The lift trails the page by a frame or two, so the planet floats rather than sticks.
     lift = damp(lift, ((target.lift ?? 0) * visH) / Math.max(1, stage.height), still ? 60 : 22, dt);
+    // The dust coasts after the page stops, like a ship easing off the throttle.
+    travel = damp(travel, target.travel ?? 0, still ? 60 : 3, dt);
     const ease = 1 - Math.exp(-10 * dt);
     for (let i = 0; i < 3; i++) pointerNow[i] += (pointer[i] - pointerNow[i]) * ease;
     pointerAmt = damp(pointerAmt, pointerActive, 4, dt);
@@ -1700,6 +1745,7 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
     gl.uniform4fv(at("uSky"), sky);
     gl.uniform3fv(at("uSea"), seaPlace);
     gl.uniform1f(at("uSeaW"), visW / 2);
+    gl.uniform1f(at("uTravel"), travel);
     gl.uniform1f(at("uFocus"), focus);
     gl.uniform1f(at("uFocusAmt"), focusAmt);
     gl.uniform1f(at("uTime"), clock);
