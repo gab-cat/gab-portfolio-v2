@@ -1207,7 +1207,9 @@ vec3 lissajousAt(vec4 t, out float lit, out float grow) {
 const float SHADOW = ${SHADOW.toFixed(2)};
 const float INNER = ${INNER.toFixed(2)};
 const float OUTER = ${OUTER.toFixed(2)};
-const float TILT = 0.1;    // we see the disk almost edge on
+const float TILT = 0.16;   // we look down on the disk a little
+const float YAW = 0.38;    // and the whole hole is turned, its right side toward us, so perspective shows its depth
+const float DEPTH = 0.32;  // how far the near half comes toward us, so the camera's drift shows its depth
 const float ROLL = -0.24;  // and the whole view leans, so the disk climbs away from the copy
 const float LENS = 0.4;    // how hard starlight from behind is bent
 
@@ -1218,6 +1220,9 @@ vec2 lens(vec2 p, float behind) {
   float b = max(length(p), 1e-4);
   return p * (0.5 * (b + sqrt(b * b + 4.0 * LENS * behind)) / b);
 }
+
+// Turn a point of the hole about the vertical, right side toward us.
+vec3 yaw(vec3 p) { float c = cos(YAW), s = sin(YAW); return vec3(c * p.x - s * p.z, p.y, s * p.x + c * p.z); }
 
 // Where a black hole particle is this frame, plus how bright, how big and how hot it looks.
 vec3 hole(vec4 t, out float glow, out float size, out float hot) {
@@ -1231,9 +1236,9 @@ vec3 hole(vec4 t, out float glow, out float size, out float hot) {
     return vec3(roll(lens(s.xy, -s.z)), s.z * 0.08);
   }
   if (t.w > 1.5) {
-    // The photon ring: light that circled the hole once. Brighter on the side the disk swings toward us,
-    // with a faint haze (t.z = 1) spilling either side of it.
-    float a = t.y + uTime * 0.5;
+    // The photon ring: light that circled the hole once. It turns with the disk's image (clockwise on
+    // screen), brighter on the side the disk swings toward us, with a faint haze (t.z = 1) either side.
+    float a = t.y - uTime * 0.5;
     float lit = 0.5 + 0.5 * cos(a);
     glow = (0.5 + 0.5 * lit) * mix(1.0, 0.22, t.z);
     size = mix(0.75, 1.9, t.z);
@@ -1262,7 +1267,7 @@ vec3 hole(vec4 t, out float glow, out float size, out float hot) {
     size *= 0.85;
     return vec3(roll(vec2(cos(phi), sin(phi)) * (SHADOW * (1.05 + 0.3 * spread) + t.z * 0.6)), 0.0);
   }
-  if (s >= 0.0) return vec3(roll(vec2(c * r, t.z - s * r * TILT)), s * r * 0.12);
+  if (s >= 0.0) return vec3(roll(vec2(c * r, t.z - s * r * TILT)), s * r * DEPTH);
   // Light from the top of the far half, bent up and over the shadow: the arc above it. It leaves
   // the disk at either end and closes in on the shadow the further behind it the particle is.
   float phi = 2.0 * PI - a;
@@ -1270,7 +1275,7 @@ vec3 hole(vec4 t, out float glow, out float size, out float hot) {
   glow = min(1.0, glow * (1.0 + 0.8 * bend));
   size *= 1.0 + 0.3 * bend;
   float reach = mix(r, SHADOW * 1.1 + 0.2 * (r - INNER), bend) + t.z;
-  return vec3(roll(vec2(cos(phi), sin(phi)) * reach), s * r * 0.12);
+  return vec3(roll(vec2(cos(phi), sin(phi)) * reach), s * r * DEPTH * 0.4);
 }
 
 void main() {
@@ -1280,7 +1285,9 @@ void main() {
   float hot = 0.0;
   float l, g;
   if (uW[0] > 0.0005) {
-    P += uW[0] * (hole(t0, l, g, hot) * uScale[0] + uOff[0]);
+    vec3 h = hole(t0, l, g, hot);
+    // The stars stay a flat backdrop; only the hole itself is turned.
+    P += uW[0] * ((t0.w > 2.5 ? h : yaw(h)) * uScale[0] + uOff[0]);
     lit += uW[0] * l;
     grow += uW[0] * g;
   }
