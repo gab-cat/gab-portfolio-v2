@@ -1347,7 +1347,7 @@ void main() {
   lit /= total;
   grow /= total;
 
-  float turbulence = uChaos * 0.9 + uKick * 1.5 + (1.0 - uIntro) * 3.2;
+  float turbulence = uChaos * 0.9 + uKick * 1.5;
   vec3 q = P * 0.9 + vec3(0.0, 0.0, uTime * 0.15);
   P += vec3(snoise(q), snoise(q + 17.1), snoise(q + 31.7)) * turbulence;
   P += vec3(snoise(P * 2.0 + uTime * 0.3), snoise(P * 2.0 + 9.0 + uTime * 0.3), 0.0) * 0.012;
@@ -1371,7 +1371,7 @@ void main() {
     accent += uW[k] * (figureTone < 1.5 ? figureTone : own);
   }
   vAccent = accent;
-  vAlpha = lit * (0.35 + 0.65 * uIntro);
+  vAlpha = lit * (0.6 + 0.4 * uIntro);
 }
 `;
 
@@ -1398,6 +1398,9 @@ void main() {
 const DISPLAY = "'Mona Sans Variable', sans-serif";
 
 const rgb = (hex: string): Vec3 => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255) as Vec3;
+
+/** How long the dust takes to build the first figure. */
+const INTRO_SECONDS = 1.3;
 
 const THEMES = {
   dark: { ink: rgb("#f1ede6"), accent: rgb("#ff6a3d"), opacity: 0.9, gain: 1 },
@@ -1656,6 +1659,8 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
   let beat = 0;
   let zoom = 1;
   let shift = 0;
+  // The first visit opens on the dust and builds the page's figure out of it, the
+  // same way one figure turns into the next.
   let intro = still ? 1 : 0;
   let clock = 0;
   let camX = 0;
@@ -1673,7 +1678,8 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
     if (weights[3] < 0.02) turn = NAGA_FRONT - (still ? 0.3 : 0.8);
     else if (!still) turn += dt * 0.05;
     focusAmt = damp(focusAmt, focusTarget, still ? 14 : 8, dt);
-    intro = still ? 1 : damp(intro, 1, 1.6, dt);
+    intro = still ? 1 : Math.min(1, intro + Math.min(dt, 1 / 30) / INTRO_SECONDS);
+    const formed = intro < 0.5 ? 4 * intro ** 3 : 1 - (-2 * intro + 2) ** 3 / 2;
     for (let i = 0; i < FIGURES; i++) weights[i] = damp(weights[i], target.weights[i] ?? 0, still ? 14 : 7, dt);
     chaos = damp(chaos, still ? 0 : target.chaos, 6, dt);
     kick = still ? 0 : kick * Math.exp(-3.2 * dt);
@@ -1715,7 +1721,7 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
     // As the footer comes up, whatever the page shows settles into the sea.
     ending = damp(ending, endingGoal.amount, still ? 30 : 6, dt);
     if (Math.abs(ending - endingGoal.amount) > 1e-4) moving = true;
-    for (let i = 0; i < FIGURES; i++) drawn[i] = weights[i] * (1 - ending);
+    for (let i = 0; i < FIGURES; i++) drawn[i] = (weights[i] * formed + (i === FIGURE.drift ? 1 - formed : 0)) * (1 - ending);
     drawn[FIGURE.sea] += ending;
     const toWorld = (px: number) => ((stage.height / 2 - px) * visH) / Math.max(1, stage.height);
     seaPlace[0] = toWorld(endingGoal.horizon);
@@ -1755,9 +1761,9 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
     gl.uniform1f(at("uFocus"), focus);
     gl.uniform1f(at("uFocusAmt"), focusAmt);
     gl.uniform1f(at("uTime"), clock);
-    gl.uniform1f(at("uChaos"), chaos * (1 - ending) + Math.sin(Math.PI * ending) * 0.45);
+    gl.uniform1f(at("uChaos"), chaos * (1 - ending) + Math.sin(Math.PI * ending) * 0.45 + Math.sin(Math.PI * formed));
     gl.uniform1f(at("uKick"), kick);
-    gl.uniform1f(at("uIntro"), intro);
+    gl.uniform1f(at("uIntro"), formed);
     gl.uniform1f(at("uAmp"), amp);
     gl.uniform1f(at("uBeat"), beat);
     gl.uniform3fv(at("uPointer"), pointerNow);
