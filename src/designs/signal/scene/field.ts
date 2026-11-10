@@ -1380,12 +1380,18 @@ precision mediump float;
 uniform vec3 uInk;
 uniform vec3 uAccent;
 uniform float uOpacity;
+uniform float uGain;
 in float vAccent;
 in float vAlpha;
 out vec4 color;
 void main() {
-  float a = 1.0 - smoothstep(0.08, 0.5, length(gl_PointCoord - 0.5));
-  color = vec4(mix(uInk, uAccent, step(0.5, vAccent)), a * vAlpha * uOpacity);
+  // On paper dots don't add up the way light does on black, so each one gets a firmer
+  // core and its faint end is lifted (uGain 1 leaves it as it was). Opacity, which
+  // fades the field behind copy, still applies after.
+  float r = length(gl_PointCoord - 0.5);
+  float a = 1.0 - smoothstep(uGain > 1.0 ? 0.2 : 0.08, 0.5, r);
+  float lifted = uGain > 1.0 ? 1.0 - pow(1.0 - clamp(a * vAlpha, 0.0, 1.0), uGain) : a * vAlpha;
+  color = vec4(mix(uInk, uAccent, step(0.5, vAccent)), lifted * uOpacity);
 }
 `;
 
@@ -1394,8 +1400,8 @@ const DISPLAY = "'Mona Sans Variable', sans-serif";
 const rgb = (hex: string): Vec3 => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255) as Vec3;
 
 const THEMES = {
-  dark: { ink: rgb("#f1ede6"), accent: rgb("#ff6a3d"), opacity: 0.9 },
-  light: { ink: rgb("#141312"), accent: rgb("#e2480f"), opacity: 0.85 },
+  dark: { ink: rgb("#f1ede6"), accent: rgb("#ff6a3d"), opacity: 0.9, gain: 1 },
+  light: { ink: rgb("#141312"), accent: rgb("#e2480f"), opacity: 0.9, gain: 2.6 },
 };
 
 export async function createField(host: HTMLElement, onReady: () => void): Promise<FieldController | null> {
@@ -1765,6 +1771,7 @@ export async function createField(host: HTMLElement, onReady: () => void): Promi
     gl.uniform3fv(at("uInk"), theme.ink);
     gl.uniform3fv(at("uAccent"), theme.accent);
     gl.uniform1f(at("uOpacity"), theme.opacity * (dim + (1 - dim) * ending));
+    gl.uniform1f(at("uGain"), theme.gain);
     gl.bindVertexArray(gpu.vao);
     gl.drawArrays(gl.POINTS, 0, COUNT);
     gl.bindVertexArray(null);
