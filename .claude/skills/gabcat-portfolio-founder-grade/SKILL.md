@@ -11,6 +11,8 @@ description: >-
   change, a new or changed chapter or figure, a bug, the contact form, SEO, a
   redesign), or when the user asks for it: founder-grade, polish this, make it
   the best version, /gabcat-portfolio-founder-grade.
+  For UI or UX work (a screen, flow, layout, copy on a screen or a redesign), also
+  load founder-design.
 ---
 
 # Founder-grade in the gabcat.dev portfolio
@@ -25,6 +27,15 @@ This is Gab's own site and his calling card to clients, recruiters and hackathon
 judges. It is small and public, so every flaw is visible to everyone who visits.
 Ship work you would put your own name on, because it is Gab's name. The bar is an
 award-style site that still scores Lighthouse 97+ on mobile and 100 on desktop.
+
+## UI and UX work: load founder-design too
+
+When the concern is a screen, dialog, flow, layout, empty or error state, on-screen
+copy or a redesign, also load the global `founder-design` skill with the Skill tool
+(in `~/.claude/skills/founder-design/`) and follow its loop: real Before screenshots,
+research, mock-ups of every state on a temporary dev page, a proposal with Before and
+After, then the build once Gab picks. This edition stays in charge of how it gets
+built; founder-design decides what it should be.
 
 ## The five commitments
 
